@@ -1,0 +1,124 @@
+<html>
+<head>
+<title>menuBar.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(0,0,128); font-weight: bold; }
+.s3 { color: rgb(128,128,128); font-style: italic; }
+.s4 { color: rgb(0,0,255); }
+.s5 { color: rgb(128,128,128); font-weight: bold; font-style: italic; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+menuBar.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+ 
+angular.module(</span><span class="s0">'tocsinApp'</span><span class="s1">) 
+    .directive(</span><span class="s0">'menuBar'</span><span class="s1">, </span><span class="s2">function </span><span class="s1">($rootScope, InitService) { 
+        </span><span class="s2">return </span><span class="s1">{ 
+            templateUrl:</span><span class="s0">'views/menuBar.html'</span><span class="s1">, 
+            restrict: </span><span class="s0">'E'</span><span class="s1">, 
+            controller: </span><span class="s2">function</span><span class="s1">( $scope) { 
+                 </span><span class="s3">//&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp; set SpineFM Name</span><span class="s1"> 
+ 
+                </span><span class="s3">// watch setting current config's Name, Space not allowed</span><span class="s1"> 
+                $scope.$watch(</span><span class="s0">'spineFMNewName'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">() { 
+                    </span><span class="s2">if</span><span class="s1">( $scope.spineFMNewName!== undefined &amp;&amp; $scope.spineFMNewName!== </span><span class="s2">null</span><span class="s1">){ 
+                        $scope.spineFMNewName = $scope.spineFMNewName.replace(</span><span class="s4">/[^a-zA-Z0-9_-]/g</span><span class="s1">,</span><span class="s0">''</span><span class="s1">); 
+                        </span><span class="s3">// $scope.spineFMNewName = $scope.spineFMNewName.replace(/\s+/g,'_');</span><span class="s1"> 
+                    } 
+                }); 
+ 
+                </span><span class="s3">/**</span><span class="s1"> 
+                 </span><span class="s3">* set the spineFM instance's name</span><span class="s1"> 
+                 </span><span class="s3">* </span><span class="s5">@param </span><span class="s3">name</span><span class="s1"> 
+                 </span><span class="s3">*/</span><span class="s1"> 
+                $scope.setSpineFMName = </span><span class="s2">function</span><span class="s1">(name){ 
+                    InitService.setSpineFMName($rootScope.SpineFMID, name).then(</span><span class="s2">function</span><span class="s1">(){ 
+                            $rootScope.name = name; 
+                            console.log(</span><span class="s0">'spine fm name set'</span><span class="s1">); 
+                        }, 
+                        </span><span class="s2">function</span><span class="s1">(){ 
+                            window.alert(</span><span class="s0">'set spineFM name failed'</span><span class="s1">); 
+                        }); 
+                } ; 
+                </span><span class="s3">/**</span><span class="s1"> 
+                 </span><span class="s3">* validate the choice in modal for setting SpineFMName</span><span class="s1"> 
+                 </span><span class="s3">*/</span><span class="s1"> 
+                $scope.changeSpineFMName = </span><span class="s2">function </span><span class="s1">() { 
+ 
+                    </span><span class="s2">if</span><span class="s1">($scope.spineFMNewName  === </span><span class="s2">null</span><span class="s1">){ 
+                        window.alert(</span><span class="s0">'Give a name to your new instance'</span><span class="s1">); 
+                    } 
+                    </span><span class="s2">else </span><span class="s1">{ 
+                        $scope.setSpineFMName($scope.spineFMNewName); 
+                        $scope.openSetSpineNameModal = </span><span class="s2">false</span><span class="s1">; 
+                    } 
+                }; 
+                </span><span class="s3">/**</span><span class="s1"> 
+                 </span><span class="s3">* open modal for setting SpineFMName</span><span class="s1"> 
+                 </span><span class="s3">*/</span><span class="s1"> 
+                $scope.openSetName = </span><span class="s2">function </span><span class="s1">() { 
+                    $scope.openSetSpineNameModal = </span><span class="s2">true</span><span class="s1">; 
+                }; 
+                </span><span class="s3">/**</span><span class="s1"> 
+                 </span><span class="s3">*  cancel setting SpineFMName</span><span class="s1"> 
+                 </span><span class="s3">*/</span><span class="s1"> 
+ 
+                $scope.cancelSetName = </span><span class="s2">function</span><span class="s1">(){ 
+                    </span><span class="s2">if </span><span class="s1">($scope.spineFMNewName  !== </span><span class="s2">null</span><span class="s1">) { 
+                        </span><span class="s2">var </span><span class="s1">quit = window.confirm(</span><span class="s0">'Êtes- vous sûr de vouloir annuler le changement de nom ?'</span><span class="s1">); 
+                        </span><span class="s2">if</span><span class="s1">(quit){ 
+                            $scope.openSetSpineNameModal = </span><span class="s2">false</span><span class="s1">; 
+                        } 
+                    } 
+                    </span><span class="s2">else </span><span class="s1">{ 
+                        $scope.openSetSpineNameModal = </span><span class="s2">false</span><span class="s1">; 
+                    } 
+                }; 
+                </span><span class="s3">// &amp;&amp;&amp;&amp;&amp; configure mouse action  &amp;&amp;&amp;&amp;&amp;&amp;</span><span class="s1"> 
+                $scope.openMouseConfigurationModal = </span><span class="s2">function </span><span class="s1">() { 
+                    $scope.showMouseConfiguration = </span><span class="s2">true</span><span class="s1">; 
+                }; 
+                $scope.closeMouseConfigurationModal = </span><span class="s2">function </span><span class="s1">() { 
+                    $scope.showMouseConfiguration = </span><span class="s2">false</span><span class="s1">; 
+                }; 
+                </span><span class="s3">/**</span><span class="s1"> 
+                 </span><span class="s3">*</span><span class="s1"> 
+                 </span><span class="s3">*/</span><span class="s1"> 
+                $scope.validateMouseConfiguration = </span><span class="s2">function </span><span class="s1">() { 
+                    $scope.showMouseConfiguration = </span><span class="s2">false</span><span class="s1">; 
+                    </span><span class="s2">if </span><span class="s1">($rootScope.MouseConfigurationMode === </span><span class="s0">'allMenu'</span><span class="s1">) { 
+                        $rootScope.mouseMode = {all : </span><span class="s2">true</span><span class="s1">, select:</span><span class="s2">false</span><span class="s1">, deselect:</span><span class="s2">false</span><span class="s1">}; 
+                    } 
+                    </span><span class="s2">else if </span><span class="s1">($rootScope.MouseConfigurationMode === </span><span class="s0">'selectMenu'</span><span class="s1">) { 
+                        $rootScope.mouseMode = {all : </span><span class="s2">false</span><span class="s1">, select:</span><span class="s2">true</span><span class="s1">, deselect:</span><span class="s2">false</span><span class="s1">}; 
+                    } 
+                    </span><span class="s2">else if </span><span class="s1">($rootScope.MouseConfigurationMode === </span><span class="s0">'deselectMenu'</span><span class="s1">) { 
+                        $rootScope.mouseMode = {all : </span><span class="s2">false</span><span class="s1">, select:</span><span class="s2">false</span><span class="s1">, deselect:</span><span class="s2">true</span><span class="s1">}; 
+                    } 
+                    </span><span class="s2">else </span><span class="s1">{ 
+                        $rootScope.mouseMode = {all : </span><span class="s2">true</span><span class="s1">, select:</span><span class="s2">false</span><span class="s1">, deselect:</span><span class="s2">false</span><span class="s1">}; 
+                    } 
+                    console.log($rootScope.mouseMode); 
+                }; 
+                $scope.setMouseMode = </span><span class="s2">function </span><span class="s1">(mode) { 
+                    </span><span class="s2">if </span><span class="s1">(mode &amp;&amp; mode!== </span><span class="s2">null</span><span class="s1">) { 
+                        $rootScope.MouseConfigurationMode = mode.toString(); 
+                    } 
+                }; 
+            } 
+        }; 
+    }); 
+</span></pre>
+</body>
+</html>

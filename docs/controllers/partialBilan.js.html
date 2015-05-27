@@ -1,0 +1,189 @@
+<html>
+<head>
+<title>partialBilan.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(0,0,128); font-weight: bold; }
+.s3 { color: rgb(128,128,128); font-style: italic; }
+.s4 { color: rgb(128,128,128); font-weight: bold; font-style: italic; }
+.s5 { color: rgb(0,0,255); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+partialBilan.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+ 
+angular.module(</span><span class="s0">'tocsinApp'</span><span class="s1">) 
+    .controller(</span><span class="s0">'PartialBilanCtrl'</span><span class="s1">, </span><span class="s2">function </span><span class="s1">($scope, $rootScope, $routeParams, configManager) { 
+ 
+        </span><span class="s2">if</span><span class="s1">($rootScope.SpineFMID === undefined){ 
+            window.location.href = </span><span class="s0">'#/'</span><span class="s1">; 
+            </span><span class="s2">return</span><span class="s1">; 
+        } 
+        $scope.domainElement = $routeParams.domainelement; 
+        $scope.deConfigurations = $rootScope.configurations[$scope.domainElement]; 
+        $scope.compatiblesAndLinkedConfigs = []; 
+        $scope.listConfigurations = {linked : [] , valid : [], notValid : []}; 
+        $scope.openSetSpineNameModal = </span><span class="s2">false</span><span class="s1">; 
+        $scope.showMouseConfiguration = </span><span class="s2">false</span><span class="s1">; 
+        $scope.helpModal = </span><span class="s2">false</span><span class="s1">; 
+ 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* create new config, called when button create is clicked</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.createNewConfig = </span><span class="s2">function</span><span class="s1">(){ 
+            window.location.href = </span><span class="s0">'#/de/'</span><span class="s1">+$scope.domainElement; 
+        }; 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* getLinked : get number of linked configurations of the given configID from the given DE</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configID</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">currentDE</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{string}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getLinked = </span><span class="s2">function</span><span class="s1">(configID, currentDE){ 
+            </span><span class="s2">var </span><span class="s1">linked = </span><span class="s5">0</span><span class="s1">; 
+            </span><span class="s2">if</span><span class="s1">($rootScope.linkedConfig[configID]){ 
+                </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">l = </span><span class="s5">0</span><span class="s1">; l &lt; $rootScope.linkedConfig[configID].length; l++) { 
+                    </span><span class="s2">var </span><span class="s1">linkedConf = $rootScope.linkedConfig[configID][l]; 
+                    </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">m = </span><span class="s5">0</span><span class="s1">; m &lt; linkedConf.length; m++) { 
+                        </span><span class="s2">var </span><span class="s1">linkedID = linkedConf[m]; 
+                        </span><span class="s2">var </span><span class="s1">linkedDomain = $scope.getConfigDE(linkedID); 
+                        </span><span class="s2">if</span><span class="s1">(linkedDomain === currentDE){ 
+                            linked += </span><span class="s5">1 </span><span class="s1">; 
+                        } 
+                    } 
+                } 
+            } 
+            </span><span class="s2">return </span><span class="s1">linked; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* get compatibles config //</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configID</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">currentDE</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{number}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getCompatibles = </span><span class="s2">function </span><span class="s1">(configID, currentDE) { 
+            </span><span class="s2">var </span><span class="s1">compatibles = </span><span class="s5">0</span><span class="s1">; 
+            </span><span class="s2">if</span><span class="s1">($rootScope.compatiblesConf[currentDE]){ 
+                </span><span class="s2">if</span><span class="s1">($rootScope.compatiblesConf[currentDE].configCompatibles[configID]){ 
+                    compatibles = $rootScope.compatiblesConf[currentDE].configCompatibles[configID].length; 
+                } 
+            } 
+            </span><span class="s2">return </span><span class="s1">compatibles; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* get the DE on the given config</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configID</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{null}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getConfigDE = </span><span class="s2">function</span><span class="s1">(configID){ 
+            </span><span class="s2">var </span><span class="s1">response  = </span><span class="s2">null</span><span class="s1">; 
+            </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">de </span><span class="s2">in </span><span class="s1">$rootScope.configurations){ 
+                </span><span class="s2">var </span><span class="s1">deConfig = $rootScope.configurations[de]; 
+                </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">id </span><span class="s2">in </span><span class="s1">deConfig.validConfig.listConfigs){ 
+                    </span><span class="s2">if</span><span class="s1">(id === configID){ 
+                        response = de; 
+                    } 
+                } 
+            } 
+            </span><span class="s2">return </span><span class="s1">response; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* get the configs in the domain Element</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{Array}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+ 
+        $scope.getConfigs = </span><span class="s2">function</span><span class="s1">(){ 
+            </span><span class="s2">if</span><span class="s1">($rootScope.configurations[$scope.domainElement]) { 
+                </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">configID </span><span class="s2">in  </span><span class="s1">$rootScope.configurations[$scope.domainElement].validConfig.listConfigs){ 
+                    </span><span class="s2">if</span><span class="s1">($rootScope.configurations[$scope.domainElement].validConfig.listConfigs[configID]) { 
+                        </span><span class="s2">var </span><span class="s1">config = $rootScope.configurations[$scope.domainElement].validConfig.listConfigs[configID]; 
+                        </span><span class="s2">if</span><span class="s1">(config.isLinked === </span><span class="s2">true</span><span class="s1">) { 
+                            $scope.listConfigurations.linked.push(config); 
+                        } 
+                        </span><span class="s2">else </span><span class="s1">{ 
+                            $scope.listConfigurations.valid.push(config); 
+                        } 
+                    } 
+                } 
+                </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">confID </span><span class="s2">in  </span><span class="s1">$rootScope.configurations[$scope.domainElement].partialConfig.listConfigs){ 
+                    </span><span class="s2">if</span><span class="s1">($rootScope.configurations[$scope.domainElement].partialConfig.listConfigs[confID]) { 
+                        </span><span class="s2">var </span><span class="s1">configuration = $rootScope.configurations[$scope.domainElement].partialConfig.listConfigs[confID]; 
+                        $scope.listConfigurations.notValid.push(configuration); 
+                    } 
+                } 
+            } 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* check if a configurations is linkable with a the given de's configurations</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configID</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">de</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{boolean}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.isConfigLinkable = </span><span class="s2">function</span><span class="s1">(configID, de){ 
+            </span><span class="s2">var </span><span class="s1">isLinkable = </span><span class="s2">false</span><span class="s1">; 
+            configManager.checkIsConfigLinkable($rootScope.SpineFMID, configID, de).then(</span><span class="s2">function </span><span class="s1">(linkable) { 
+                    isLinkable = linkable; 
+                }, 
+                </span><span class="s2">function</span><span class="s1">(){ 
+                    </span><span class="s3">//alert(&quot;Echec de check config compatible with&quot;);</span><span class="s1"> 
+            }); 
+ 
+            </span><span class="s2">return </span><span class="s1">isLinkable; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* get the color of the configuration</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">config</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getConfigColor = </span><span class="s2">function</span><span class="s1">(config){ 
+            </span><span class="s2">var </span><span class="s1">response = </span><span class="s0">'isPartial'</span><span class="s1">; 
+            </span><span class="s2">if</span><span class="s1">(config.isLinked === </span><span class="s2">true</span><span class="s1">){ 
+                response  = </span><span class="s0">'linked'</span><span class="s1">; 
+            } 
+            </span><span class="s2">else if</span><span class="s1">(config.isLinked === </span><span class="s2">false</span><span class="s1">){ 
+                response = </span><span class="s0">'notLinked'</span><span class="s1">; 
+            } 
+            </span><span class="s2">else if</span><span class="s1">(config.isValid === </span><span class="s2">false</span><span class="s1">){ 
+                response = </span><span class="s0">'isPartial'</span><span class="s1">; 
+            } 
+            </span><span class="s2">return </span><span class="s1">response; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* check if there are configs with the given status</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">status</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{boolean}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.hasConfigs = </span><span class="s2">function</span><span class="s1">(status) { 
+            </span><span class="s2">return </span><span class="s1">$scope.listConfigurations[status].length &gt; </span><span class="s5">0</span><span class="s1">; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* start controller</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.start = </span><span class="s2">function</span><span class="s1">(){ 
+            $scope.getConfigs(); 
+        }; 
+ 
+</span><span class="s3">// $$$$$$$$$$$$$$$$$$$$$$$$$  start partial bilan controller $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><span class="s1"> 
+        $scope.start(); 
+ 
+    }); 
+</span></pre>
+</body>
+</html>

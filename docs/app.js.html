@@ -1,0 +1,66 @@
+<html>
+<head>
+<title>app.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(0,0,128); font-weight: bold; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+app.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+ 
+angular.module(</span><span class="s0">'tocsinApp'</span><span class="s1">, [</span><span class="s0">'ui.bootstrap'</span><span class="s1">,</span><span class="s0">'ngResource'</span><span class="s1">]) 
+    .config(</span><span class="s2">function </span><span class="s1">($routeProvider, $httpProvider) { 
+        </span><span class="s2">delete </span><span class="s1">$httpProvider.defaults.headers.common[</span><span class="s0">'X-Requested-With'</span><span class="s1">]; 
+        $routeProvider 
+            .when(</span><span class="s0">'/'</span><span class="s1">, { 
+                templateUrl: </span><span class="s0">'views/start.html'</span><span class="s1">, 
+                controller: </span><span class="s0">'StartCtrl'</span><span class="s1"> 
+            }) 
+            .when(</span><span class="s0">'/error'</span><span class="s1">, { 
+                templateUrl: </span><span class="s0">'views/error404.html'</span><span class="s1">, 
+                controller: </span><span class="s0">'StartCtrl'</span><span class="s1"> 
+            }) 
+            .when(</span><span class="s0">'/de/:domainelement'</span><span class="s1">, { 
+                templateUrl: </span><span class="s0">'views/configuration.html'</span><span class="s1">, 
+                controller: </span><span class="s0">'configurationCtrl'</span><span class="s1">, 
+                reloadOnSearch: </span><span class="s2">false</span><span class="s1"> 
+            }) 
+            .when(</span><span class="s0">'/de/:domainelement/ctx/:ctxID'</span><span class="s1">, { 
+                templateUrl: </span><span class="s0">'views/configuration.html'</span><span class="s1">, 
+                controller: </span><span class="s0">'configurationCtrl'</span><span class="s1">, 
+                reloadOnSearch: </span><span class="s2">false</span><span class="s1"> 
+            }) 
+            .when(</span><span class="s0">'/de/:domainelement/ctx/:deTarget/:ctxID'</span><span class="s1">, { 
+                templateUrl: </span><span class="s0">'views/configuration.html'</span><span class="s1">, 
+                controller: </span><span class="s0">'configurationCtrl'</span><span class="s1">, 
+                reloadOnSearch: </span><span class="s2">false</span><span class="s1"> 
+            }) 
+            .when(</span><span class="s0">'/bilan/:domainelement/ctx/:ctxID/:configID'</span><span class="s1">, { 
+                templateUrl: </span><span class="s0">'views/bilan.html'</span><span class="s1">, 
+                controller: </span><span class="s0">'BilanCtrl'</span><span class="s1"> 
+            }) 
+            .when(</span><span class="s0">'/bilan/:domainelement/'</span><span class="s1">, { 
+                templateUrl: </span><span class="s0">'views/partialBilan.html'</span><span class="s1">, 
+                controller: </span><span class="s0">'PartialBilanCtrl'</span><span class="s1"> 
+            }) 
+            .when(</span><span class="s0">'/global'</span><span class="s1">, { 
+                templateUrl: </span><span class="s0">'views/global.html'</span><span class="s1">, 
+                controller: </span><span class="s0">'GlobalCtrl'</span><span class="s1"> 
+            }) 
+ 
+          .otherwise({redirectTo: </span><span class="s0">'/error'</span><span class="s1">}); 
+    }); 
+</span></pre>
+</body>
+</html>

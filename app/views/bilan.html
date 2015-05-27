@@ -1,0 +1,134 @@
+<menu-bar></menu-bar>  <!-- menu bar -->
+
+
+<div class="container-fluid">
+    <div class="row-fluid">
+
+        <!-- central zone -->
+        <div id="middlezone" class="span9">
+            <!-- description on top -->
+            <div id="description" class="hero-unit" ng-show="showConfig">
+                <h3 ng-switch="currentConfig.isLinked"> Configuration of {{domainElement}} : <a href="" ng-click="openSetConfigName()" tooltip="Edit the name" tooltip-placement="bottom" tooltip-append-to-body="true">{{currentConfig.name}} <span class="icon-pencil icon-white"></span>
+                </a>
+                    <span ng-switch-when="false" class="label label-warning"> not linked</span>
+                    <span ng-switch-when="true" class="label label-success"> linked </span>
+
+                </h3>
+                <button class="btn btn-large btn-info" type="button" ng-click="open(domainElement,configID)"><i class="icon-info-sign icon-white"></i>View configuration</button>
+                </br>
+            </div>
+
+            <!-- Start Loading Spinner -->
+            <div>
+                <div style="text-align: center" ng-show="showProgress">
+                    <h1><i class="icon-spinner icon-spin icon-4px icon-large"></i></h1>
+                </div>
+            </div>
+            <!-- END Loading Spinner -->
+
+            <!-- Modal opened to set the current config's name when validating -->
+            <div modal="openSetConfigNameModal" options="options">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="cancelSetConfigName()">×</button>
+                    <h4>Setting Configuration name </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="control-group">
+                        <div class="controls">
+                            New Configuration's name:
+                            <form ng-submit="validateConfigName({});">
+                                <input type="text" ng-model="newName" autofocus="first"  ng-trim="false"/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-warning cancel" ng-click="cancelSetConfigName()"> Cancel </button>
+                    <button class="btn btn-success" ng-click="validateConfigName()"> Validate </button>
+                </div>
+            </div>
+            <!-- end modal -->
+
+            <!-- Start Modal showing selected features for the configuration (opened when 'view configuration' button is clicked)-->
+            <div modal="shouldBeOpen" options="options" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="close()">×</button>
+                    <h4 style="text-align: center ; color: darkseagreen"> {{currentViewing.name}} </h4>
+
+                </div>
+                <div class="modal-body" style="position: relative">
+                    <table class="table table-bordered">
+                        <caption><h4><b> Selected features </b></h4></caption>
+                        <tr>
+                            <th style="width: 30%"> Features </th>
+                            <th> Explanation </th>
+                        </tr>
+                        <tr ng-repeat="feat in getAllLevels() | orderBy: 'feature'">
+                            <td>{{feat.feature}} <img ng-src="{{feat.logo}}" width="40" height="50"/></td>
+                            <td>{{feat.explication}}</td>
+                        </tr>
+                    </table>
+
+                </div>
+                <div class="modal-footer" options="opt">
+                </div>
+            </div>
+            <!-- end Modal -->
+
+
+            </br>
+            <!-- Start 'bilan zone' with linked and compatibles configurattions-->
+            <div ng-show="showConfig">
+                <div ng-show="hasLinkedConfig">
+                    <div id="linkedConfigs" style="border-radius: 3px; padding: 5px;background-color: #AAAAAA; margin-bottom: 5px">
+                        <h4> Linked configurations </h4>
+                        <div ng-repeat="config in linkedConfig[configID]">
+                            <a ng-repeat="cfg in config" href="{{getConfigURL(cfg)}}"> {{getConfigValue(cfg)}}</a>
+                        </div>
+                    </div>
+                    <p></p>
+                </div>
+                <div ng-show="showCompatiblesDES()">
+                    <div ng-repeat="de in compatiblesDES[domainElement]" ng-show="isLinkableWith[de]" id="associated_{{de}}" style="border-radius: 6px; padding: 10px; background-color: #F2F2F2; border-style: solid" ng-style="{'border-color': {true: '#f8f8ff', false: colorsState.notFinishedConfig}[isDEHasConfigLinked(de)]}">
+                        <h4 ng-switch="isDEHasConfigLinked(de)" style="text-align: center"> <a ng-show="isAddNewAllowed(de)" href="#/de/{{de}}/ctx/{{domainElement}}/{{ctxID}}" ng-click=""> Create a {{de}}</a>
+                            <span ng-switch-when="false" class="label label-important"> to link </span>
+                        </h4>
+                        <table class="table table-bordered" ng-show="hasConfigsCompatibles(de)">
+
+                            <caption><hr width="10%" size="2" align="center">
+                                <h4> Link with a {{de}}</h4>
+                            </caption>
+                            <thead>
+                            <tr>
+                                <th>Choice</th>
+                                <th>Name</th>
+                                <th>Show</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="config in compatiblesConf[de].configCompatibles[configID]">
+                                <td> <!--ng-switch="isUniqueChoice(de)">
+                                    <input type="checkbox" ng-switch-when="false" value="{{config}}" ng-model="selectedConf" ng-checked="setSelectedConf(selectedConf)"/>
+                                   -->
+                                    <input type="radio"  name="configOptions" value="{{config}}" ng-model="selectedConf" ng-checked="setSelectedConf(selectedConf)"></td>
+                                <td>{{getConfigValue(config)}}</td>
+                                <td><button class="btn btn-info btn-small" type="button" href="#" ng-click="open(de,config)"><i class="icon-info-sign icon-white"></i>View configuration</button></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div style="text-align: right" ng-show=" hasConfigsCompatibles(de)">
+                            <button ng-click="linkConfigurations(configID, selectedConf)" href="#" class="btn"> <i class="icon-ok"></i> Validate {{de}}</button>
+                        </div>
+                    </div>
+                    </br>
+                </div>
+                </br>
+                <!--<div id="valideConf" style="text-align: center" ng-show="isAddNewAllowed(domainElement)">
+                    <button class="btn btn-primary" ng-click="cloneValidConfiguration()"> Duplicate </button>
+                </div>-->
+            </div>
+            <!-- end 'bilan zone' -->
+        </div>
+        <left-band></left-band> <!-- vertical band on right -->
+    </div>
+</div>

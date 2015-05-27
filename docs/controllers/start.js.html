@@ -1,0 +1,1154 @@
+<html>
+<head>
+<title>start.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(128,128,128); font-style: italic; }
+.s3 { color: rgb(0,0,128); font-weight: bold; }
+.s4 { color: rgb(0,0,255); }
+.s5 { color: rgb(128,128,128); font-weight: bold; font-style: italic; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+start.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+</span><span class="s2">/**</span><span class="s1"> 
+ </span><span class="s2">* Controller Start for start view and initialisation of different properties in domain Elements and their FMs</span><span class="s1"> 
+ </span><span class="s2">*/</span><span class="s1"> 
+angular.module(</span><span class="s0">'tocsinApp'</span><span class="s1">).controller(</span><span class="s0">'StartCtrl'</span><span class="s1">, </span><span class="s3">function </span><span class="s1">($scope, $rootScope, InitService, configManager, $filter) { 
+    $rootScope.version = </span><span class="s0">'0.0.2'</span><span class="s1">; 
+    $rootScope.defaultLevel = </span><span class="s4">1</span><span class="s1">; 
+    $rootScope.fm = {}; 
+    $rootScope.deFeatures = {}; 
+    $scope.featuresEvaluated = []; 
+    $scope.annotations = {}; 
+    $scope.unique = []; </span><span class="s2">//features unique by domain element</span><span class="s1"> 
+    $rootScope.domainElements = []; 
+    $rootScope.configurations = {}; 
+    $rootScope.validConfigs = {}; 
+    $rootScope.SpineFMID = undefined; 
+    $rootScope.DEProperties = {}; 
+    $rootScope.multiplicity = {}; 
+    $rootScope.compteurs = [</span><span class="s4">3</span><span class="s1">]; 
+    $rootScope.bounds = []; 
+    $rootScope.linkedConfig  = []; 
+    $rootScope.compatiblesDES = []; 
+    $rootScope.configsToLinkWithGlobal = []; </span><span class="s2">// partial config to link with global</span><span class="s1"> 
+    $rootScope.globalCtxID = </span><span class="s0">''</span><span class="s1">; 
+    $rootScope.colorsState = {}; 
+    $rootScope.descriptionDES = {}; 
+    $rootScope.configsToLink = []; 
+    $rootScope.zones = []; 
+    $rootScope.listSpineFM = []; 
+    $rootScope.links = []; 
+    $rootScope.hasConfigs = </span><span class="s3">false</span><span class="s1">; 
+    $scope.hasInstances = </span><span class="s3">false</span><span class="s1">; 
+    $scope.isNew = </span><span class="s3">true</span><span class="s1">; 
+    $rootScope.compatiblesConf  = {}; </span><span class="s2">// compatibles configs of configID in a specific compatible de</span><span class="s1"> 
+    $scope.configure = </span><span class="s3">false</span><span class="s1">; 
+    $scope.showProgress = </span><span class="s3">false</span><span class="s1">; 
+    $scope.spineFMName =</span><span class="s3">null</span><span class="s1">; 
+    $rootScope.name =</span><span class="s3">null</span><span class="s1">; 
+    $scope.isOpen = </span><span class="s3">false</span><span class="s1">; 
+    $scope.helpModal = </span><span class="s3">false</span><span class="s1">; 
+    $rootScope.isGenerateAllowed = </span><span class="s3">true</span><span class="s1">; 
+    $scope.openSetSpineNameModal = </span><span class="s3">false</span><span class="s1">; 
+    $scope.unavailableService = </span><span class="s3">false</span><span class="s1">; </span><span class="s2">// true if service is unavailable</span><span class="s1"> 
+    $scope.spineFMNewName = </span><span class="s3">null</span><span class="s1">; 
+    $rootScope.accordionType = </span><span class="s0">''</span><span class="s1">; 
+    $rootScope.images = []; 
+    $rootScope.ConfigsName = []; 
+    $scope.predicate = </span><span class="s0">'-modificationDate'</span><span class="s1">; 
+    $scope.instances = []; </span><span class="s2">// spineFM instances in DataTable format</span><span class="s1"> 
+    $rootScope.mouseMode = {all : </span><span class="s3">true</span><span class="s1">, select:</span><span class="s3">false</span><span class="s1">, deselect:</span><span class="s3">false</span><span class="s1">}; </span><span class="s2">// mouse event for selection/deselection</span><span class="s1"> 
+    $scope.showMouseConfiguration = </span><span class="s3">false</span><span class="s1">; 
+    $rootScope.MouseConfigurationMode = </span><span class="s0">'allMenu'</span><span class="s1">; 
+    $rootScope.deselectMenu = </span><span class="s0">'deselectMenu'</span><span class="s1">; 
+    $rootScope.selectMenu = </span><span class="s0">'selectMenu'</span><span class="s1">; 
+    $rootScope.allMenu = </span><span class="s0">'allMenu'</span><span class="s1">; 
+ 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Iitialize start view</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.start = </span><span class="s3">function</span><span class="s1">(){ 
+        InitService.initList().get(</span><span class="s3">function</span><span class="s1">(result){ 
+                $rootScope.listSpineFM = result; 
+ 
+                </span><span class="s3">if</span><span class="s1">($rootScope.listSpineFM.length &gt; </span><span class="s4">0</span><span class="s1">) { 
+                    $scope.hasInstances = </span><span class="s3">true</span><span class="s1">; 
+                    $scope.handleInstancesFormat(); 
+                    </span><span class="s3">var </span><span class="s1">pTable = $(</span><span class="s0">'#spineFMInstances'</span><span class="s1">).dataTable({ </span><span class="s2">// table with different parameters</span><span class="s1"> 
+                        </span><span class="s0">'aaData'</span><span class="s1">: $scope.instances, 
+                        </span><span class="s0">'sPaginationType'</span><span class="s1">: </span><span class="s0">'bootstrap'</span><span class="s1">, 
+                        </span><span class="s0">'iDisplayLength'</span><span class="s1">: </span><span class="s4">5</span><span class="s1">, 
+                        </span><span class="s0">'aLengthMenu'</span><span class="s1">: [[</span><span class="s4">5</span><span class="s1">, </span><span class="s4">10</span><span class="s1">, </span><span class="s4">25</span><span class="s1">, -</span><span class="s4">1</span><span class="s1">], [</span><span class="s4">5</span><span class="s1">, </span><span class="s4">10</span><span class="s1">, </span><span class="s4">25</span><span class="s1">, </span><span class="s0">'All'</span><span class="s1">]], 
+                        </span><span class="s0">'aoColumns'</span><span class="s1">: [ 
+                            { </span><span class="s0">'mDataProp'</span><span class="s1">: </span><span class="s0">'name'</span><span class="s1">, </span><span class="s0">'aTargets'</span><span class="s1">:[</span><span class="s4">0</span><span class="s1">]}, 
+                            { </span><span class="s0">'mDataProp'</span><span class="s1">: </span><span class="s0">'creationDate'</span><span class="s1">, </span><span class="s0">'aTargets'</span><span class="s1">:[</span><span class="s4">1</span><span class="s1">] }, 
+                            { </span><span class="s0">'mDataProp'</span><span class="s1">: </span><span class="s0">'modificationDate'</span><span class="s1">, </span><span class="s0">'aTargets'</span><span class="s1">:[</span><span class="s4">2</span><span class="s1">] } 
+                        ] 
+                    }); 
+                    $(</span><span class="s0">'table td'</span><span class="s1">).live(</span><span class="s0">'click'</span><span class="s1">,</span><span class="s3">function</span><span class="s1">(){ 
+                        </span><span class="s3">var </span><span class="s1">aPos = pTable.fnGetPosition(</span><span class="s3">this</span><span class="s1">); 
+                        </span><span class="s3">var </span><span class="s1">aData = pTable.fnGetData(aPos[</span><span class="s4">0</span><span class="s1">]); 
+                        $scope.handleExistingInstance(aData); 
+                    }); 
+                } 
+            }, 
+            </span><span class="s2">// error handling</span><span class="s1"> 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'Unavailable service, please re-try later !'</span><span class="s1">); 
+                $scope.isNew = </span><span class="s3">false</span><span class="s1">; 
+                $scope.unavailableService = </span><span class="s3">true</span><span class="s1">; 
+ 
+            }); 
+ 
+ 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* pre-load all images (feature's logo)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feat</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">imgsrc</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.loadImage =  </span><span class="s3">function</span><span class="s1">(feat, imgsrc) { 
+        </span><span class="s3">var </span><span class="s1">image = </span><span class="s3">new </span><span class="s1">Image(); 
+        image.onload = </span><span class="s3">function</span><span class="s1">(){ </span><span class="s2">// always fires the event.</span><span class="s1"> 
+            image.src = imgsrc; 
+        }; 
+        </span><span class="s2">// handle failure</span><span class="s1"> 
+        image.onerror = </span><span class="s3">function</span><span class="s1">(){ 
+            </span><span class="s3">return</span><span class="s1">; 
+        }; 
+        </span><span class="s2">//image.src = imgsrc;</span><span class="s1"> 
+        </span><span class="s3">if</span><span class="s1">(imgsrc !== undefined &amp;&amp; imgsrc !== </span><span class="s0">''</span><span class="s1">){ 
+            image.src = imgsrc; 
+            $rootScope.images[feat] = image; 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* change spineFM instances format for dataTables (properties in row)</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.handleInstancesFormat = </span><span class="s3">function</span><span class="s1">(){ 
+        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i&lt;$rootScope.listSpineFM.length; i++){ 
+            </span><span class="s3">var </span><span class="s1">instance = $rootScope.listSpineFM[i]; 
+            </span><span class="s3">var </span><span class="s1">created = $filter(</span><span class="s0">'date'</span><span class="s1">)(instance.creationDate, </span><span class="s0">'medium'</span><span class="s1">); 
+            </span><span class="s3">var </span><span class="s1">modified = $filter(</span><span class="s0">'date'</span><span class="s1">)(instance.modificationDate, </span><span class="s0">'medium'</span><span class="s1">); 
+            </span><span class="s3">var </span><span class="s1">name = </span><span class="s0">'' </span><span class="s1">; 
+            </span><span class="s3">if</span><span class="s1">(instance.description  === undefined || instance.description  === </span><span class="s3">null</span><span class="s1">) { 
+                name = </span><span class="s0">'UNKNOWN'</span><span class="s1">; 
+            } 
+            </span><span class="s3">else </span><span class="s1">{ 
+                name = instance.description; 
+            } 
+            $scope.instances.push({id: instance.uid, name:name, modificationDate:modified, creationDate:created}); 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* compute an existing spineFM instance</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">choice</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.handleExistingInstance = </span><span class="s3">function</span><span class="s1">(choice){ 
+        $rootScope.SpineFMID = choice.id; 
+        $rootScope.name = choice.name; 
+        $scope.isNew = </span><span class="s3">false</span><span class="s1">; 
+        $scope.hasInstances = </span><span class="s3">false</span><span class="s1">; 
+        $scope.initStartController(</span><span class="s3">true</span><span class="s1">); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* creating a  new SpineFM instance</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.createNewInstance = </span><span class="s3">function</span><span class="s1">(){ 
+        $scope.isNew = </span><span class="s3">false</span><span class="s1">; 
+        $scope.hasInstances = </span><span class="s3">false</span><span class="s1">; 
+        $scope.showProgress  = </span><span class="s3">true</span><span class="s1">; 
+        </span><span class="s3">if</span><span class="s1">(!$rootScope.SpineFMID &amp;&amp; $rootScope.compteurs[</span><span class="s4">0</span><span class="s1">] !== </span><span class="s0">'false'</span><span class="s1">) { 
+            InitService.initSpineFM().get(</span><span class="s3">function </span><span class="s1">(result) { 
+                    $scope.spineFMObject = result; 
+                    $rootScope.SpineFMID  = result.id; 
+                    $scope.setSpineFMNewName(); 
+                    $scope.initStartController(</span><span class="s3">false</span><span class="s1">); 
+                }, 
+                </span><span class="s2">// error handling  for initSpineFM</span><span class="s1"> 
+                </span><span class="s3">function</span><span class="s1">(result){ 
+                    $rootScope.compteurs[</span><span class="s4">0</span><span class="s1">] = </span><span class="s0">'false'</span><span class="s1">; 
+                    $scope.createNewInstance(); 
+                    $scope.failedRequest(result.status, </span><span class="s0">'initSpineFM'</span><span class="s1">) ; 
+ 
+                } 
+            ); 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* set the spineFM instance's name</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.setSpineFMNewName = </span><span class="s3">function</span><span class="s1">(){ 
+        InitService.setSpineFMName($rootScope.SpineFMID, $rootScope.name).then(</span><span class="s3">function</span><span class="s1">(){ 
+                console.log(</span><span class="s0">'spine fm name set'</span><span class="s1">); 
+            }, 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'set spineFM name failed'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* initialize the controller</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initStartController = </span><span class="s3">function</span><span class="s1">(exist) { 
+ 
+        $scope.showProgress = </span><span class="s3">true</span><span class="s1">; 
+        $scope.initDomainElements($rootScope.SpineFMID, exist); 
+        $scope.initProperties(); 
+        $scope.getGlobalCtxID(); 
+        $scope.initColors(); 
+        $scope.initDescription(); 
+        $scope.initLinks(); 
+ 
+    }; 
+ 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* initialize domain elements</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">id</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">exist</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initDomainElements = </span><span class="s3">function</span><span class="s1">(id, exist) { 
+ 
+        </span><span class="s3">if</span><span class="s1">( $rootScope.compteurs[</span><span class="s4">2</span><span class="s1">] === </span><span class="s0">'false'</span><span class="s1">){ 
+            window.alert(</span><span class="s0">'Impossible d</span><span class="s3">\'</span><span class="s0">avoir les domain element, réessayez plus tard!'</span><span class="s1">); 
+            $scope.unavailableService = </span><span class="s3">true</span><span class="s1">; 
+        } 
+ 
+        InitService.initDES(id).then(</span><span class="s3">function </span><span class="s1">(des) { 
+                $rootScope.domainElements = des.sort(); 
+                $scope.featuremodels = {}; 
+                $scope.initFeatureModels(des, exist); 
+ 
+            }, 
+            </span><span class="s2">//error handling for initDES</span><span class="s1"> 
+            </span><span class="s3">function</span><span class="s1">(des){ 
+                $rootScope.compteurs[</span><span class="s4">2</span><span class="s1">] = </span><span class="s0">'false'</span><span class="s1">; 
+                $scope.failedRequest(des.status, </span><span class="s0">'initDES'</span><span class="s1">) ; 
+                $scope.initDomainElements(id, exist); 
+ 
+            } 
+        ); 
+ 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*  initialize bounds properties</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initBounds =  </span><span class="s3">function</span><span class="s1">(de) { 
+        InitService.initBounds().get({SpineFMID: $rootScope.SpineFMID, DomainElement: de}, </span><span class="s3">function </span><span class="s1">(bounds) { 
+ 
+                $rootScope.bounds[de] = bounds; 
+            }, 
+            </span><span class="s2">// handle request error</span><span class="s1"> 
+            </span><span class="s3">function</span><span class="s1">(bounds){ 
+                $scope.failedRequest(bounds.status, </span><span class="s0">'initBounds'</span><span class="s1">) ; 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get linked configurations</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initLinks = </span><span class="s3">function</span><span class="s1">(){ 
+        InitService.getLinks($rootScope.SpineFMID).then(</span><span class="s3">function </span><span class="s1">(links) { 
+ 
+                $rootScope.links = links; 
+            }, 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'Echec du chargement des configs liées'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Initialize the configuration dictionary</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initConfigurationsDictionary = </span><span class="s3">function</span><span class="s1">(de) { 
+        $rootScope.configurations[de] = { 
+            </span><span class="s0">'partialConfig'</span><span class="s1">: { 
+                listConfigs: {}, 
+                number: </span><span class="s4">0</span><span class="s1"> 
+            }, 
+            </span><span class="s0">'validConfig'</span><span class="s1">: { 
+                listConfigs: {}, 
+                number: </span><span class="s4">0</span><span class="s1"> 
+            } 
+        }; 
+ 
+        $rootScope.validConfigs[de] = { 
+            linked:</span><span class="s4">0</span><span class="s1">, 
+            notLinked:</span><span class="s4">0</span><span class="s1"> 
+        }; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* initialize multiplicity</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initMultiplicityDictionary = </span><span class="s3">function</span><span class="s1">(de) { 
+        $rootScope.multiplicity[de] = { 
+            </span><span class="s0">'target'</span><span class="s1">: { 
+                de : </span><span class="s0">''</span><span class="s1">, 
+                multiplicity: {} 
+            } 
+        }; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* progress bar</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    </span><span class="s3">var </span><span class="s1">progress = setInterval(</span><span class="s3">function</span><span class="s1">() { 
+        </span><span class="s3">var </span><span class="s1">$bar = $(</span><span class="s0">'.bar'</span><span class="s1">); 
+ 
+        </span><span class="s3">if </span><span class="s1">($bar.width()&gt;=</span><span class="s4">400</span><span class="s1">) { 
+            $scope.showConfig = </span><span class="s3">true</span><span class="s1">; 
+            clearInterval(progress); 
+            $(</span><span class="s0">'.progress'</span><span class="s1">).removeClass(</span><span class="s0">'active'</span><span class="s1">); 
+            $(</span><span class="s0">'.progress'</span><span class="s1">).remove(); 
+        } </span><span class="s3">else </span><span class="s1">{ 
+            $bar.width($bar.width()+</span><span class="s4">10</span><span class="s1">); 
+        } 
+        $bar.text(Math.floor($bar.width()/</span><span class="s4">8</span><span class="s1">) + </span><span class="s0">'%'</span><span class="s1">); 
+    }, </span><span class="s4">800</span><span class="s1">); 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Initialize the Feature models in the given domain elements</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">des</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">exist</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initFeatureModels = </span><span class="s3">function</span><span class="s1">(des, exist) { 
+        angular.forEach(des, </span><span class="s3">function </span><span class="s1">(de) { 
+                </span><span class="s3">if</span><span class="s1">($rootScope.compteurs[</span><span class="s4">1</span><span class="s1">] === </span><span class="s0">'false'</span><span class="s1">){ 
+                    window.alert(</span><span class="s0">'Impossible d</span><span class="s3">\'</span><span class="s0">avoir les Feature Models, réessayez plus tard !'</span><span class="s1">); 
+                } 
+ 
+                $scope.initConfigurationsDictionary(de); 
+                $scope.initMultiplicityDictionary(de); 
+                $scope.initBounds(de); 
+                $scope.getCompatiblesDES(de); 
+                InitService.initAnnotations().get({DomainElement: de}, </span><span class="s3">function </span><span class="s1">(AnnotationResult) { 
+                        $scope.annotations[de] = AnnotationResult; 
+                        $rootScope.zones[de] = AnnotationResult.zones; 
+                        $rootScope.accordionType = AnnotationResult.accordionBehaviour ; 
+                        $scope.getUnique (de, AnnotationResult); 
+                        InitService.initFM().get({SpineFMID:$rootScope.SpineFMID, DomainElement: de}, </span><span class="s3">function </span><span class="s1">(FMResult) { 
+                            $scope.featuremodels[de] = FMResult; 
+                            $rootScope.fm[de] = FMResult; 
+                            $scope.computeAnnotations(de); 
+                        }); 
+                    }, 
+                    </span><span class="s2">// error handling for initAnnotations</span><span class="s1"> 
+                    </span><span class="s3">function </span><span class="s1">() { 
+                        InitService.initFM().get({SpineFMID: $rootScope.SpineFMID, DomainElement: de}, </span><span class="s3">function </span><span class="s1">(FMResult) { 
+                            $scope.featuremodels[de] = FMResult; 
+                            $rootScope.fm[de] = FMResult; 
+                            $scope.computeAnnotations(de); 
+                        }); 
+                    }); 
+            }, 
+            </span><span class="s2">// error handling for initFM</span><span class="s1"> 
+            </span><span class="s3">function</span><span class="s1">(de){ 
+                $rootScope.compteurs[</span><span class="s4">1</span><span class="s1">] = </span><span class="s0">'false'</span><span class="s1">; 
+                $scope.failedRequest(de.status, </span><span class="s0">'initFM'</span><span class="s1">) ; 
+                $scope.initFeatureModels(des, exist); 
+            }); 
+ 
+        </span><span class="s3">if</span><span class="s1">(exist === </span><span class="s3">true</span><span class="s1">){ 
+            $scope.getSpineFMStatus(); 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get unique</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">annotations</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getUnique = </span><span class="s3">function</span><span class="s1">(de, annotations){ 
+        </span><span class="s3">var </span><span class="s1">unik = []; 
+        </span><span class="s3">if </span><span class="s1">(annotations.rulesFeatureUnique) { 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; $scope.annotations[de].rulesFeatureUnique.length ; j++) { 
+                </span><span class="s3">var </span><span class="s1">myrule = $scope.annotations[de].rulesFeatureUnique[j]; 
+                unik.push(myrule.feature); 
+            } 
+        } 
+        $scope.unique[de] = unik; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get linked configurations</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">configID</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getLinkedConfigurations = </span><span class="s3">function</span><span class="s1">(configID, de){ 
+        $rootScope.linkedConfig[configID] = []; 
+ 
+        </span><span class="s3">var </span><span class="s1">successGetConfigCompatible = </span><span class="s3">function </span><span class="s1">(result) { 
+            </span><span class="s3">if</span><span class="s1">(result.length &gt; </span><span class="s4">0</span><span class="s1">){ 
+                $scope.hasLinkedConfig = </span><span class="s3">true</span><span class="s1">; 
+                $rootScope.linkedConfig[configID].push(result); 
+            } 
+ 
+        }; 
+ 
+        </span><span class="s3">var </span><span class="s1">failGetConfigCompatible = </span><span class="s3">function </span><span class="s1">() { 
+            window.alert(</span><span class="s0">'Echec du chargement des configurations liées à '</span><span class="s1">+ configID); 
+        }; 
+        configManager.getLinkedConfigurations($rootScope.SpineFMID, de, configID).then( 
+            successGetConfigCompatible, 
+            failGetConfigCompatible 
+        ); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get colors for different configuration state</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initColors = </span><span class="s3">function</span><span class="s1">() { 
+        InitService.initColors().get(</span><span class="s3">function </span><span class="s1">(color) { 
+                $rootScope.colorsState = color; 
+            }, 
+ 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'init colors failed'</span><span class="s1">); 
+                $scope.unavailableService = </span><span class="s3">true</span><span class="s1">; 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get description of different DE</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initDescription = </span><span class="s3">function</span><span class="s1">() { 
+        InitService.initDescription().get(</span><span class="s3">function </span><span class="s1">(desc) { 
+                $rootScope.descriptionDES = desc; 
+            }, 
+ 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'init description of DES failed'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Compute annotations : link features with their annotations</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.computeAnnotations = </span><span class="s3">function </span><span class="s1">(de) { 
+        </span><span class="s3">var </span><span class="s1">annotedFeatures = {}; 
+        </span><span class="s3">var </span><span class="s1">annotedFeaturesUnique = {}; 
+        </span><span class="s3">var </span><span class="s1">annotedFeaturesSimple = {}; 
+        </span><span class="s2">//var nbFeatures = $scope.getFeatures(de).length;</span><span class="s1"> 
+        annotedFeatures.levels = $scope.initLevels($rootScope.zones[de]); 
+        annotedFeaturesUnique.levels = $scope.initLevels($rootScope.zones[de]); 
+        annotedFeaturesSimple.levels = $scope.initLevels($rootScope.zones[de]); 
+        </span><span class="s3">var </span><span class="s1">result = []; 
+        </span><span class="s2">//</span><span class="s1"> 
+        $scope.computeAnnotationRecursiveRules(de, annotedFeatures); 
+        $scope.computeAnnotationRulesFeatureUnique(de, annotedFeaturesUnique); 
+        $scope.computeSimpleFeatures(de, annotedFeaturesSimple); 
+ 
+        result.push(annotedFeatures); 
+        result.push(annotedFeaturesUnique); 
+        result.push(annotedFeaturesSimple); 
+        $rootScope.deFeatures[de] = $scope.concatFeatures(result, de); 
+        </span><span class="s2">// show configs</span><span class="s1"> 
+        $scope.showProgress = </span><span class="s3">false</span><span class="s1">; 
+        $scope.configure = </span><span class="s3">true</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* init levels by zones</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">zones</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{{}}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initLevels = </span><span class="s3">function</span><span class="s1">(zones) { 
+        </span><span class="s3">var </span><span class="s1">level = {}; 
+        </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">1</span><span class="s1">; i&lt; zones.length +</span><span class="s4">1 </span><span class="s1">; i++) { 
+            level[i] = []; 
+        } 
+        </span><span class="s3">return </span><span class="s1">level; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*  put features in a same object</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">annotedFeatures</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{{}}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.concatFeatures = </span><span class="s3">function</span><span class="s1">(annotedFeatures, de){ 
+        </span><span class="s3">var </span><span class="s1">feat = {}; 
+        feat.levels = $scope.initLevels($rootScope.zones[de]); 
+        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">index = </span><span class="s4">0</span><span class="s1">; index &lt;annotedFeatures.length; index++){ 
+            </span><span class="s3">var </span><span class="s1">annoted = annotedFeatures[index]; 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">key = </span><span class="s4">1</span><span class="s1">; key &lt; $rootScope.zones[de].length +</span><span class="s4">1</span><span class="s1">; key++){ 
+                </span><span class="s3">if</span><span class="s1">(annoted.levels[key]){ 
+                    </span><span class="s3">var </span><span class="s1">level = annoted.levels[key]; 
+ 
+                    </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i =</span><span class="s4">0</span><span class="s1">; i&lt; level.length; i++){ 
+                        feat.levels[key].push(level[i]); 
+                    } 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">feat; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get the number of features after annotate</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">annoted</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getNBFeatures = </span><span class="s3">function</span><span class="s1">(annotedFeatures){ 
+        </span><span class="s3">var </span><span class="s1">size = </span><span class="s4">0</span><span class="s1">; 
+        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">index = </span><span class="s4">0</span><span class="s1">; index &lt;annotedFeatures.length; index++){ 
+            </span><span class="s3">var </span><span class="s1">annoted = annotedFeatures[index]; 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">key = </span><span class="s4">0</span><span class="s1">; key &lt; </span><span class="s4">4</span><span class="s1">; key++){ 
+                </span><span class="s3">if</span><span class="s1">(annoted.levels[key]){ 
+                    size += annoted.levels[key].length; 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">size; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Link recursive rules with the right features( which depend on the level of children we have chosen)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">annotedF</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.computeAnnotationRecursiveRules = </span><span class="s3">function </span><span class="s1">(de, annotedF) { 
+        </span><span class="s3">var </span><span class="s1">currentFM = $rootScope.fm[de]; 
+ 
+        </span><span class="s3">if </span><span class="s1">($scope.annotations[de]) { 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">k = </span><span class="s4">0</span><span class="s1">; k &lt; $scope.annotations[de].rulesRecursive.length; k++) { 
+                </span><span class="s3">var </span><span class="s1">recursive = $scope.annotations[de].rulesRecursive[k]; 
+ 
+ 
+                </span><span class="s3">var </span><span class="s1">subFeatures = $scope.getSubFeatures(de, recursive); 
+                </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; subFeatures.length ; i++) { 
+                    </span><span class="s3">var </span><span class="s1">unik = $scope.unique[de]; 
+                    </span><span class="s3">if </span><span class="s1">(unik.indexOf(subFeatures[i].name) &lt; </span><span class="s4">0</span><span class="s1">) { 
+                        $scope.annotateRecursiveFeatures(annotedF, currentFM, recursive, subFeatures[i]); 
+                        $scope.featuresEvaluated.push(subFeatures[i].name); 
+                    } 
+ 
+                    </span><span class="s3">else</span><span class="s1">{ 
+                        </span><span class="s3">if </span><span class="s1">($scope.annotations[de].rulesFeatureUnique) { 
+                            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; $scope.annotations[de].rulesFeatureUnique.length ; j++) { 
+                                </span><span class="s3">var </span><span class="s1">myrule = $scope.annotations[de].rulesFeatureUnique[j]; 
+ 
+                                </span><span class="s3">if </span><span class="s1">(subFeatures[i].name === myrule.feature &amp;&amp; $scope.featuresEvaluated.indexOf(subFeatures[i].name) &lt; </span><span class="s4">0</span><span class="s1">) { 
+ 
+                                    $scope.annotateRecursiveRules(annotedF, currentFM, recursive, myrule); 
+                                    $scope.featuresEvaluated.push(subFeatures[i].name); 
+ 
+                                } 
+                            } 
+                        } 
+                    } 
+                } 
+            } 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Link features with the right annotations (FeatureUnique)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">annotedF</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.computeAnnotationRulesFeatureUnique = </span><span class="s3">function </span><span class="s1">(de, annotedF) { 
+ 
+        </span><span class="s3">var </span><span class="s1">features =  $scope.getFeatures(de); 
+        </span><span class="s3">var </span><span class="s1">currentFM = $rootScope.fm[de]; 
+        </span><span class="s2">//var allFeatures = $scope.getFeatures(de);</span><span class="s1"> 
+        </span><span class="s3">if</span><span class="s1">($scope.unique[de]){ 
+            </span><span class="s3">var </span><span class="s1">unique = $scope.unique[de]; 
+            </span><span class="s3">if</span><span class="s1">(unique.length &gt; </span><span class="s4">0</span><span class="s1">){ 
+                </span><span class="s3">if </span><span class="s1">($scope.annotations[de]) { 
+                    </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; $scope.annotations[de].rulesFeatureUnique.length ; i++) { 
+                        </span><span class="s3">var </span><span class="s1">myrule = $scope.annotations[de].rulesFeatureUnique[i]; 
+                        </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; features.length; j++) { 
+ 
+                            </span><span class="s3">if </span><span class="s1">(features[j].name === myrule.feature) { 
+                                </span><span class="s3">if</span><span class="s1">($scope.featuresEvaluated.indexOf(features[j].name) &lt; </span><span class="s4">0</span><span class="s1">){ 
+                                    $scope.annotateRulesFeatureUnique(annotedF, currentFM, myrule); 
+                                    $scope.featuresEvaluated.push(features[j].name); 
+                                } 
+                            } 
+                        } 
+ 
+                    } 
+                } 
+            } 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* compute features without linked annotations</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">annotedF</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.computeSimpleFeatures = </span><span class="s3">function </span><span class="s1">(de, annotedF) { 
+        </span><span class="s3">var </span><span class="s1">currentFM = $rootScope.fm[de]; 
+        </span><span class="s3">var </span><span class="s1">allFeatures = $scope.getFeatures(de); 
+        </span><span class="s3">if</span><span class="s1">($scope.unique[de]){ 
+            </span><span class="s3">var </span><span class="s1">unik  = $scope.unique[de]; 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; allFeatures.length; j++) { 
+                </span><span class="s3">if </span><span class="s1">(unik.indexOf(allFeatures[j].name) &lt; </span><span class="s4">0</span><span class="s1">) { 
+                    </span><span class="s3">if </span><span class="s1">($scope.featuresEvaluated.indexOf(allFeatures[j].name) &lt; </span><span class="s4">0</span><span class="s1">) { 
+                        $scope.addFeature(annotedF, currentFM, allFeatures[j]); 
+                    } 
+                } 
+            } 
+        } 
+ 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*  annotate features whith the unique rules in annotations</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">annotedF</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">rule</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.annotateRulesFeatureUnique = </span><span class="s3">function </span><span class="s1">(annotedF, feature, rule) { 
+        annotedF.nom = feature.name; 
+        annotedF.concept = feature.concept; 
+ 
+        </span><span class="s3">if </span><span class="s1">(rule.level &amp;&amp; rule.logo) { 
+            </span><span class="s3">if</span><span class="s1">(rule.level &lt;= </span><span class="s4">0 </span><span class="s1">){ 
+                annotedF.levels[</span><span class="s4">0</span><span class="s1">].push({feature: rule.feature, logo: rule.logo, explication: rule.explication, state: </span><span class="s0">'UNSELECTED'</span><span class="s1">}); 
+            } 
+            </span><span class="s3">else</span><span class="s1">{ 
+                annotedF.levels[rule.level].push({feature: rule.feature, logo: rule.logo, explication: rule.explication, state: </span><span class="s0">'UNSELECTED'</span><span class="s1">}); 
+            } 
+            $scope.loadImage(rule.feature, rule.logo); 
+        } 
+        </span><span class="s3">else if </span><span class="s1">(!rule.logo) { 
+            annotedF.levels[rule.level].push({feature: rule.feature, explication: rule.explication, state: </span><span class="s0">'UNSELECTED'</span><span class="s1">}); 
+        } 
+ 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Annotate features which have recursive rules</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">annotedF</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">recursive</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">rule</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+ 
+    $scope.annotateRecursiveRules = </span><span class="s3">function </span><span class="s1">(annotedF, feature, recursive, rule) { 
+        annotedF.nom = feature.name; 
+        annotedF.concept = feature.concept; 
+        </span><span class="s3">if </span><span class="s1">(rule === </span><span class="s3">null</span><span class="s1">) { 
+            </span><span class="s3">if</span><span class="s1">(recursive.logo){ 
+                annotedF.levels[recursive.level].push({feature: recursive.feature, logo: recursive.logo, explication: recursive.explication, state: </span><span class="s0">'UNSELECTED' </span><span class="s1">}); 
+            } 
+            </span><span class="s3">else</span><span class="s1">{ 
+                annotedF.levels[recursive.level].push({feature: recursive.feature, explication: recursive.explication, state: </span><span class="s0">'UNSELECTED' </span><span class="s1">}); 
+            } 
+            $scope.loadImage(recursive.feature, recursive.logo); 
+        } 
+        </span><span class="s3">else </span><span class="s1">{ 
+            </span><span class="s3">if</span><span class="s1">(rule.logo){ 
+                annotedF.levels[recursive.level].push({feature: rule.feature, logo: rule.logo, explication: rule.explication, state: </span><span class="s0">'UNSELECTED'</span><span class="s1">}); 
+            } 
+            </span><span class="s3">else if </span><span class="s1">(recursive.logo) { 
+                annotedF.levels[recursive.level].push({feature: rule.feature, logo: recursive.logo, explication: rule.explication, state: </span><span class="s0">'UNSELECTED'</span><span class="s1">}); 
+            } 
+            </span><span class="s3">else </span><span class="s1">{ 
+                annotedF.levels[recursive.level].push({feature: rule.feature, explication: rule.explication, state: </span><span class="s0">'UNSELECTED'</span><span class="s1">}); 
+            } 
+            $scope.loadImage(rule.feature, rule.logo); 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Annotate features without feature unique rules in the recursive rules without</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">annotedF</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">recursive</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">child</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.annotateRecursiveFeatures = </span><span class="s3">function </span><span class="s1">(annotedF, feature, recursive, child) { 
+        annotedF.nom = feature.name; 
+        annotedF.concept = feature.concept; 
+        $scope.loadImage(recursive.feature, recursive.logo); 
+        annotedF.levels[recursive.level].push({feature: child.name, logo: recursive.logo, explication: recursive.explication, state: </span><span class="s0">'UNSELECTED' </span><span class="s1">}); 
+ 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* add features without annotations</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">annotedF</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">fm</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+ 
+    $scope.addFeature = </span><span class="s3">function </span><span class="s1">(annotedF, fm, feature) { 
+        annotedF.nom = fm.name; 
+        annotedF.concept = fm.concept; 
+        annotedF.levels[$rootScope.defaultLevel].push({feature: feature.name, explication: </span><span class="s0">''</span><span class="s1">, state: </span><span class="s0">'UNSELECTED'</span><span class="s1">}); 
+    }; 
+ 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*  Find all features in the selected FM</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">destination</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{*}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.findAllFeatures = </span><span class="s3">function </span><span class="s1">(feature, destination) { 
+ 
+        </span><span class="s3">if </span><span class="s1">(feature.groups.length &gt; </span><span class="s4">0</span><span class="s1">) { 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; feature.groups.length; i++) { 
+ 
+                </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; feature.groups[i].children.length; j++) { 
+                    </span><span class="s3">if</span><span class="s1">(destination.indexOf(feature.groups[i].children[j]) &lt; </span><span class="s4">0 </span><span class="s1">){ 
+                        destination.push(feature.groups[i].children[j]); 
+                        </span><span class="s3">var </span><span class="s1">sub = []; 
+                        $scope.getAllSubLevel(feature.groups[i].children[j], sub); 
+                        $scope.concat(destination, sub); 
+                        </span><span class="s2">//$scope.findAllFeatures(feature.groups[i].children[j], destination);</span><span class="s1"> 
+                    } 
+                } 
+            } 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get All feature's sub level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">destination</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getAllSubLevel  = </span><span class="s3">function</span><span class="s1">(feature, destination){ 
+        </span><span class="s3">if</span><span class="s1">(feature.groups){ 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; feature.groups.length; i++) { 
+                </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; feature.groups[i].children.length; j++) { 
+                    </span><span class="s3">if</span><span class="s1">(destination.indexOf(feature.groups[i].children[j]) &lt; </span><span class="s4">0</span><span class="s1">){ 
+                        destination.push(feature.groups[i].children[j]); 
+                        $scope.getAllSubLevel(feature.groups[i].children[j], destination); 
+                    } 
+                } 
+            } 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Find sub Features of a selected feature</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">destination</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">getChildren</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{*}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.findSubFeatures = </span><span class="s3">function </span><span class="s1">(feature, destination, level) { 
+        </span><span class="s3">if</span><span class="s1">(level &lt;= </span><span class="s4">1</span><span class="s1">){ 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">z = </span><span class="s4">0</span><span class="s1">; z&lt; feature.groups.length; z++) { 
+                </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">r = </span><span class="s4">0</span><span class="s1">; r &lt; feature.groups[z].children.length; r++) { 
+                    destination.push(feature.groups[z].children[r]); 
+                } 
+            } 
+        } 
+        </span><span class="s3">else </span><span class="s1">{ 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">k = </span><span class="s4">0</span><span class="s1">; k&lt; feature.groups.length; k++) { 
+                </span><span class="s3">var </span><span class="s1">ht = level -</span><span class="s4">1</span><span class="s1">; 
+                </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">l = </span><span class="s4">0</span><span class="s1">; l &lt; feature.groups[k].children.length; l++) { 
+                    $scope.findSubFeatures(feature.groups[k].children[l],destination,ht); 
+                } 
+            } 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get all Features in the DE</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{Array}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getFeatures = </span><span class="s3">function </span><span class="s1">(de) { 
+        </span><span class="s3">var </span><span class="s1">currentFM = $rootScope.fm[de]; 
+        </span><span class="s3">var </span><span class="s1">features = []; 
+ 
+        </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; currentFM.root.groups.length; j++) { 
+            </span><span class="s3">var </span><span class="s1">grp = currentFM.root.groups[j]; 
+ 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">k = </span><span class="s4">0</span><span class="s1">; k &lt; grp.children.length;k++) { 
+                </span><span class="s3">var </span><span class="s1">child = grp.children[k]; 
+                $scope.findAllFeatures(child, features); 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">features; 
+        </span><span class="s2">//}</span><span class="s1"> 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get the given feature's sub features</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{Array}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getlevelSubFeatures = </span><span class="s3">function </span><span class="s1">(feature) { 
+        </span><span class="s3">var </span><span class="s1">destination = []; 
+        </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; feature.groups.length; i++) { 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; feature.groups[i].children.length; j++) { 
+                destination.push(feature.groups[i].children[j]); 
+ 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">destination; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* concat 2 list of features</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">destination</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">sub</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.concat = </span><span class="s3">function </span><span class="s1">(destination, sub){ 
+        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i =</span><span class="s4">0</span><span class="s1">; i&lt; sub.length; i++){ 
+            </span><span class="s3">if</span><span class="s1">(destination.indexOf(sub[i]) &lt;</span><span class="s4">0</span><span class="s1">){ 
+                destination.push(sub[i]); 
+            } 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get sub features by mode (level of sub features)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">rule</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{Array}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getSubFeatures = </span><span class="s3">function </span><span class="s1">(de, rule) { 
+        </span><span class="s3">var </span><span class="s1">currentFM = $rootScope.fm[de]; 
+        </span><span class="s3">var </span><span class="s1">subFeatures = []; 
+        </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; currentFM.root.groups.length; j++) { 
+            </span><span class="s3">var </span><span class="s1">grp = currentFM.root.groups[j]; 
+ 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">k = </span><span class="s4">0</span><span class="s1">; k &lt; grp.children.length;k++) { 
+ 
+                </span><span class="s3">if </span><span class="s1">(grp.children[k].name === rule.feature) { 
+ 
+                    </span><span class="s3">if </span><span class="s1">(rule.treeLevel) { 
+                        </span><span class="s3">if</span><span class="s1">(rule.getChildren === </span><span class="s3">true</span><span class="s1">){ 
+                            $scope.findAllFeatures(grp.children[k],subFeatures); 
+                        } 
+                        </span><span class="s3">else if</span><span class="s1">(rule.getChildren === </span><span class="s3">false</span><span class="s1">){ 
+                            $scope.findSubFeatures(grp.children[k], subFeatures, rule.treeLevel); 
+                        } 
+                    } 
+ 
+                    </span><span class="s3">else</span><span class="s1">{ 
+                        $scope.findAllFeatures(grp.children[k],subFeatures); 
+                    } 
+ 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">subFeatures; 
+    }; 
+ 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get Recursive rule from the feature name and the level of children</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">featureName</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{*}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getRecursiveRule = </span><span class="s3">function </span><span class="s1">(de, featureName) { 
+        </span><span class="s3">var </span><span class="s1">rule; 
+        </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; $scope.annotations[de].rulesRecursive.length ; i++) { 
+ 
+            </span><span class="s3">if </span><span class="s1">($scope.annotations[de].rulesRecursive[i].feature === featureName) { 
+ 
+                rule = $scope.annotations[de].rulesRecursive[i]; 
+            } 
+ 
+            </span><span class="s3">return </span><span class="s1">rule; 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* set the default level for simple features (with not linked annotation)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">level</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.seDefaultLevel = </span><span class="s3">function </span><span class="s1">(level) { 
+ 
+        $rootScope.defaultLevel = level; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Error handling when request failed</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">status</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">funct</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.failedRequest = </span><span class="s3">function </span><span class="s1">(status, funct) { 
+ 
+        </span><span class="s3">if </span><span class="s1">(status === </span><span class="s4">404</span><span class="s1">) { 
+            window.alert(funct +</span><span class="s0">' =&gt; ERROR 404 : request failed'</span><span class="s1">); 
+        } 
+ 
+        </span><span class="s3">else if</span><span class="s1">(status === </span><span class="s4">405</span><span class="s1">){ 
+            window.alert(funct +</span><span class="s0">' =&gt;ERROR 405 : request failed'</span><span class="s1">); 
+        } 
+        </span><span class="s3">else if</span><span class="s1">(status === </span><span class="s4">500</span><span class="s1">){ 
+            window.alert(funct +</span><span class="s0">' =&gt; ERROR 500 : request failed'</span><span class="s1">); 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*  Get the connected DE of each domain element</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getCompatiblesDES = </span><span class="s3">function</span><span class="s1">(de){ 
+ 
+        InitService.getCompatiblesDES($rootScope.SpineFMID, de).then(</span><span class="s3">function </span><span class="s1">(deCompatibles) { 
+ 
+                $rootScope.compatiblesDES[de]= deCompatibles; 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i&lt; $rootScope.compatiblesDES[de].length; i++){ 
+                    $scope.getMultiplicityBetweenDE(de, $rootScope.compatiblesDES[de][i]); 
+                } 
+            }, 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'Echec du chargement des domaines compatibles avec '</span><span class="s1">+de); 
+            }); 
+ 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get the global context ID</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getGlobalCtxID = </span><span class="s3">function</span><span class="s1">(){ 
+        InitService.getGlobalContextID($rootScope.SpineFMID).then(</span><span class="s3">function </span><span class="s1">(globalCtxID) { 
+ 
+                $rootScope.globalCtxID = globalCtxID; 
+            }, 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'Echec du chargement de globalCtxID'</span><span class="s1">); 
+                $scope.unavailableService = </span><span class="s3">true</span><span class="s1">; 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get multiplicity between Domain Element</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">source</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">target</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getMultiplicityBetweenDE = </span><span class="s3">function </span><span class="s1">(source, target){ 
+        InitService.getMultiplicity($rootScope.SpineFMID, source, target).then(</span><span class="s3">function </span><span class="s1">(mult) { 
+ 
+                $rootScope.multiplicity[source].target = {de: target, multiplicity: mult}; 
+            }, 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'Echec du chargement de globalCtxID'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get the structure with different links between DE</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initProperties = </span><span class="s3">function</span><span class="s1">(){ 
+        InitService.getModel($rootScope.SpineFMID).then(</span><span class="s3">function </span><span class="s1">(model) { 
+ 
+                $rootScope.DEProperties = model; 
+            }, 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'Echec du chargement des liens entre DE'</span><span class="s1">); 
+                $scope.unavailableService = </span><span class="s3">true</span><span class="s1">; 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* open the modal to give the new configuration name</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.open = </span><span class="s3">function </span><span class="s1">() { 
+        $scope.isOpen = </span><span class="s3">true</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* validate the choice in modal view for new instance's name</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.validate = </span><span class="s3">function </span><span class="s1">() { 
+ 
+        </span><span class="s3">if</span><span class="s1">($scope.spineFMName  === </span><span class="s3">null</span><span class="s1">){ 
+            window.alert(</span><span class="s0">'Veuillez donner un nom ou une description à votre nouvelle instance !'</span><span class="s1">); 
+        } 
+        </span><span class="s3">else </span><span class="s1">{ 
+            $rootScope.name = $scope.spineFMName; 
+            $scope.createNewInstance(); 
+            $scope.isOpen = </span><span class="s3">false</span><span class="s1">; 
+        } 
+    }; 
+ 
+    </span><span class="s2">// watch setting spineFM Name, Space not allowed</span><span class="s1"> 
+    $scope.$watch(</span><span class="s0">'spineFMName'</span><span class="s1">, </span><span class="s3">function</span><span class="s1">() { 
+        </span><span class="s3">if</span><span class="s1">($scope.spineFMName !== </span><span class="s3">null</span><span class="s1">){ 
+            </span><span class="s2">//$scope.spineFMName= $scope.spineFMName.replace(/\s+/g,'_');</span><span class="s1"> 
+            $scope.spineFMName= $scope.spineFMName.replace(</span><span class="s4">/[^a-zA-Z0-9_-]/g</span><span class="s1">,</span><span class="s0">''</span><span class="s1">); 
+        } 
+    }); 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* close  modal view for new instance's name</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.cancel = </span><span class="s3">function</span><span class="s1">(){ 
+        $scope.isOpen = </span><span class="s3">false</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get instance's status and update it</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getSpineFMStatus = </span><span class="s3">function</span><span class="s1">(){ 
+        InitService.getConfigurationStatus($rootScope.SpineFMID).then(</span><span class="s3">function </span><span class="s1">(status) { 
+ 
+                $scope.hasConfigs(status); 
+                $scope.updateSpineFMStatus(status); 
+            }, 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'Echec du chargement de l</span><span class="s3">\'</span><span class="s0">état de la configuration'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* check if the current spineFM instance has at least one config</span><span class="s1"> 
+     </span><span class="s2">* used before checking generation</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.hasConfigs = </span><span class="s3">function</span><span class="s1">(status){ 
+        $rootScope.hasConfigs =  status.partialConfigs.length &gt; </span><span class="s4">0 </span><span class="s1">|| status.validConfigs.length &gt; </span><span class="s4">0</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* update the status of configurations in the session</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">status</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.updateSpineFMStatus = </span><span class="s3">function</span><span class="s1">(status){ 
+ 
+        </span><span class="s3">if</span><span class="s1">(status.partialConfigs) { 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i&lt; status.partialConfigs.length; i++){ 
+                </span><span class="s3">var </span><span class="s1">currentDE =  status.partialConfigs[i].de; 
+                </span><span class="s3">var </span><span class="s1">currentCtxID = status.partialConfigs[i].ctxID; 
+ 
+                $rootScope.configurations[currentDE].partialConfig.listConfigs[currentCtxID] = {name:status.partialConfigs[i].name, </span><span class="s0">'isValid'</span><span class="s1">: </span><span class="s3">false</span><span class="s1">, ctxID:currentCtxID, url:</span><span class="s0">'#/de/'</span><span class="s1">+currentDE+</span><span class="s0">'/ctx/'</span><span class="s1">+currentCtxID} ; 
+                $rootScope.configurations[currentDE].partialConfig.number += </span><span class="s4">1</span><span class="s1">; 
+                $rootScope.ConfigsName.push(status.partialConfigs[i].name); 
+            } 
+        } 
+ 
+        </span><span class="s3">if</span><span class="s1">(status.validConfigs){ 
+ 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">y = </span><span class="s4">0</span><span class="s1">; y &lt; status.validConfigs.length; y++){ 
+                </span><span class="s3">var </span><span class="s1">currentValidDE =  status.validConfigs[y].de; 
+                </span><span class="s3">var </span><span class="s1">currentConfigID = status.validConfigs[y].configID; 
+                </span><span class="s3">var </span><span class="s1">name =  status.validConfigs[y].name; 
+                $rootScope.ConfigsName.push(name); 
+                </span><span class="s3">var </span><span class="s1">ctxID = status.validConfigs[y].ctxID; 
+                $rootScope.configurations[currentValidDE].validConfig.listConfigs[currentConfigID] = {name:name, ctxID:ctxID , url:</span><span class="s0">'#/bilan/'</span><span class="s1">+currentValidDE+</span><span class="s0">'/ctx/'</span><span class="s1">+ctxID +</span><span class="s0">'/'</span><span class="s1">+currentConfigID, configID:currentConfigID, isLinked : </span><span class="s3">false</span><span class="s1">} ; 
+                $scope.isConfigLinked(currentValidDE, currentConfigID); 
+                $rootScope.configurations[currentValidDE].validConfig.number += </span><span class="s4">1</span><span class="s1">; 
+                $scope.getConfigCompatibles(currentValidDE, currentConfigID); 
+ 
+            } 
+ 
+        } 
+        </span><span class="s3">if</span><span class="s1">($rootScope.hasConfigs === </span><span class="s3">true</span><span class="s1">){ 
+            $scope.checkIsGenerateAllowed(); 
+        } 
+    }; 
+ 
+ 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* initialize compatiblesConf by domain</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initCompatiblesConfigurations = </span><span class="s3">function</span><span class="s1">(de){ 
+ 
+        $rootScope.compatiblesConf[de] = { 
+            configCompatibles : [] 
+        }; 
+ 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* check if config is linked</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">configID</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{boolean}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.isConfigLinked = </span><span class="s3">function</span><span class="s1">(de,configID){ 
+        configManager.checkIsConfigLinked($rootScope.SpineFMID, configID).then(</span><span class="s3">function </span><span class="s1">(linked) { 
+                </span><span class="s3">if</span><span class="s1">(linked.toString() === </span><span class="s0">'true'</span><span class="s1">) { 
+                    $rootScope.configurations[de].validConfig.listConfigs[configID].isLinked = </span><span class="s3">true</span><span class="s1">; 
+                    $rootScope.validConfigs[de].linked += </span><span class="s4">1</span><span class="s1">; 
+                } 
+                </span><span class="s3">else </span><span class="s1">{ 
+                    $rootScope.validConfigs[de].notLinked += </span><span class="s4">1</span><span class="s1">; 
+                } 
+ 
+            }, 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'Echec de check config compatible with'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/** get compatibles configurations</span><span class="s1"> 
+     </span><span class="s2">*</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">confID</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getConfigCompatibles = </span><span class="s3">function</span><span class="s1">(de, confID){ 
+ 
+        </span><span class="s3">var </span><span class="s1">successGetConfigCompatible = </span><span class="s3">function </span><span class="s1">(configCompatibles) { 
+ 
+            $rootScope.compatiblesConf[currentDE].configCompatibles[confID] = configCompatibles; 
+        }; 
+ 
+        </span><span class="s3">var </span><span class="s1">failGetConfigCompatible =  </span><span class="s3">function</span><span class="s1">(){ 
+            window.alert(</span><span class="s0">'Echec du chargement des configurations compatibles'</span><span class="s1">); 
+        }; 
+ 
+        </span><span class="s3">var </span><span class="s1">successCheckisConfigLinkable = </span><span class="s3">function </span><span class="s1">(linkable) { 
+ 
+            </span><span class="s3">if</span><span class="s1">(linkable  === </span><span class="s3">true</span><span class="s1">){ 
+                configManager.getCompatiblesConfigurations($rootScope.SpineFMID, currentDE, confID).then( 
+                    successGetConfigCompatible, 
+                    failGetConfigCompatible 
+                ); 
+            } 
+        }; 
+ 
+        </span><span class="s3">var </span><span class="s1">failCheckIsConfigLinkable = </span><span class="s3">function</span><span class="s1">(){ 
+            window.alert(</span><span class="s0">'Echec de check config compatible with'</span><span class="s1">); 
+        }; 
+ 
+        </span><span class="s3">if</span><span class="s1">($rootScope.compatiblesDES[de]){ 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i&lt; $rootScope.compatiblesDES[de].length ;i++){ 
+                </span><span class="s3">var </span><span class="s1">currentDE = $rootScope.compatiblesDES[de][i]; 
+                $scope.getLinkedConfigurations(confID, currentDE); 
+                $scope.initCompatiblesConfigurations(currentDE); 
+                configManager.checkIsConfigLinkable($rootScope.SpineFMID, confID, currentDE).then( 
+                    successCheckisConfigLinkable, 
+                    failCheckIsConfigLinkable 
+                ); 
+ 
+            } 
+        } 
+    }; 
+ 
+</span><span class="s2">// $$$$$$$$$$$$$$$$$$$$$$$$$  start controller $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><span class="s1"> 
+    $scope.start(); 
+ 
+}); 
+angular.module(</span><span class="s0">'tocsinApp'</span><span class="s1">).controller.$inject = [</span><span class="s0">'$scope'</span><span class="s1">, </span><span class="s0">'$rootScope'</span><span class="s1">, </span><span class="s0">'InitService'</span><span class="s1">, </span><span class="s0">'configManager'</span><span class="s1">, </span><span class="s0">'$timeout'</span><span class="s1">, </span><span class="s0">'$filter'</span><span class="s1">];</span></pre>
+</body>
+</html>

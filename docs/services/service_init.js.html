@@ -1,0 +1,100 @@
+<html>
+<head>
+<title>service_init.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(128,128,128); font-style: italic; }
+.s1 { }
+.s2 { color: rgb(0,128,0); font-weight: bold; }
+.s3 { color: rgb(0,0,128); font-weight: bold; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+service_init.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">//noinspection JSHint</span><span class="s1"> 
+</span><span class="s2">'use strict'</span><span class="s1">; 
+ 
+angular.module(</span><span class="s2">'tocsinApp'</span><span class="s1">).factory(</span><span class="s2">'InitService'</span><span class="s1">, </span><span class="s3">function </span><span class="s1">($http, $resource, SpineFMConstants) { 
+    </span><span class="s3">return </span><span class="s1">{ 
+        initSpineFM: </span><span class="s3">function </span><span class="s1">() { 
+            </span><span class="s3">return </span><span class="s1">$resource(SpineFMConstants.DOMAIN_URL+</span><span class="s2">'</span><span class="s3">\\</span><span class="s2">:'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">,{}, {</span><span class="s3">get</span><span class="s1">: {method:</span><span class="s2">'GET'</span><span class="s1">,isArray:</span><span class="s3">false</span><span class="s1">}}); 
+        }, 
+        initDES: </span><span class="s3">function</span><span class="s1">(spineFMID) { 
+            </span><span class="s0">// $http returns a promise, which has a then function, which also returns a promise</span><span class="s1"> 
+            </span><span class="s3">return </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/model/des/'</span><span class="s1">).then(</span><span class="s3">function </span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        initFM: </span><span class="s3">function</span><span class="s1">() { 
+            </span><span class="s3">return </span><span class="s1">$resource(SpineFMConstants.DOMAIN_URL+</span><span class="s2">'</span><span class="s3">\\</span><span class="s2">:'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/:SpineFMID/fm/global/:DomainElement'</span><span class="s1">,{}, {</span><span class="s3">get</span><span class="s1">: {method:</span><span class="s2">'GET'</span><span class="s1">,isArray:</span><span class="s3">false</span><span class="s1">}}); 
+        }, 
+        setSpineFMName: </span><span class="s3">function</span><span class="s1">(spineFMID, name) { 
+            </span><span class="s3">return </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/name/'</span><span class="s1">+name).then(</span><span class="s3">function </span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        initAnnotations: </span><span class="s3">function</span><span class="s1">() { 
+            </span><span class="s3">return </span><span class="s1">$resource(SpineFMConstants.ANNOTATION_DOMAIN_URL+</span><span class="s2">'</span><span class="s3">\\</span><span class="s2">:'</span><span class="s1">+SpineFMConstants.ANNOTATION_PORT +SpineFMConstants.ANNOTATION_PATH+</span><span class="s2">'/annotation_:DomainElement.json'</span><span class="s1">,{}, {</span><span class="s3">get</span><span class="s1">: {method:</span><span class="s2">'GET'</span><span class="s1">,isArray:</span><span class="s3">false</span><span class="s1">}}); 
+        }, 
+ 
+        initColors: </span><span class="s3">function</span><span class="s1">() { 
+            </span><span class="s3">return </span><span class="s1">$resource(SpineFMConstants.ANNOTATION_DOMAIN_URL+</span><span class="s2">'</span><span class="s3">\\</span><span class="s2">:'</span><span class="s1">+SpineFMConstants.ANNOTATION_PORT+SpineFMConstants.PROPERTY_PATH+</span><span class="s2">'/colorsByState.json'</span><span class="s1">,{}, {</span><span class="s3">get</span><span class="s1">: {method:</span><span class="s2">'GET'</span><span class="s1">,isArray:</span><span class="s3">false</span><span class="s1">}}); 
+        }, 
+        initDescription: </span><span class="s3">function</span><span class="s1">() { 
+            </span><span class="s3">return </span><span class="s1">$resource(SpineFMConstants.ANNOTATION_DOMAIN_URL+</span><span class="s2">'</span><span class="s3">\\</span><span class="s2">:'</span><span class="s1">+SpineFMConstants.ANNOTATION_PORT+SpineFMConstants.PROPERTY_PATH+</span><span class="s2">'/description.json'</span><span class="s1">,{}, {</span><span class="s3">get</span><span class="s1">: {method:</span><span class="s2">'GET'</span><span class="s1">,isArray:</span><span class="s3">false</span><span class="s1">}}); 
+        }, 
+        initList: </span><span class="s3">function</span><span class="s1">() { 
+            </span><span class="s3">return </span><span class="s1">$resource(SpineFMConstants.DOMAIN_URL+</span><span class="s2">'</span><span class="s3">\\</span><span class="s2">:'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/list'</span><span class="s1">,{}, {</span><span class="s3">get</span><span class="s1">: {method:</span><span class="s2">'GET'</span><span class="s1">,isArray:</span><span class="s3">true</span><span class="s1">}}); 
+        }, 
+ 
+        initBounds: </span><span class="s3">function</span><span class="s1">() { 
+            </span><span class="s3">return </span><span class="s1">$resource(SpineFMConstants.DOMAIN_URL+</span><span class="s2">'</span><span class="s3">\\</span><span class="s2">:'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/:SpineFMID/model/:DomainElement/multiplicity'</span><span class="s1">,{}, {</span><span class="s3">get</span><span class="s1">: {method:</span><span class="s2">'GET'</span><span class="s1">,isArray:</span><span class="s3">false</span><span class="s1">}}); 
+        }, 
+ 
+        getCompatiblesDES : </span><span class="s3">function</span><span class="s1">(spineFMID, de){ 
+            </span><span class="s3">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/model/'</span><span class="s1">+de+</span><span class="s2">'/linkableDES/'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        getGlobalContextID : </span><span class="s3">function</span><span class="s1">(spineFMID){ 
+            </span><span class="s3">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/ctx/global'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        getMultiplicity : </span><span class="s3">function</span><span class="s1">(spineFMID, deSource, deTarget){ 
+            </span><span class="s3">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/model/asso/multiplicity/source/'</span><span class="s1">+deSource+</span><span class="s2">'/target/'</span><span class="s1">+deTarget+</span><span class="s2">'/'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        getConfigurationStatus : </span><span class="s3">function</span><span class="s1">(spineFMID){ 
+            </span><span class="s3">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/config/status/'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        getModel : </span><span class="s3">function</span><span class="s1">(spineFMID){ 
+            </span><span class="s3">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/model/'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        getLinks : </span><span class="s3">function</span><span class="s1">(spineFMID){ 
+            </span><span class="s3">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/config/links/'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        } 
+    }; 
+}); 
+ 
+ 
+ 
+ 
+ 
+</span></pre>
+</body>
+</html>

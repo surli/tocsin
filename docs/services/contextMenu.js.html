@@ -1,0 +1,140 @@
+<html>
+<head>
+<title>contextMenu.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(128,128,128); font-style: italic; }
+.s3 { color: rgb(0,0,128); font-weight: bold; }
+.s4 { color: rgb(0,0,255); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+contextMenu.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+</span><span class="s2">/**</span><span class="s1"> 
+ </span><span class="s2">* contextMenu (jQuery) - Show a custom context when right clicking a node or something</span><span class="s1"> 
+ </span><span class="s2">*</span><span class="s1"> 
+ </span><span class="s2">*/</span><span class="s1"> 
+</span><span class="s2">// Making a local '$' alias of jQuery to support jQuery.noConflict</span><span class="s1"> 
+(</span><span class="s3">function</span><span class="s1">($) { 
+    jQuery.fn.contextMenu = </span><span class="s3">function </span><span class="s1">( name, actions, opt ) { 
+        </span><span class="s3">var </span><span class="s1">me = </span><span class="s3">this</span><span class="s1">, 
+            win = $(window), 
+            menu = $(</span><span class="s0">'&lt;ul id=&quot;'</span><span class="s1">+name+</span><span class="s0">'&quot; class=&quot;context-menu&quot;&gt;&lt;/ul&gt;'</span><span class="s1">).hide().appendTo(</span><span class="s0">'body'</span><span class="s1">), 
+            activeElement = </span><span class="s3">null</span><span class="s1">, </span><span class="s2">// last clicked element that responds with contextMenu</span><span class="s1"> 
+            hideMenu = </span><span class="s3">function</span><span class="s1">() { 
+                $(</span><span class="s0">'.context-menu:visible'</span><span class="s1">).each(</span><span class="s3">function</span><span class="s1">() { 
+                    $(</span><span class="s3">this</span><span class="s1">).trigger(</span><span class="s0">'closed'</span><span class="s1">); 
+                    $(</span><span class="s3">this</span><span class="s1">).hide(); 
+                    $(</span><span class="s0">'body'</span><span class="s1">).unbind(</span><span class="s0">'click'</span><span class="s1">, hideMenu); 
+                    menu.unbind(</span><span class="s0">'closed'</span><span class="s1">); 
+                }); 
+            }, 
+            defaultOptions = { 
+                </span><span class="s0">'disableNativeContextMenu'</span><span class="s1">: </span><span class="s3">false</span><span class="s1">, </span><span class="s2">// disables the native contextmenu everywhere you click</span><span class="s1"> 
+                </span><span class="s0">'leftClick'</span><span class="s1">: </span><span class="s3">false </span><span class="s2">// show menu on left mouse click instead of right</span><span class="s1"> 
+            }, 
+            options = $.extend(defaultOptions, opt); 
+ 
+        $(document).bind(</span><span class="s0">'contextmenu'</span><span class="s1">, </span><span class="s3">function</span><span class="s1">(e) { 
+            </span><span class="s3">if </span><span class="s1">(options.disableNativeContextMenu) { 
+                e.preventDefault(); 
+            } 
+            hideMenu(); 
+        }); 
+ 
+        $.each(actions, </span><span class="s3">function</span><span class="s1">(me, itemOptions) { 
+            </span><span class="s3">var </span><span class="s1">link = </span><span class="s0">''</span><span class="s1">; 
+            </span><span class="s3">if </span><span class="s1">(itemOptions.link) { 
+                link = itemOptions.link; 
+            } </span><span class="s3">else </span><span class="s1">{ 
+                link = </span><span class="s0">'&lt;a href=&quot;#&quot;&gt;'</span><span class="s1">+me+</span><span class="s0">'&lt;/a&gt;'</span><span class="s1">; 
+            } 
+ 
+            </span><span class="s3">var </span><span class="s1">menuItem = $(</span><span class="s0">'&lt;li&gt;' </span><span class="s1">+ link + </span><span class="s0">'&lt;/li&gt;'</span><span class="s1">); 
+ 
+            </span><span class="s3">if </span><span class="s1">(itemOptions.klass) { 
+                menuItem.attr(</span><span class="s0">'class'</span><span class="s1">, itemOptions.klass); 
+            } 
+ 
+            menuItem.appendTo(menu).bind(</span><span class="s0">'click'</span><span class="s1">, </span><span class="s3">function</span><span class="s1">(e) { 
+                itemOptions.click(activeElement); 
+                e.preventDefault(); 
+            }); 
+        }); 
+ 
+        </span><span class="s2">// fix for ie mouse button bug</span><span class="s1"> 
+        </span><span class="s3">var </span><span class="s1">mouseEvent = </span><span class="s0">'contextmenu click'</span><span class="s1">; 
+        </span><span class="s3">if </span><span class="s1">($.browser.msie &amp;&amp; options.leftClick) { 
+            mouseEvent = </span><span class="s0">'click'</span><span class="s1">; 
+        } </span><span class="s3">else if </span><span class="s1">($.browser.msie &amp;&amp; !options.leftClick) { 
+            mouseEvent = </span><span class="s0">'contextmenu'</span><span class="s1">; 
+        } 
+ 
+        </span><span class="s3">var </span><span class="s1">mouseEventFunc = </span><span class="s3">function</span><span class="s1">(e){ 
+            </span><span class="s2">// Hide any existing context menus</span><span class="s1"> 
+            hideMenu(); 
+ 
+            </span><span class="s3">var </span><span class="s1">correctButton = ( (options.leftClick &amp;&amp; e.button === </span><span class="s4">0</span><span class="s1">) || (options.leftClick === </span><span class="s3">false </span><span class="s1">&amp;&amp; e.button === </span><span class="s4">2</span><span class="s1">) ); 
+            </span><span class="s3">if </span><span class="s1">($.browser.msie) { 
+                correctButton = </span><span class="s3">true</span><span class="s1">; 
+            } 
+ 
+            </span><span class="s3">if</span><span class="s1">( correctButton ){ 
+ 
+                activeElement = $(</span><span class="s3">this</span><span class="s1">); </span><span class="s2">// set clicked element</span><span class="s1"> 
+ 
+                </span><span class="s3">if </span><span class="s1">(options.showMenu) { 
+                    options.showMenu.call(menu, activeElement); 
+                } 
+ 
+                </span><span class="s2">// Bind to the closed event if there is a hideMenu handler specified</span><span class="s1"> 
+                </span><span class="s3">if </span><span class="s1">(options.hideMenu) { 
+                    menu.bind(</span><span class="s0">'closed'</span><span class="s1">, </span><span class="s3">function</span><span class="s1">() { 
+                        options.hideMenu.call(menu, activeElement); 
+                    }); 
+                } 
+ 
+                menu.css({ 
+                    visibility: </span><span class="s0">'hidden'</span><span class="s1">, 
+                    position: </span><span class="s0">'absolute'</span><span class="s1">, 
+                    zIndex: </span><span class="s4">1000</span><span class="s1"> 
+                }); 
+ 
+                </span><span class="s2">// include margin so it can be used to offset from page border.</span><span class="s1"> 
+                </span><span class="s3">var </span><span class="s1">mWidth = menu.outerWidth(</span><span class="s3">true</span><span class="s1">), 
+                    mHeight = menu.outerHeight(</span><span class="s3">true</span><span class="s1">), 
+                    xPos = ((e.pageX - win.scrollLeft()) + mWidth &lt; win.width()) ? e.pageX : e.pageX - mWidth, 
+                    yPos = ((e.pageY - win.scrollTop()) + mHeight &lt; win.height()) ? e.pageY : e.pageY - mHeight; 
+ 
+                menu.show(</span><span class="s4">0</span><span class="s1">, </span><span class="s3">function</span><span class="s1">() { 
+                    $(</span><span class="s0">'body'</span><span class="s1">).bind(</span><span class="s0">'click'</span><span class="s1">, hideMenu); 
+                }).css({ 
+                        visibility: </span><span class="s0">'visible'</span><span class="s1">, 
+                        top: yPos + </span><span class="s0">'px'</span><span class="s1">, 
+                        left: xPos + </span><span class="s0">'px'</span><span class="s1">, 
+                        zIndex: </span><span class="s4">1000</span><span class="s1"> 
+                    }); 
+ 
+                </span><span class="s3">return false</span><span class="s1">; 
+            } 
+        }; 
+ 
+        </span><span class="s3">if </span><span class="s1">(options.delegateEventTo) { 
+            </span><span class="s3">return </span><span class="s1">me.on(mouseEvent, options.delegateEventTo, mouseEventFunc); 
+        } </span><span class="s3">else </span><span class="s1">{ 
+            </span><span class="s3">return </span><span class="s1">me.bind(mouseEvent, mouseEventFunc); 
+        } 
+    }; 
+})(jQuery);</span></pre>
+</body>
+</html>

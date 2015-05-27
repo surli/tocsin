@@ -1,0 +1,74 @@
+
+<menu-bar></menu-bar> <!-- menu bar -->
+
+<div class="container-fluid">
+    <div class="row-fluid">
+
+        <div id="middlezone" class="span9">
+            <div>
+                <!-- zone INFO (on top) -->
+                <div class="accordion" id="globalAccordion" ng-style="{background: {false: '', true: selectedState}[isNodeSelected]}">
+                    <div class="accordion-heading" ng-switch="showInfo">
+                        <a class="accordion-toggle" ng-switch-when="false" data-toggle="collapse" data-parent="#globalAccordion" href="" ng-click="setInfoVisibility()">
+                            <h5> <i class=" icon-plus icon-large" style="color: cornflowerblue" ></i>{{header}}</h5>
+                        </a>
+                        <a class="accordion-toggle" ng-switch-when="true" data-toggle="collapse" data-parent="#globalAccordion" href="" ng-click="setInfoVisibility()">
+                            <h5> <i class=" icon-minus icon-large" style="color: cornflowerblue"></i> {{header}}</h5>
+                        </a>
+                    </div>
+                    <div id="collapseOne" class="accordion-body collapse in" ng-show="showInfo">
+                        <div class="accordion-inner">
+                            <h5>{{info}}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end zone info -->
+
+
+            <!-- ****** START D3 ELEMENTS : drawing circles for configurations, linking circles, ...********** -->
+            <div id="d3viz" style="border: 1px solid #000000">
+             <!-- ****** END D3 ELEMNTS *********** -->
+
+            </div>
+            </br>
+            <!-- buttons zone to show or hide configuration's names -->
+            <div id="zonebutton" class="button" style="text-align: center">
+               <span ng-switch="displayConfigNames">
+                 <button ng-switch-when="false" ng-click="displayNames()" class="btn btn-info" tooltip="show configurations name" tooltip-placement="bottom">
+                     <i class="icon-white icon-plus"></i>
+                     Show names
+                 </button>
+                 <button ng-switch-when="true" class="btn btn-info" ng-click="displayNames()" tooltip="hide configurations name" tooltip-placement="bottom">
+                     <i class="icon-white icon-minus"></i>
+                     Hide names
+                 </button>
+             </span>
+            </div>
+            <!-- end buttons zone -->
+
+
+            <!-- Modal shown when current configurations is generating -->
+            <div modal="showGenarationLoading" options="options">
+                <div class="modal-header">
+                    <h3> Generation of the current screen </h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closeShowGenerationLoading()">×</button>
+                </div>
+                <div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <div>
+                                <h1><i class="icon-spinner icon-spin icon-5px"></i>
+                                    <h4>{{clock}} % </h4></h1>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- end Modal -->
+
+        </div>
+        <left-band></left-band> <!-- vertical band on right -->
+    </div>
+</div>

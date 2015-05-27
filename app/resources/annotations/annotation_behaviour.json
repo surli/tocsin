@@ -1,0 +1,363 @@
+{
+  "accordionBehaviour": "normal",
+  "concept": "behaviour",
+  "name": "Annotation behaviour 10 juin 2014 14:59:30",
+  "rulesFeatureUnique": [
+    {
+      "explication": "The main content zone to render the information",
+      "feature": "Content",
+      "level": 2,
+      "logo": "images/logos/Elements/Content.png"
+    },
+    {
+      "explication": "???",
+      "feature": "Accueil",
+      "level": 2,
+      "logo": "images/logos/Elements/Accueil.png"
+    },
+    {
+      "explication": "The information will be displayed with a logo.",
+      "feature": "Logo",
+      "level": 2,
+      "logo": "images/logos/Elements/Logo.png"
+    },
+    {
+      "explication": "A title will be displayed with the information.",
+      "feature": "Title",
+      "level": 2,
+      "logo": "images/logos/Elements/Title.png"
+    },
+    {
+      "explication": "The displayed information may contain some pictures.",
+      "feature": "Graphic",
+      "level": 2,
+      "logo": "images/logos/Elements/Graphic.png"
+    },
+    {
+      "explication": "The displayed picture will take all the available space.",
+      "feature": "Full",
+      "level": 2,
+      "logo": "images/logos/Elements/Full.png"
+    },
+    {
+      "explication": "The title of the information will be the picture album name.",
+      "feature": "AlbumName",
+      "level": 2,
+      "logo": "images/logos/Elements/AlbumName.png"
+    },
+    {
+      "explication": "The displayed logo will depend of the information provider.",
+      "feature": "FromSource",
+      "level": 2,
+      "logo": "images/logos/Elements/FromSource.png"
+    },
+    {
+      "explication": "The title of the information will be the news title.",
+      "feature": "AnnounceTitle",
+      "level": 2,
+      "logo": "images/logos/Elements/AnnounceTitle.png"
+    },
+    {
+      "explication": "The content of the information will contain some text.",
+      "feature": "Text",
+      "level": 2,
+      "logo": "images/logos/Elements/Text.png"
+    },
+    {
+      "explication": "The title of the information will be the menu name.",
+      "feature": "MenuName",
+      "level": 2,
+      "logo": "images/logos/Elements/MenuName.png"
+    },
+    {
+      "explication": "The title will be a french formatted date.",
+      "feature": "FrenchDate",
+      "level": 2,
+      "logo": "images/logos/Elements/FrenchDate.png"
+    },
+    {
+      "explication": "The information will contain some thumbnails pictures.",
+      "feature": "Thumbnails",
+      "level": 2,
+      "logo": "images/logos/Elements/Thumbnails.png"
+    },
+    {
+      "explication": "The information can be used with a speech synthesizer.",
+      "feature": "Speakable",
+      "level": 2,
+      "logo": "images/logos/Elements/Speakable.png"
+    },
+    {
+      "explication": "All information are aggregated together (used in a scrolling for example)",
+      "feature": "All",
+      "level": 2,
+      "logo": "images/logos/Elements/All.png"
+    },
+    {
+      "explication": "The information are displayed inside a bloc: this is used with a \"push\" behavior for example.",
+      "feature": "Bloc",
+      "level": 2,
+      "logo": "images/logos/Elements/Bloc.png"
+    },
+    {
+      "explication": "The information are displayed six by six.",
+      "feature": "BySix",
+      "level": 2,
+      "logo": "images/logos/Elements/BySix.png"
+    },
+    {
+      "explication": "The outdated information are automatically removed.",
+      "feature": "FilterByDate",
+      "level": 2,
+      "logo": "images/logos/Elements/FilterByDate.png"
+    },
+    {
+      "explication": "The information title comes from the source.",
+      "feature": "SourceTitle",
+      "level": 2,
+      "logo": "images/logos/Elements/SourceTitle.png"
+    },
+    {
+      "explication": "The logo will depend on the displayed news.",
+      "feature": "ByAnnounce",
+      "level": 2,
+      "logo": "images/logos/Elements/ByAnnounce.png"
+    },
+    {
+      "explication": "The information will display the location of the event.",
+      "feature": "Location",
+      "level": 2,
+      "logo": "images/logos/Elements/Location.png"
+    },
+    {
+      "explication": "A fixed number of information will be displayed.",
+      "feature": "FixedNumber",
+      "level": 2,
+      "logo": "images/logos/Elements/FixedNumber.png"
+    },
+    {
+      "explication": "The information will be displayed 6 by 6",
+      "feature": "By6",
+      "level": 2,
+      "logo": "images/logos/Elements/BySix.png"
+    },
+    {
+      "explication": "The logo corresponds to the user profil picture.",
+      "feature": "UserProfile",
+      "level": 2,
+      "logo": "images/logos/Elements/UserProfile.png"
+    },
+    {
+      "explication": "The title of the information is directly extracted from the tweet.",
+      "feature": "FromTweet",
+      "level": 2,
+      "logo": "images/logos/Elements/FromTweet.png"
+    },
+    {
+      "explication": "The logo corresponds to the user profil picture.",
+      "feature": "User",
+      "level": 2,
+      "logo": "images/logos/Elements/User.png"
+    },
+    {
+      "explication": "The title will correspond to the city name.",
+      "feature": "ForecastCity",
+      "level": 2,
+      "logo": "images/logos/Elements/ForecastCity.png"
+    },
+    {
+      "explication": "The renderer display no logo...",
+      "feature": "NoLogo",
+      "level": 2,
+      "logo": "images/logos/Elements/NoLogo.png"
+    },
+    {
+      "explication": "This behaviour display the zone and the information whenever it comes.",
+      "feature": "Alert",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/Alert.png"
+    },
+    {
+      "explication": "The information just appears inside the zone.",
+      "feature": "Appearance",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/Appearance.png"
+    },
+    {
+      "explication": "The other zones are paused when an information arrived.",
+      "feature": "PauseOtherZones",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/PauseOtherZones.png"
+    },
+    {
+      "explication": "Each information has an individual information time.",
+      "feature": "Individual",
+      "level": 3,
+      "logo": "images/logos/BehavioursTime/Individual.png"
+    },
+    {
+      "explication": "One information is displayed at a time.",
+      "feature": "One",
+      "level": 4,
+      "logo": "images/logos/BehavioursNumber/One.png"
+    },
+    {
+      "explication": "The others zones are cleared when an information arrived.",
+      "feature": "ResetOtherZones",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/ResetOtherZones.png"
+    },
+    {
+      "explication": "The information is repeated at least twice.",
+      "feature": "Repetition",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/Repetition.png"
+    },
+    {
+      "explication": "The information is repeated using two different contrasts.",
+      "feature": "Contrasted",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/Contrasted.png"
+    },
+    {
+      "explication": "The color used to the contrast are Clement Ader's style: black and light yellow.",
+      "feature": "CAStyle",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/CAStyle.png"
+    },
+    {
+      "explication": "The color used to the contrast are IRSAM's style: black and dark yellow.",
+      "feature": "IRSAMStyle",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/IRSAMStyle.png"
+    },
+    {
+      "explication": "Information are slowly pushed.",
+      "feature": "Push",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/Push.png"
+    },
+    {
+      "explication": "Information came from the top.",
+      "feature": "TopDown",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/TopDown.png"
+    },
+    {
+      "explication": "Information are scrolling indefinitely.",
+      "feature": "Scrolling",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/Scrolling.png"
+    },
+    {
+      "explication": "Information are coming from the right to the left.",
+      "feature": "RightToLeft",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/RightToLeft.png"
+    },
+    {
+      "explication": "All information are displayed in a unique string.",
+      "feature": "All",
+      "level": 4,
+      "logo": "images/logos/BehavioursNumber/All.png"
+    },
+    {
+      "explication": "The time is computed for the whole information.",
+      "feature": "Global",
+      "level": 3,
+      "logo": "images/logos/BehavioursTime/Global.png"
+    },
+    {
+      "explication": "The logo is chosen information by information.",
+      "feature": "ByInformation",
+      "level": 2,
+      "logo": "images/logos/Elements/ByInformation.png"
+    },
+    {
+      "explication": "The logo is static for the zone.",
+      "feature": "Static",
+      "level": 2,
+      "logo": "images/logos/Elements/Static.png"
+    },
+    {
+      "explication": "The information appears with a smooth fade.",
+      "feature": "Smooth",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/Smooth.png"
+    },
+    {
+      "explication": "The information takes all the available space, hiding logo and title.",
+      "feature": "Slide",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/Slide.png"
+    },
+    {
+      "explication": "The information are shown only when they appears.",
+      "feature": "Notification",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/Notification.png"
+    },
+    {
+      "explication": "This behaviour won't display information but vocalize them.",
+      "feature": "Vocalization",
+      "level": 1,
+      "logo": "images/logos/BehavioursAnimations/Vocalization.png"
+    }
+  ],
+  "rulesRecursive": [
+    {
+      "explication": "",
+      "feature": "Animation",
+      "getChildren": true,
+      "level": 1,
+      "treeLevel": 1
+    },
+    {
+      "explication": "",
+      "feature": "Elements",
+      "getChildren": true,
+      "level": 2,
+      "treeLevel": 1
+    },
+    {
+      "explication": "",
+      "feature": "Time",
+      "getChildren": false,
+      "level": 3,
+      "treeLevel": 1
+    },
+    {
+      "explication": "",
+      "feature": "Number",
+      "getChildren": false,
+      "level": 4,
+      "treeLevel": 1
+    }
+  ],
+  "zones": [
+    {
+      "accordion": false,
+      "description": "The type of animation you want to get.",
+      "level": 1,
+      "name": "Animation Type"
+    },
+    {
+      "accordion": true,
+      "description": "The elements contained by the zone.",
+      "level": 2,
+      "name": "Elements"
+    },
+    {
+      "accordion": true,
+      "description": "The time to display each information.",
+      "level": 3,
+      "name": "Time"
+    },
+    {
+      "accordion": true,
+      "description": "The number of information to display at a time.",
+      "level": 4,
+      "name": "Number"
+    }
+  ]
+}

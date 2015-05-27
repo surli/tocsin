@@ -1,0 +1,82 @@
+.context-menu {
+    background-color: #F2F2F2;
+    border: 1px solid #999999;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.context-menu a {
+    color: #333333;
+    display: block;
+    padding: 3px;
+    text-decoration: none;
+}
+.context-menu a:hover {
+    background-color: #666666;
+    color: white;
+    text-decoration: none;
+}
+
+/*
+*/
+/* all context menus have this class */
+.context-menu {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+
+    background-color: #f2f2f2;
+    border: 1px solid #999;
+
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.context-menu a {
+    display: block;
+    padding: 3px;
+    text-decoration: none;
+    color: #333;
+}
+.context-menu a:hover {
+    background-color: #666;
+    color: white;
+}
+
+/* second context menu */
+#context-menu-2 {
+    border: 1px solid #333;
+    background-color: orange;
+    margin: 0;
+    padding: 0;
+}
+
+
+.target1, .target2 li, .target3 li {
+    background-color: #ddd;
+    color: #333;
+    border: 1px solid #c6c6c6;
+    padding: 5px;
+}
+
+.target1 {
+    width: 130px;
+}
+
+.target2 li, .target3 li {
+    margin-top: 5px;
+}
+
+.target1 li.green, .target2 li.green, .target3 li.green {
+    background-color: green;
+    color: #fff;
+}
+
+.big-font {
+    font-size: 25px;
+}
+.scrollable-menu {
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+}

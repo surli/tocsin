@@ -1,0 +1,250 @@
+<html>
+<head>
+<title>tooltipsy.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(128,128,128); font-style: italic; }
+.s3 { color: rgb(0,0,128); font-weight: bold; }
+.s4 { color: rgb(0,0,255); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+tooltipsy.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+</span><span class="s2">/* tooltipsy by Brian Cray 
+ * Lincensed under GPL2 - http://www.gnu.org/licenses/gpl-2.0.html 
+ * Option quick reference: 
+ * - alignTo: &quot;element&quot; or &quot;cursor&quot; (Defaults to &quot;element&quot;) 
+ * - offset: Tooltipsy distance from element or mouse cursor, dependent on alignTo setting. Set as array [x, y] (Defaults to [0, -1]) 
+ * - content: HTML or text content of tooltip. Defaults to &quot;&quot; (empty string), which pulls content from target element's title attribute 
+ * - show: function(event, tooltip) to show the tooltip. Defaults to a show(100) effect 
+ * - hide: function(event, tooltip) to hide the tooltip. Defaults to a fadeOut(100) effect 
+ * - delay: A delay in milliseconds before showing a tooltip. Set to 0 for no delay. Defaults to 200 
+ * - css: object containing CSS properties and values. Defaults to {} to use stylesheet for styles 
+ * - className: DOM class for styling tooltips with CSS. Defaults to &quot;tooltipsy&quot; 
+ * - showEvent: Set a custom event to bind the show function. Defaults to mouseenter 
+ * - hideEvent: Set a custom event to bind the show function. Defaults to mouseleave 
+ * Method quick reference: 
+ * - $('element').data('tooltipsy').show(): Force the tooltip to show 
+ * - $('element').data('tooltipsy').hide(): Force the tooltip to hide 
+ * - $('element').data('tooltipsy').destroy(): Remove tooltip from DOM 
+ * More information visit http://tooltipsy.com/ 
+ */</span><span class="s1"> 
+ 
+(</span><span class="s3">function</span><span class="s1">($){ 
+    $.tooltipsy = </span><span class="s3">function </span><span class="s1">(el, options) { 
+        </span><span class="s3">this</span><span class="s1">.options = options; 
+        </span><span class="s3">this</span><span class="s1">.$el = $(el); 
+        </span><span class="s3">this</span><span class="s1">.title = </span><span class="s3">this</span><span class="s1">.$el.attr(</span><span class="s0">'title'</span><span class="s1">) || </span><span class="s0">''</span><span class="s1">; 
+        </span><span class="s3">this</span><span class="s1">.$el.attr(</span><span class="s0">'title'</span><span class="s1">, </span><span class="s0">''</span><span class="s1">); 
+        </span><span class="s3">this</span><span class="s1">.random = parseInt(Math.random()*</span><span class="s4">10000</span><span class="s1">,</span><span class="s4">10</span><span class="s1">); 
+        </span><span class="s3">this</span><span class="s1">.ready = </span><span class="s3">false</span><span class="s1">; 
+        </span><span class="s3">this</span><span class="s1">.shown = </span><span class="s3">false</span><span class="s1">; 
+        </span><span class="s3">this</span><span class="s1">.width = </span><span class="s4">0</span><span class="s1">; 
+        </span><span class="s3">this</span><span class="s1">.height = </span><span class="s4">0</span><span class="s1">; 
+        </span><span class="s3">this</span><span class="s1">.delaytimer = </span><span class="s3">null</span><span class="s1">; 
+ 
+        </span><span class="s3">this</span><span class="s1">.$el.data(</span><span class="s0">'tooltipsy'</span><span class="s1">, </span><span class="s3">this</span><span class="s1">); 
+        </span><span class="s3">this</span><span class="s1">.init(); 
+    }; 
+ 
+    $.tooltipsy.prototype = { 
+        init: </span><span class="s3">function </span><span class="s1">() { 
+            </span><span class="s3">var </span><span class="s1">base = </span><span class="s3">this</span><span class="s1">, 
+                settings, 
+                $el = base.$el, 
+                el = $el[</span><span class="s4">0</span><span class="s1">]; 
+ 
+            base.settings = settings = $.extend({}, base.defaults, base.options); 
+            settings.delay = +settings.delay; 
+ 
+            </span><span class="s3">if </span><span class="s1">(</span><span class="s3">typeof </span><span class="s1">settings.content === </span><span class="s0">'function'</span><span class="s1">) { 
+                base.readify(); 
+            } 
+ 
+            </span><span class="s3">if </span><span class="s1">(settings.showEvent === settings.hideEvent &amp;&amp; settings.showEvent === </span><span class="s0">'click'</span><span class="s1">) { 
+                $el.toggle(</span><span class="s3">function </span><span class="s1">(e) { 
+                    </span><span class="s3">if </span><span class="s1">(settings.showEvent === </span><span class="s0">'click' </span><span class="s1">&amp;&amp; el.tagName === </span><span class="s0">'A'</span><span class="s1">) { 
+                        e.preventDefault(); 
+                    } 
+                    </span><span class="s3">if </span><span class="s1">(settings.delay &gt; </span><span class="s4">0</span><span class="s1">) { 
+                        base.delaytimer = window.setTimeout(</span><span class="s3">function </span><span class="s1">() { 
+                            base.show(e); 
+                        }, settings.delay); 
+                    } 
+                    </span><span class="s3">else </span><span class="s1">{ 
+                        base.show(e); 
+                    } 
+                }, </span><span class="s3">function </span><span class="s1">(e) { 
+                    </span><span class="s3">if </span><span class="s1">(settings.showEvent === </span><span class="s0">'click' </span><span class="s1">&amp;&amp; el.tagName === </span><span class="s0">'A'</span><span class="s1">) { 
+                        e.preventDefault(); 
+                    } 
+                    window.clearTimeout(base.delaytimer); 
+                    base.delaytimer = </span><span class="s3">null</span><span class="s1">; 
+                    base.hide(e); 
+                }); 
+            } 
+            </span><span class="s3">else </span><span class="s1">{ 
+                $el.bind(settings.showEvent, </span><span class="s3">function </span><span class="s1">(e) { 
+                    </span><span class="s3">if </span><span class="s1">(settings.showEvent === </span><span class="s0">'click' </span><span class="s1">&amp;&amp; el.tagName === </span><span class="s0">'A'</span><span class="s1">) { 
+                        e.preventDefault(); 
+                    } 
+                    base.delaytimer = window.setTimeout(</span><span class="s3">function </span><span class="s1">() { 
+                        base.show(e); 
+                    }, settings.delay || </span><span class="s4">0</span><span class="s1">); 
+                }).bind(settings.hideEvent, </span><span class="s3">function </span><span class="s1">(e) { 
+                        </span><span class="s3">if </span><span class="s1">(settings.showEvent === </span><span class="s0">'click' </span><span class="s1">&amp;&amp; el.tagName === </span><span class="s0">'A'</span><span class="s1">) { 
+                            e.preventDefault(); 
+                        } 
+                        window.clearTimeout(base.delaytimer); 
+                        base.delaytimer = </span><span class="s3">null</span><span class="s1">; 
+                        base.hide(e); 
+                    }); 
+            } 
+        }, 
+ 
+        show: </span><span class="s3">function </span><span class="s1">(e) { 
+            </span><span class="s3">if </span><span class="s1">(</span><span class="s3">this</span><span class="s1">.ready === </span><span class="s3">false</span><span class="s1">) { 
+                </span><span class="s3">this</span><span class="s1">.readify(); 
+            } 
+ 
+            </span><span class="s3">var </span><span class="s1">base = </span><span class="s3">this</span><span class="s1">, 
+                settings = base.settings, 
+                $tipsy = base.$tipsy, 
+                $el = base.$el, 
+                el = $el[</span><span class="s4">0</span><span class="s1">], 
+                offset = base.offset(el); 
+ 
+            </span><span class="s3">if </span><span class="s1">(base.shown === </span><span class="s3">false</span><span class="s1">) { 
+                </span><span class="s3">if </span><span class="s1">((</span><span class="s3">function </span><span class="s1">(o) { 
+                    </span><span class="s3">var </span><span class="s1">s = </span><span class="s4">0</span><span class="s1">, k; 
+                    </span><span class="s3">for </span><span class="s1">(k </span><span class="s3">in </span><span class="s1">o) { 
+                        </span><span class="s3">if </span><span class="s1">(o.hasOwnProperty(k)) { 
+                            s++; 
+                        } 
+                    } 
+                    </span><span class="s3">return </span><span class="s1">s; 
+                })(settings.css) &gt; </span><span class="s4">0</span><span class="s1">) { 
+                    base.$tip.css(settings.css); 
+                } 
+                base.width = $tipsy.outerWidth(); 
+                base.height = $tipsy.outerHeight(); 
+            } 
+            </span><span class="s3">var </span><span class="s1">tipPosition; 
+            </span><span class="s3">if </span><span class="s1">(settings.alignTo === </span><span class="s0">'cursor' </span><span class="s1">&amp;&amp; e) { 
+                tipPosition = [e.clientX + settings.offset[</span><span class="s4">0</span><span class="s1">], e.clientY + settings.offset[</span><span class="s4">1</span><span class="s1">]]; 
+                </span><span class="s3">var </span><span class="s1">tipCSS; 
+                </span><span class="s3">if </span><span class="s1">(tipPosition[</span><span class="s4">0</span><span class="s1">] + base.width &gt; $(window).width()) { 
+                    tipCSS = {top: tipPosition[</span><span class="s4">1</span><span class="s1">] + </span><span class="s0">'px'</span><span class="s1">, right: tipPosition[</span><span class="s4">0</span><span class="s1">] + </span><span class="s0">'px'</span><span class="s1">, left: </span><span class="s0">'auto'</span><span class="s1">}; 
+                } 
+                </span><span class="s3">else </span><span class="s1">{ 
+                    tipCSS = {top: tipPosition[</span><span class="s4">1</span><span class="s1">] + </span><span class="s0">'px'</span><span class="s1">, left: tipPosition[</span><span class="s4">0</span><span class="s1">] + </span><span class="s0">'px'</span><span class="s1">, right: </span><span class="s0">'auto'</span><span class="s1">}; 
+                } 
+            } 
+            </span><span class="s3">else </span><span class="s1">{ 
+                tipPosition = [ 
+                    (</span><span class="s3">function </span><span class="s1">() { 
+                        </span><span class="s3">if </span><span class="s1">(settings.offset[</span><span class="s4">0</span><span class="s1">] &lt; </span><span class="s4">0</span><span class="s1">) { 
+                            </span><span class="s3">return </span><span class="s1">offset.left - Math.abs(settings.offset[</span><span class="s4">0</span><span class="s1">]) - base.width; 
+                        } 
+                        </span><span class="s3">else if </span><span class="s1">(settings.offset[</span><span class="s4">0</span><span class="s1">] === </span><span class="s4">0</span><span class="s1">) { 
+                            </span><span class="s3">return </span><span class="s1">offset.left - ((base.width - $el.outerWidth()) / </span><span class="s4">2</span><span class="s1">); 
+                        } 
+                        </span><span class="s3">else </span><span class="s1">{ 
+                            </span><span class="s3">return </span><span class="s1">offset.left + $el.outerWidth() + settings.offset[</span><span class="s4">0</span><span class="s1">]; 
+                        } 
+                    })(), 
+                    (</span><span class="s3">function </span><span class="s1">() { 
+                        </span><span class="s3">if </span><span class="s1">(settings.offset[</span><span class="s4">1</span><span class="s1">] &lt; </span><span class="s4">0</span><span class="s1">) { 
+                            </span><span class="s3">return </span><span class="s1">offset.top - Math.abs(settings.offset[</span><span class="s4">1</span><span class="s1">]) - base.height; 
+                        } 
+                        </span><span class="s3">else if </span><span class="s1">(settings.offset[</span><span class="s4">1</span><span class="s1">] === </span><span class="s4">0</span><span class="s1">) { 
+                            </span><span class="s3">return </span><span class="s1">offset.top - ((base.height - base.$el.outerHeight()) / </span><span class="s4">2</span><span class="s1">); 
+                        } 
+                        </span><span class="s3">else </span><span class="s1">{ 
+                            </span><span class="s3">return </span><span class="s1">offset.top + base.$el.outerHeight() + settings.offset[</span><span class="s4">1</span><span class="s1">]; 
+                        } 
+                    })() 
+                ]; 
+            } 
+            $tipsy.css({top: tipPosition[</span><span class="s4">1</span><span class="s1">] + </span><span class="s0">'px'</span><span class="s1">, left: tipPosition[</span><span class="s4">0</span><span class="s1">] + </span><span class="s0">'px'</span><span class="s1">}); 
+            base.settings.show(e, $tipsy.stop(</span><span class="s3">true</span><span class="s1">, </span><span class="s3">true</span><span class="s1">)); 
+        }, 
+ 
+        hide: </span><span class="s3">function </span><span class="s1">(e) { 
+            </span><span class="s3">var </span><span class="s1">base = </span><span class="s3">this</span><span class="s1">; 
+ 
+            </span><span class="s3">if </span><span class="s1">(base.ready === </span><span class="s3">false</span><span class="s1">) { 
+                </span><span class="s3">return</span><span class="s1">; 
+            } 
+ 
+            </span><span class="s3">if </span><span class="s1">(e &amp;&amp; e.relatedTarget === base.$tip[</span><span class="s4">0</span><span class="s1">]) { 
+                base.$tip.bind(</span><span class="s0">'mouseleave'</span><span class="s1">, </span><span class="s3">function </span><span class="s1">(e) { 
+                    </span><span class="s3">if </span><span class="s1">(e.relatedTarget === base.$el[</span><span class="s4">0</span><span class="s1">]) { 
+                        </span><span class="s3">return</span><span class="s1">; 
+                    } 
+                    base.settings.hide(e, base.$tipsy.stop(</span><span class="s3">true</span><span class="s1">, </span><span class="s3">true</span><span class="s1">)); 
+                }); 
+                </span><span class="s3">return</span><span class="s1">; 
+            } 
+            base.settings.hide(e, base.$tipsy.stop(</span><span class="s3">true</span><span class="s1">, </span><span class="s3">true</span><span class="s1">)); 
+        }, 
+ 
+        readify: </span><span class="s3">function </span><span class="s1">() { 
+            </span><span class="s3">this</span><span class="s1">.ready = </span><span class="s3">true</span><span class="s1">; 
+            </span><span class="s3">this</span><span class="s1">.$tipsy = $(</span><span class="s0">'&lt;div id=&quot;tooltipsy' </span><span class="s1">+ </span><span class="s3">this</span><span class="s1">.random + </span><span class="s0">'&quot; style=&quot;position:fixed;z-index:2147483647;display:none&quot;&gt;'</span><span class="s1">).appendTo(</span><span class="s0">'body'</span><span class="s1">); 
+            </span><span class="s3">this</span><span class="s1">.$tip = $(</span><span class="s0">'&lt;div class=&quot;' </span><span class="s1">+ </span><span class="s3">this</span><span class="s1">.settings.className + </span><span class="s0">'&quot;&gt;'</span><span class="s1">).appendTo(</span><span class="s3">this</span><span class="s1">.$tipsy); 
+            </span><span class="s3">this</span><span class="s1">.$tip.data(</span><span class="s0">'rootel'</span><span class="s1">, </span><span class="s3">this</span><span class="s1">.$el); 
+            </span><span class="s3">var </span><span class="s1">e = </span><span class="s3">this</span><span class="s1">.$el; 
+            </span><span class="s3">var </span><span class="s1">t = </span><span class="s3">this</span><span class="s1">.$tip; 
+            </span><span class="s3">this</span><span class="s1">.$tip.html(</span><span class="s3">this</span><span class="s1">.settings.content !== </span><span class="s0">'' </span><span class="s1">? (</span><span class="s3">typeof this</span><span class="s1">.settings.content === </span><span class="s0">'string' </span><span class="s1">? </span><span class="s3">this</span><span class="s1">.settings.content : </span><span class="s3">this</span><span class="s1">.settings.content(e, t)) : </span><span class="s3">this</span><span class="s1">.title); 
+        }, 
+ 
+        offset: </span><span class="s3">function </span><span class="s1">() { 
+            </span><span class="s3">return this</span><span class="s1">.$el[</span><span class="s4">0</span><span class="s1">].getBoundingClientRect(); 
+        }, 
+ 
+        destroy: </span><span class="s3">function </span><span class="s1">() { 
+            </span><span class="s3">if </span><span class="s1">(</span><span class="s3">this</span><span class="s1">.$tipsy) { 
+                </span><span class="s3">this</span><span class="s1">.$tipsy.remove(); 
+                $.removeData(</span><span class="s3">this</span><span class="s1">.$el, </span><span class="s0">'tooltipsy'</span><span class="s1">); 
+            } 
+        }, 
+ 
+        defaults: { 
+            alignTo: </span><span class="s0">'element'</span><span class="s1">, 
+            offset: [</span><span class="s4">0</span><span class="s1">, -</span><span class="s4">1</span><span class="s1">], 
+            content: </span><span class="s0">''</span><span class="s1">, 
+            show: </span><span class="s3">function </span><span class="s1">(e, $el) { 
+                $el.fadeIn(</span><span class="s4">100</span><span class="s1">); 
+            }, 
+            hide: </span><span class="s3">function </span><span class="s1">(e, $el) { 
+                $el.fadeOut(</span><span class="s4">100</span><span class="s1">); 
+            }, 
+            css: {}, 
+            className: </span><span class="s0">'tooltipsy'</span><span class="s1">, 
+            delay: </span><span class="s4">200</span><span class="s1">, 
+            showEvent: </span><span class="s0">'mouseenter'</span><span class="s1">, 
+            hideEvent: </span><span class="s0">'mouseleave'</span><span class="s1"> 
+        } 
+    }; 
+ 
+    $.fn.tooltipsy = </span><span class="s3">function</span><span class="s1">(options) { 
+        </span><span class="s3">return this</span><span class="s1">.each(</span><span class="s3">function</span><span class="s1">() { 
+            </span><span class="s3">new </span><span class="s1">$.tooltipsy(</span><span class="s3">this</span><span class="s1">, options); 
+        }); 
+    }; 
+ 
+})(jQuery); 
+</span></pre>
+</body>
+</html>

@@ -1,0 +1,46 @@
+
+<menu-bar></menu-bar>
+
+
+<div class="container-fluid">
+    <div class="row-fluid">
+
+        <div id="middlezonepb" class="span9">
+            <div id="description" class="hero-unit">
+                <h2 style="text-align: center"> Domain {{domainElement}} </h2> {{descriptionDES[domainElement]}}
+
+                <div ng-show="isAddNewAllowed(domainElement)" style="text-align: center">
+                    <button class="btn btn-large" ng-click="createNewConfig()"><i class="icon-edit"></i> Create new {{domainElement}} </button>
+                </div>
+            </div>
+
+            <div ng-repeat = "(status, configs) in listConfigurations">
+            <table class="table table-bordered" ng-show = "hasConfigs(status)">
+                <caption ng-switch="status">
+                    <h3 ng-switch-when="valid" ng-style="{'background': colorsState.finishedNotLinkedConfig}"> Finished and not Linked Configurations </h3>
+                    <h3 ng-switch-when="linked" ng-style="{'background': colorsState.finishedLinkedConfig}"> Finished and Linked Configurations </h3>
+                    <h3 ng-switch-when="notValid" ng-style="{'background': colorsState.notFinishedConfig}"> Not Finished Configurations </h3>
+                </caption>
+                <tr>
+                    <th style="width: 30%">Name </th>
+                    <th ng-repeat="des in compatiblesDES[domainElement]" ng-value="{{des}}">{{des}}</th>
+                </tr>
+                <tr ng-repeat="config in configs">
+                    <td><a href="{{config.url}}">{{config.name}}</a></td>
+                    <td style="width: 30%" ng-repeat="domain in compatiblesDES[domainElement]" ng-switch="status">
+                        <span ng-switch-when="linked" class="label label-success"> {{ domain }} {{getLinked(config.configID, domain)}}</span>
+                        <span ng-switch-when="valid">
+                        <span class="label label-success" ng-show="getLinked(config.configID, domain) > 0">{{getLinked(config.configID, domain)}} {{ domain }}</span>
+                        <span class="label label-important" ng-show="getCompatibles(config.configID, domain) > 0">{{getCompatibles(config.configID, domain)}} {{ domain }}</span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            </div>
+
+
+
+        </div>
+        <left-band></left-band>
+    </div>
+</div>

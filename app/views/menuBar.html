@@ -1,0 +1,144 @@
+<div id="top" class="navbar navbar-inverse navbar-static-top" xmlns="http://www.w3.org/1999/html">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <!-- home icon -->
+            <a class="brand" ng-href="/tocsin/" style="color: #ffffff"><i class="icon-home icon-large icon-white"></i>YourCast</a>
+            <ul class="nav pull-right">
+                <!-- settings icon : set instance's name and mouse behaviours, show stats  -->
+                <li class="dropdown">
+                    <a href="" class="dropdown-toggle" data-toggle="dropdown" ng-click="getPreviousActions()"><h4 style="color: #ffffff"><img ng-src="./images/configuration/undo.png" style="height: 20px; width: 20px;" /> Undo<b class="caret" style="border-top-color: #ffffff;border-bottom-color: #ffffff;"></b></h4></a>
+                    <ul class="dropdown-menu scrollable-menu">
+                        <li ng-repeat="steps in previousActions"><a href="" ng-click="undoAction(steps)"><b>Undo :</b> {{ steps.description }}</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="" class="dropdown-toggle" data-toggle="dropdown"><h4 style="color: #ffffff"><i class="icon-cog icon-white"></i> {{name}} <b class="caret" style="border-top-color: #ffffff;border-bottom-color: #ffffff;"></b></h4></a>
+                    <ul class="dropdown-menu scrollable-menu">
+                        <li><a href="" ng-click="openSetName()"> Set Name </a></li>
+                        <li><a href="" ng-click="duplicate()">Duplicate</a></li>
+                        <li><a href="http://spinefm.unice.fr:8080/spinefm-rest-service/rest/{{SpineFMID}}/stats/" target="new">Stats</a></li>
+                        <!--<li><a href="" ng-click="openMouseConfigurationModal()">Set Mouse Actions </a></li>
+                        <li><a href="" ng-click="deleteConfiguration()">Delete the configuration</a></li>-->
+                    </ul>
+                </li>
+
+                <!-- HELP-->
+                <li><a ng-click="openHelpModal()" href="" role="button"><h4 style="color: #ffffff"><i class="icon-question-sign icon-white"></i> Help !</h4></a></li>
+            </ul>
+
+            <!-- all domains ELements drop downs  -->
+            <div class="nav-collapse collapse">
+
+                <ul class="nav">
+                    <li class="dropdown" ng-repeat="de in domainElements">
+                        <a class="dropdown-toggle" role="button" href="#" style="text-transform: capitalize ; color: #ffffff"><h4>{{de}} <b class="caret" style="border-top-color: #ffffff;border-bottom-color: #ffffff;"></b></h4></a>
+
+                        <ul class="dropdown-menu scrollable-menu">
+                            <li  ng-switch="isAddNewAllowed(de)">
+                                <a href="#/de/{{de}}" ng-switch-when="true" ng-switch = "isSameDE(domainElement, de)">
+                                    <span ng-switch-when="yes" ng-click="reinitializeConfiguration()">
+                                    Add a new {{de}}
+                                    </span>
+                                    <span ng-switch-when="no">
+                                          Add a new {{de}}
+                                    </span>
+                                </a>
+                            </li>
+                            <li ng-repeat="config in configurations[de].partialConfig.listConfigs" ng-style="{background: {false: colorsState.notFinishedConfig, true: colorsState.notFinishedConfig}[config.isValid]}"><a ng-href="{{config.url}}">See {{config.name}}</a></li>
+                            <li ng-repeat="config in configurations[de].validConfig.listConfigs" ng-style="{background: {false: colorsState.finishedNotLinkedConfig, true: colorsState.finishedLinkedConfig}[config.isLinked]}"><a ng-href="{{config.url}}">See {{config.name}}</a></li>
+                        </ul>
+                    </li>
+                    <!-- global  -->
+                    <!--<li><a role="button" href="#/global"><h4 style="color: #ffffff">Global View</h4></a></li> -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div modal="showUndoLoading"  class="modal hide fade in" options="options" style="width: 800px">
+    <div class="modal-header"  style="text-align: center">
+        <h3 style="color: lightslategray">The action is undoing... please wait. </h3>
+        <h1><i class="icon-spinner icon-spin icon-4px icon-large" style="color: lightslategray"></i></h1>
+    </div>
+</div>
+
+<!-- Modal opened to set spineFM's name -->
+<div modal="openSetSpineNameModal" options="options">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="cancelSetName()">×</button>
+        <h4>Setting SpineFM instance's name '{{name}}'</h4>
+    </div>
+    <div class="modal-body">
+        <div class="control-group">
+            <div class="controls">
+                New name / description:
+                <form ng-submit="changeSpineFMName({});">
+                    <input type="text" ng-model="spineFMNewName" autofocus="first"  ng-trim="false"/>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-warning cancel" ng-click="cancelSetName()">Cancel</button>
+        <button class="btn btn-success" ng-click="changeSpineFMName()">Validate</button>
+    </div>
+</div>
+
+
+
+<!-- Modal opened when a screen is generating -->
+<div modal="showGenarationLoading"  class="modal hide fade in" options="options" style="width: 800px">
+    <div class="modal-header"  style="text-align: center">
+        <h3 style="color: lightslategray"> Generation of the current screen </h3>
+        <h1><i class="icon-spinner icon-spin icon-4px icon-large" style="color: lightslategray"></i></h1>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closeShowGenerationLoading()">×</button>
+    </div>
+</div>
+<!-- Modal help -->
+<div modal="helpModal">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closeHelpModal()">×</button>
+        <h4 style="text-align: center"> <i class="icon-info-sign"></i> HELP</h4>
+    </div>
+    <div class="modal-body">
+        <div>
+            <h3> Follow this step to create configuration</h3>
+            <span><h4><i class="icon-double-angle-right"></i>   Choose a domain element </h4></span>
+            <span><h4><i class="icon-double-angle-right"></i>  In configuration view, select features you want in your configuration (you can see deselected features in trash icon</h4></span>
+            <span><h4><i class="icon-double-angle-right"></i>  After features selection, finalize your configuration</h4></span>
+            <span><h4><i class="icon-double-angle-right"></i>  Bilan view is open, then you can create or link with a compliant configurations</h4></span>
+            <span><h4><i class="icon-double-angle-right"></i>  You can see all configurations and links between them in global view. You can link configurations also.</h4></span>
+            <span><h4><i class="icon-double-angle-right"></i>  After all, you can Generate your configuration with all created elements</h4></span>
+            </br>
+            <h4> Enjoy using our tools</h4>
+        </div>
+    </div>
+    <div class="modal-footer">
+    </div>
+</div>
+
+<!-- Modal opened to set mouse mode -->
+<div modal="showMouseConfiguration" options="options">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closeMouseConfigurationModal()">×</button>
+        <h4 style="text-align: center"> Change Mouse Actions </h4>
+    </div>
+    <div class="modal-body">
+        <div class="radio">
+
+            <label>
+                <input type="radio" name="optionsRadios" id="select" value="{{selectMenu}}" ng-model="selectedMode" ng-checked="setMouseMode(selectedMode)"> Selection only
+            </label>
+            <label>
+                <input type="radio" name="optionsRadios" id="all" value="{{allMenu}}" ng-model="selectedMode" ng-checked="setMouseMode(selectedMode)"> Left click to select & Right click to deselect
+            </label>
+            <label>
+                <input type="radio" name="optionsRadios" id="deselect" value="{{deselectMenu}}" ng-model="selectedMode" ng-checked="setMouseMode(selectedMode)"> Deselection only
+            </label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="validateMouseConfiguration()">Validate</button>
+    </div>
+</div>

@@ -1,0 +1,507 @@
+{
+  "accordionBehaviour": "normal",
+  "concept": "source",
+  "name": "Annotation source 10 juin 2014 14:57:45",
+  "rulesFeatureUnique": [
+    {
+      "explication": "A type of informations dedicated to display short announces. It supports images.",
+      "feature": "News",
+      "level": 1,
+      "logo": "images/logos/InformationType/News/news.png"
+    },
+    {
+      "explication": "A type of information dedicated to display birthdays.",
+      "feature": "Birthday",
+      "level": 1,
+      "logo": "images/logos/InformationType/Birthday/birthday.png"
+    },
+    {
+      "explication": "A type of information dedicated to display videos.",
+      "feature": "Video",
+      "level": 1,
+      "logo": "images/logos/InformationType/Video/video.png"
+    },
+    {
+      "explication": "A type of information dedicated to display basic ephemeride (date and saint of the day)",
+      "feature": "Ephemeride",
+      "level": 1,
+      "logo": "images/logos/InformationType/Ephemeride/ephemeride.png"
+    },
+    {
+      "explication": "A type of information dedicated to display picture albums.",
+      "feature": "PictureAlbum",
+      "level": 1,
+      "logo": "images/logos/InformationType/PictureAlbum/pictureAlbum.png"
+    },
+    {
+      "explication": "A type of information which allows to display a website.",
+      "feature": "HTMLEmbed",
+      "level": 1,
+      "logo": "images/logos/InformationType/HTMLEmbed/HTMLEmbed.png"
+    },
+    {
+      "explication": "A type of information to display a calendar, a planning, an agenda.",
+      "feature": "Calendar",
+      "level": 1,
+      "logo": "images/logos/InformationType/Calendar/calendar.png"
+    },
+    {
+      "explication": "A type of informations dedicated to display a list of names or words.",
+      "feature": "Names",
+      "level": 1,
+      "logo": "images/logos/InformationType/Names/names.png"
+    },
+    {
+      "explication": "A type of informations dedicated to display restaurant menus.",
+      "feature": "Menus",
+      "level": 1,
+      "logo": "images/logos/InformationType/Menus/menus.png"
+    },
+    {
+      "explication": "A type of informations to display RSS feeds.",
+      "feature": "RSSFeed",
+      "level": 1,
+      "logo": "images/logos/InformationType/RSSFeed/RSSFeed.png"
+    },
+    {
+      "explication": "A type of information created to display concert affiches.",
+      "feature": "Affiche",
+      "level": 1,
+      "logo": "images/logos/InformationType/Affiche/affiche.png"
+    },
+    {
+      "explication": "A type of informations dedicated to display really short informations (140 characters max)",
+      "feature": "Breves",
+      "level": 1,
+      "logo": "images/logos/InformationType/Breve/breve.png"
+    },
+    {
+      "explication": "A type of informations dedicated to display articles on multiple pages.",
+      "feature": "Article",
+      "level": 1,
+      "logo": "images/logos/InformationType/Article/article.png"
+    },
+    {
+      "explication": "A type of informations dedicated to display events with a date.",
+      "feature": "Events",
+      "level": 1,
+      "logo": "images/logos/InformationType/Events/events.png"
+    },
+    {
+      "explication": "A type of informations created to give hours of bus or train on a specific stop.",
+      "feature": "Passage",
+      "level": 1,
+      "logo": "images/logos/InformationType/Passage/passage.png"
+    },
+    {
+      "explication": "A type of informations dedicated to display tweets.",
+      "feature": "Tweets",
+      "level": 1,
+      "logo": "images/logos/InformationType/Tweet/tweet.png"
+    },
+    {
+      "explication": "A type of information dedicated to display forecast",
+      "feature": "Forecast",
+      "level": 1,
+      "logo": "images/logos/InformationType/Forecast/forecast.png"
+    },
+    {
+      "explication": "A service conceived to create and organize short announces.",
+      "feature": "YCAnnouncement",
+      "level": 2,
+      "logo": "images/logos/InformationType/News/Services/YCAnnouncement.png"
+    },
+    {
+      "explication": "A birthday reminder.",
+      "feature": "YCBirthdayReminder",
+      "level": 2,
+      "logo": "images/logos/InformationType/Birthday/Services/YCBirthdayReminder.png"
+    },
+    {
+      "explication": "The well-known french video provider DailyMotion.",
+      "feature": "DailyMotion",
+      "level": 2,
+      "logo": "images/logos/InformationType/Video/Services/dailyMotion.png"
+    },
+    {
+      "explication": "A basic service to give ephemeride from a calendar.",
+      "feature": "YCEphemeride",
+      "level": 2,
+      "logo": "images/logos/InformationType/Ephemeride/Services/YCEphemeride.png"
+    },
+    {
+      "explication": "The widely used picture service FlickR.",
+      "feature": "FlickR",
+      "level": 2,
+      "logo": "images/logos/InformationType/PictureAlbum/Services/flickr.png"
+    },
+    {
+      "explication": "The service Google Maps directly on your screen.",
+      "feature": "GMaps",
+      "level": 2,
+      "logo": "images/logos/InformationType/HTMLEmbed/Services/GMaps.png"
+    },
+    {
+      "explication": "A service conceived to display any kind of website.",
+      "feature": "HTMLEmbedService",
+      "level": 2,
+      "logo": "images/logos/InformationType/HTMLEmbed/Services/HTMLEmbedService.png"
+    },
+    {
+      "explication": "A french service to manage complex agendas (mostly known as HyperBousin)",
+      "feature": "HyperPlanning",
+      "level": 2,
+      "logo": "images/logos/InformationType/Calendar/Services/hyperPlanning.png"
+    },
+    {
+      "explication": "A specific service to use HyperPlanning only to display free rooms.",
+      "feature": "HyperPlanningFreeRooms",
+      "level": 2,
+      "logo": "images/logos/InformationType/Calendar/Services/hyperPlanningFreeRooms.png"
+    },
+    {
+      "explication": "A service conceived to read a calendar ICS (like Google Calendar) given through an URL.",
+      "feature": "ICalReader",
+      "level": 2,
+      "logo": "images/logos/InformationType/Calendar/Services/iCalReader.png"
+    },
+    {
+      "explication": "A service dedicated to the IRSAM to display their own menus.",
+      "feature": "IrsamMenu",
+      "level": 2,
+      "logo": "images/logos/InformationType/Menus/Services/IRSAMMenu.png"
+    },
+    {
+      "explication": "The service Picasa given by Google to display picture albums.",
+      "feature": "Picasa",
+      "level": 2,
+      "logo": "images/logos/InformationType/PictureAlbum/Services/picasa.png"
+    },
+    {
+      "explication": "A service created to get RSS feeds.",
+      "feature": "RSSFeedReader",
+      "level": 2,
+      "logo": "images/logos/InformationType/RSSFeed/Services/RSSFeedReader.png"
+    },
+    {
+      "explication": "A type of informations used to organize staff planning.",
+      "feature": "StaffScheduling",
+      "level": 2,
+      "logo": "images/logos/InformationType/Calendar/Services/staffScheduling.png"
+    },
+    {
+      "explication": "A service dedicated to the IRSAM to manage their staff.",
+      "feature": "IRSAMStaffScheduling",
+      "level": 2,
+      "logo": "images/logos/InformationType/Calendar/Services/IRSAMStaffScheduling.png"
+    },
+    {
+      "explication": "A service created to display affiches recorded in Supralink.",
+      "feature": "Supralink_Affiches",
+      "level": 2,
+      "logo": "images/logos/InformationType/Affiche/Services/supralink_affiches.png"
+    },
+    {
+      "explication": "A service dedicated to get alertes from SupraLink.",
+      "feature": "Supralink_Alertes",
+      "level": 2,
+      "logo": "images/logos/InformationType/Breve/Services/supralink_alertes.png"
+    },
+    {
+      "explication": "A specific type of information dedicated to Supralink to display news.",
+      "feature": "SupraLink_News",
+      "level": 2,
+      "logo": "images/logos/InformationType/News/Services/supralink_news.png"
+    },
+    {
+      "explication": "A service dedicated to display news from Supralink.",
+      "feature": "Supralink_Annonces",
+      "level": 2,
+      "logo": "images/logos/InformationType/Breve/Services/supralink_annonces.png"
+    },
+    {
+      "explication": "A service dedicated to display articles from SupraLink.",
+      "feature": "Supralink_Articles",
+      "level": 2,
+      "logo": "images/logos/InformationType/Article/Services/supralink_articles.png"
+    },
+    {
+      "explication": "A service created to display events from SupraLink.",
+      "feature": "Supralink_Ateliers",
+      "level": 2,
+      "logo": "images/logos/InformationType/Events/Services/supralink_ateliers.png"
+    },
+    {
+      "explication": "A service created to display picture albums from SupraLink.",
+      "feature": "Supralink_Photos",
+      "level": 2,
+      "logo": "images/logos/InformationType/PictureAlbum/Services/supralink_photos.png"
+    },
+    {
+      "explication": "A service dedicated to display videos from SupraLink.",
+      "feature": "Supralink_Videos",
+      "level": 2,
+      "logo": "images/logos/InformationType/Video/Services/supralink_videos.png"
+    },
+    {
+      "explication": "A service dedicated to give informations about Envibus bus hours.",
+      "feature": "Transport",
+      "level": 2,
+      "logo": "images/logos/InformationType/Passage/Services/transport.png"
+    },
+    {
+      "explication": "Get tweets from a specific user on Twitter or from a search.",
+      "feature": "Twitter",
+      "level": 2,
+      "logo": "images/logos/InformationType/Tweet/Services/tweeter.png"
+    },
+    {
+      "explication": "Make a search or get a timeline on Twitter and get images as a picture album.",
+      "feature": "TwitterPicture",
+      "level": 2,
+      "logo": "images/logos/InformationType/PictureAlbum/Services/twitterPicture.png"
+    },
+    {
+      "explication": "A forecast service which doesn't work very well...",
+      "feature": "Weather2",
+      "level": 2,
+      "logo": "images/logos/InformationType/Forecast/Services/weather2.png"
+    },
+    {
+      "explication": "No need to present it, is it?",
+      "feature": "YouTube",
+      "level": 2,
+      "logo": "images/logos/InformationType/Video/Services/youtube.png"
+    },
+    {
+      "explication": "The french laboratory where YourCast has been created which provides lot of services.",
+      "feature": "I3S",
+      "level": 4,
+      "logo": "images/logos/Provider/I3S.png"
+    },
+    {
+      "explication": "A SSII in Sophia Antipolis which contributes to YourCast services.",
+      "feature": "Supralog",
+      "level": 4,
+      "logo": "images/logos/Provider/supralog.png"
+    },
+    {
+      "explication": "Add a filter for the information.",
+      "feature": "Filter",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Filter.png"
+    },
+    {
+      "explication": "A filter based on a search query to retrieve the right information.",
+      "feature": "Search",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Search.png"
+    },
+    {
+      "explication": "A filter based on a date to retrieve the right information.",
+      "feature": "Date",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Date.png"
+    },
+    {
+      "explication": "A filter based on a specific URL to retrieve the right information.",
+      "feature": "URL",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/URL.png"
+    },
+    {
+      "explication": "The date filter is cutomized by a specific beginning time.",
+      "feature": "Beginning",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Beginning.png"
+    },
+    {
+      "explication": "The date filter is dynamic and it uses the real time.",
+      "feature": "Now",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Now.png"
+    },
+    {
+      "explication": "This source use a limit on the number of information.",
+      "feature": "Limit",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/User.png"
+    },
+    {
+      "explication": "The filter is based on a user profile.",
+      "feature": "User",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/User.png"
+    },
+    {
+      "explication": "The filter is based on a specific album.",
+      "feature": "Album",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Album.png"
+    },
+    {
+      "explication": "The filter is based on a geographic location.",
+      "feature": "Location",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Location.png"
+    },
+    {
+      "explication": "A specific filter for HyperPlanning",
+      "feature": "CalendarFilter",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/CalendarFilter.png"
+    },
+    {
+      "explication": "The filter is based on a promotion code.",
+      "feature": "Promotion",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Promotion.png"
+    },
+    {
+      "explication": "The filter is based on a duration.",
+      "feature": "Duration",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Duration.png"
+    },
+    {
+      "explication": "There is a filter based on a time range to detect the next begin of courses.",
+      "feature": "BeginCourses",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/BeginCourses.png"
+    },
+    {
+      "explication": "There is a filter based on a 30 minutes time range to detect the next begin of courses.",
+      "feature": "HalfHour",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/HalfHour.png"
+    },
+    {
+      "explication": "The filter is based on information about rooms.",
+      "feature": "Room",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Room.png"
+    },
+    {
+      "explication": "The filter will only get occupied rooms.",
+      "feature": "Occupied",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Occupied.png"
+    },
+    {
+      "explication": "The filter is based on a teacher name.",
+      "feature": "Teacher",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Teacher.png"
+    },
+    {
+      "explication": "The filter is based on a student name.",
+      "feature": "Student",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Student.png"
+    },
+    {
+      "explication": "The filter will only get free rooms.",
+      "feature": "Free",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Free.png"
+    },
+    {
+      "explication": "The filter only returns rooms which respect a specific pattern.",
+      "feature": "RoomNumber",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/RoomNumber.png"
+    },
+    {
+      "explication": "This source use a mechanism to sort the information.",
+      "feature": "Sort",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Sort.png"
+    },
+    {
+      "explication": "The sort mechanism consists to shuffle information.",
+      "feature": "Shuffle",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Shuffle.png"
+    },
+    {
+      "explication": "The filter is filled with the TV5 feed URL.",
+      "feature": "TV5",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/TV5.png"
+    },
+    {
+      "explication": "The filter is a theme, or a category.",
+      "feature": "Theme",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/Theme.png"
+    },
+    {
+      "explication": "The filter is a bus stop number.",
+      "feature": "BusStop",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/BusStop.png"
+    },
+    {
+      "explication": "The filter is a city name.",
+      "feature": "City",
+      "level": 3,
+      "logo": "images/logos/SourcesCriteria/City.png"
+    }
+  ],
+  "rulesRecursive": [
+    {
+      "explication": "",
+      "feature": "TypeInfo",
+      "getChildren": false,
+      "level": 1,
+      "treeLevel": 1
+    },
+    {
+      "explication": "",
+      "feature": "TypeInfo",
+      "getChildren": false,
+      "level": 2,
+      "treeLevel": 2
+    },
+    {
+      "explication": "",
+      "feature": "Criteria",
+      "getChildren": true,
+      "level": 3,
+      "treeLevel": 1
+    },
+    {
+      "explication": "",
+      "feature": "Provider",
+      "getChildren": false,
+      "level": 4,
+      "treeLevel": 1
+    }
+  ],
+  "zones": [
+    {
+      "accordion": false,
+      "description": "The type of information you want to get.",
+      "level": 1,
+      "name": "Information Type"
+    },
+    {
+      "accordion": true,
+      "description": "The service you want to use.",
+      "level": 2,
+      "name": "Service"
+    },
+    {
+      "accordion": true,
+      "description": "Some criteria you want to use to filter the informations.",
+      "level": 3,
+      "name": "Criteria"
+    },
+    {
+      "accordion": true,
+      "description": "Who created the service you will use.",
+      "level": 4,
+      "name": "Provider"
+    }
+  ]
+}

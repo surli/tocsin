@@ -1,0 +1,7 @@
+{"finishedLinkedConfig": "green",
+	"finishedNotLinkedConfig":"orange",
+	"notFinishedConfig":"red",
+	"selectedFeature":"green",
+	"deselectedFeature":"red",
+	"unselectedFeature": ""
+}

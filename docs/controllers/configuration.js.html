@@ -1,0 +1,1279 @@
+<html>
+<head>
+<title>configuration.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(128,128,128); font-style: italic; }
+.s3 { color: rgb(0,0,128); font-weight: bold; }
+.s4 { color: rgb(0,0,255); }
+.s5 { color: rgb(128,128,128); font-weight: bold; font-style: italic; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+configuration.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+ 
+</span><span class="s2">/**</span><span class="s1"> 
+ </span><span class="s2">* Controller for the configuration view</span><span class="s1"> 
+ </span><span class="s2">*/</span><span class="s1"> 
+ 
+angular.module(</span><span class="s0">'tocsinApp'</span><span class="s1">).controller(</span><span class="s0">'configurationCtrl'</span><span class="s1">, </span><span class="s3">function </span><span class="s1">($rootScope, $scope, $routeParams, $timeout, FMManager, configManager) { 
+ 
+    </span><span class="s3">if</span><span class="s1">($rootScope.SpineFMID === undefined){ 
+        window.location.href = </span><span class="s0">'#/'</span><span class="s1">; 
+        </span><span class="s3">return</span><span class="s1">; 
+    } 
+    $scope.fmSelectedState = {}; 
+    $scope.domainElement = $routeParams.domainelement; 
+    $scope.configValid = </span><span class="s3">false</span><span class="s1">; 
+    $scope.confNameChanged = </span><span class="s3">false</span><span class="s1">; 
+    $scope.myOption = </span><span class="s3">null</span><span class="s1">; 
+    $scope.showConfigsDE = </span><span class="s3">false</span><span class="s1">; 
+    $scope.showSelect  = []; 
+    $scope.selectedDE = </span><span class="s3">null</span><span class="s1">; 
+    $rootScope.createdFromClone = []; 
+    $scope.choiceInModal = </span><span class="s3">false</span><span class="s1">; 
+    $scope.spineFMNewName = </span><span class="s3">null</span><span class="s1">; 
+    $scope.openSetSpineNameModal = </span><span class="s3">false</span><span class="s1">; 
+    $scope.selectedFeatures = []; 
+    $scope.helpModal = </span><span class="s3">false</span><span class="s1">; 
+    $scope.showExplication = </span><span class="s3">false</span><span class="s1">; 
+    $scope.deselectedFeatures = []; 
+    $scope.showGenarationLoading = </span><span class="s3">false</span><span class="s1">; 
+    $scope.showMouseConfiguration = </span><span class="s3">false</span><span class="s1">; 
+    $scope.showInitImage = </span><span class="s3">true</span><span class="s1">; 
+    $scope.showLoading = </span><span class="s3">false</span><span class="s1">; </span><span class="s2">// show loading spinner</span><span class="s1"> 
+    $scope.justLoaded = </span><span class="s3">false</span><span class="s1">; </span><span class="s2">// check if current page is just loaded</span><span class="s1"> 
+    $scope.isVisible = </span><span class="s3">false</span><span class="s1">; </span><span class="s2">// modal opened when adding new configuration</span><span class="s1"> 
+    $scope.showInfoLevel = []; </span><span class="s2">// showInfo for accordion</span><span class="s1"> 
+    $scope.configOldName = </span><span class="s0">''</span><span class="s1">; 
+    $scope.hasConfigToLink = </span><span class="s3">false</span><span class="s1">; 
+    $scope.toFinalize = </span><span class="s3">false</span><span class="s1">; </span><span class="s2">// check if we must finalize config or not</span><span class="s1"> 
+    $scope.openSetConfigNameModal = </span><span class="s3">false</span><span class="s1">; </span><span class="s2">// modal to set config name when validating config</span><span class="s1"> 
+ 
+    $scope.deConfigurations = $rootScope.configurations[$scope.domainElement]; 
+ 
+    </span><span class="s2">// clone object of the feature model used</span><span class="s1"> 
+    angular.copy($rootScope.deFeatures[$scope.domainElement], $scope.fm); 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* initialize the configuration controller</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initController = </span><span class="s3">function</span><span class="s1">() { 
+        </span><span class="s3">if </span><span class="s1">($routeParams.ctxID) { 
+            $scope.isVisible = </span><span class="s3">false</span><span class="s1">; 
+            $scope.showProgress = </span><span class="s3">true</span><span class="s1">; 
+            </span><span class="s3">if</span><span class="s1">($routeParams.deTarget){ 
+                $scope.handleExistingContext($routeParams.deTarget, $routeParams.ctxID); 
+                $scope.getOption($routeParams.deTarget, $routeParams.ctxID); 
+            } 
+            </span><span class="s3">else</span><span class="s1">{ 
+                $scope.handleExistingContext(</span><span class="s3">null</span><span class="s1">, $routeParams.ctxID); 
+            } 
+ 
+        } </span><span class="s3">else </span><span class="s1">{ 
+            </span><span class="s3">var </span><span class="s1">prop = $scope.getPropositions(); 
+            </span><span class="s3">if</span><span class="s1">(prop.length &gt; </span><span class="s4">0</span><span class="s1">) { 
+                $scope.isVisible = </span><span class="s3">true</span><span class="s1">; 
+                $scope.initShowSelect(); 
+                </span><span class="s2">//$scope.showProgress = true;</span><span class="s1"> 
+            } </span><span class="s3">else </span><span class="s1">{ 
+                $scope.createNewContext($scope.domainElement); 
+            } 
+        } 
+        $scope.initShowLevel(); 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initShowLevel = </span><span class="s3">function</span><span class="s1">(){ 
+        </span><span class="s3">if</span><span class="s1">($rootScope.zones[$scope.domainElement]) { 
+            $scope.showInfoLevel = [$rootScope.zones[$scope.domainElement].length]; 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0 </span><span class="s1">; i &lt; $rootScope.zones[$scope.domainElement].length; i++) { 
+                </span><span class="s3">if</span><span class="s1">(i === </span><span class="s4">0</span><span class="s1">) { 
+                    $scope.showInfoLevel[i] = </span><span class="s3">true</span><span class="s1">; 
+                } 
+                </span><span class="s3">else </span><span class="s1">{ 
+                    $scope.showInfoLevel[i] = </span><span class="s3">false</span><span class="s1">; 
+                } 
+            } 
+        } 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* set configuration name : create   new configuration of the given de in the given context id (and say if it's a clone or not)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">id</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">isClone</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.setConfigurationName = </span><span class="s3">function</span><span class="s1">(id, de, isClone) { 
+ 
+        FMManager.getConfName($rootScope.SpineFMID, de, id).then(</span><span class="s3">function </span><span class="s1">(name) { 
+                $scope.ctxID = id; 
+                $scope.deConfigurations.partialConfig.number += </span><span class="s4">1</span><span class="s1">; 
+                $scope.deConfigurations.partialConfig.listConfigs[id] = {</span><span class="s0">'name'</span><span class="s1">: name, </span><span class="s0">'isValid'</span><span class="s1">: </span><span class="s3">false</span><span class="s1">, de:$scope.domainElement, </span><span class="s0">'url'</span><span class="s1">: </span><span class="s0">'#/de/'</span><span class="s1">+$scope.domainElement+</span><span class="s0">'/ctx/'</span><span class="s1">+id, ctxID:id}; 
+                $rootScope.ConfigsName.push(name); 
+                </span><span class="s3">if</span><span class="s1">(isClone === </span><span class="s3">false</span><span class="s1">) { 
+                    $scope.currentConfig = $scope.deConfigurations.partialConfig.listConfigs[id]; 
+                    $scope.getInitFMState(); 
+                    </span><span class="s3">if</span><span class="s1">($routeParams.ctxID &amp;&amp; $rootScope.configsToLink.indexOf($scope.currentConfig)&lt;</span><span class="s4">0</span><span class="s1">){ 
+                        </span><span class="s3">if</span><span class="s1">($routeParams.ctxID !== $rootScope.globalCtxID ){ 
+                            $rootScope.configsToLink.push($scope.currentConfig); 
+                            console.log(</span><span class="s0">'Same contexte OK'</span><span class="s1">); 
+                        } 
+ 
+                    } 
+                } 
+                $scope.checkCompleteZone(); 
+ 
+            }, 
+            </span><span class="s3">function </span><span class="s1">(name) { 
+                $scope.failedRequestAlert(name.status, </span><span class="s0">'getConfName'</span><span class="s1">); 
+            } 
+        ); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* check complete zone for opening them</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.checkCompleteZone = </span><span class="s3">function</span><span class="s1">() { 
+ 
+        </span><span class="s3">if </span><span class="s1">($scope.fm.levels) { 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">key </span><span class="s3">in </span><span class="s1">$scope.fm.levels) { 
+                </span><span class="s3">var </span><span class="s1">isNotComplete = $scope.hasFeaturesToSelect(key); 
+                </span><span class="s3">if</span><span class="s1">(isNotComplete === </span><span class="s3">false</span><span class="s1">) { 
+                    $scope.setInfoVisibility(key); 
+                    $scope.handleCompleteZone(key); 
+                } 
+            } 
+        } 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* display an existing context or create a new context with an ID of a compatible configurations</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">ctxID</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.handleExistingContext = </span><span class="s3">function </span><span class="s1">(deSrc, ctxID){ 
+        $scope.currentConfig = $scope.deConfigurations.partialConfig.listConfigs[ctxID]; 
+        </span><span class="s3">if </span><span class="s1">($scope.currentConfig === undefined) {       </span><span class="s2">// Case we create a new context with a ID from a compatible config</span><span class="s1"> 
+            </span><span class="s3">if</span><span class="s1">(ctxID === $rootScope.globalCtxID){ </span><span class="s2">//if it's globalCTXID</span><span class="s1"> 
+                </span><span class="s3">if</span><span class="s1">($rootScope.DEProperties[$scope.domainElement].multiplicityDE.upperBound === </span><span class="s4">1</span><span class="s1">){ 
+                    $scope.setConfigurationName(ctxID, $scope.domainElement, </span><span class="s3">false</span><span class="s1">); 
+                } 
+                </span><span class="s3">else</span><span class="s1">{ 
+                    $scope.createNewContext($scope.domainElement); 
+                } 
+            } 
+            </span><span class="s3">else</span><span class="s1">{</span><span class="s2">// clone before</span><span class="s1"> 
+                </span><span class="s3">if</span><span class="s1">($rootScope.DEProperties[$scope.domainElement].multiplicityDE.upperBound === </span><span class="s4">1</span><span class="s1">){       </span><span class="s2">//</span><span class="s1"> 
+                    $scope.setConfigurationName($rootScope.globalCtxID, $scope.domainElement, </span><span class="s3">false</span><span class="s1">); 
+                } 
+                </span><span class="s3">else</span><span class="s1">{ 
+                    </span><span class="s3">if</span><span class="s1">(deSrc !== undefined || deSrc !== </span><span class="s3">null</span><span class="s1">){ 
+                        </span><span class="s3">if</span><span class="s1">($rootScope.DEProperties[deSrc]){ 
+                            </span><span class="s3">if</span><span class="s1">($rootScope.DEProperties[deSrc].target){ 
+                                </span><span class="s3">var </span><span class="s1">clone = </span><span class="s3">function</span><span class="s1">(id, domain){ 
+                                    configManager.cloneConfigurationToLink($rootScope.SpineFMID, id, domain).then(</span><span class="s3">function </span><span class="s1">(result) { 
+                                            $rootScope.createdFromClone[ctxID] = {ctxTarget :result, deTarget:$scope.domainElement, deSrc : domain}; 
+                                            $scope.setConfigurationName(result, $scope.domainElement, </span><span class="s3">false</span><span class="s1">); 
+                                        }, 
+                                        </span><span class="s3">function</span><span class="s1">(){ 
+                                            window.alert(</span><span class="s0">'clone config to link failed !'</span><span class="s1">); 
+                                        }); 
+                                }; 
+                                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; $rootScope.DEProperties[deSrc].target.length; i++){ 
+                                    </span><span class="s3">if</span><span class="s1">($rootScope.DEProperties[deSrc].target[i].de === $scope.domainElement){ 
+                                        </span><span class="s3">var </span><span class="s1">relation = $rootScope.DEProperties[deSrc].target[i]; 
+                                        </span><span class="s3">if</span><span class="s1">(relation.linkMultiplicity.upperBound === -</span><span class="s4">1</span><span class="s1">){ 
+                                            clone(ctxID, deSrc); 
+                                        } 
+                                        </span><span class="s3">else</span><span class="s1">{ 
+                                            $scope.setConfigurationName(ctxID, $scope.domainElement, </span><span class="s3">false</span><span class="s1">); 
+                                        } 
+                                    } 
+                                } 
+                            } 
+                        } 
+                    } 
+                    </span><span class="s3">else </span><span class="s1">{ 
+                        $scope.setConfigurationName(ctxID, $scope.domainElement, </span><span class="s3">false</span><span class="s1">); 
+                    } 
+                } </span><span class="s2">//</span><span class="s1"> 
+            } 
+        } 
+        </span><span class="s3">else </span><span class="s1">{   </span><span class="s2">// displaying an existing context</span><span class="s1"> 
+            $scope.ctxID = ctxID; 
+            $scope.getInitFMState(); 
+ 
+        } 
+        $scope.showConfig = </span><span class="s3">true</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Create a new context</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.createNewContext = </span><span class="s3">function</span><span class="s1">(de){ 
+        </span><span class="s3">if</span><span class="s1">($rootScope.DEProperties[de].multiplicityDE.upperBound === </span><span class="s4">1</span><span class="s1">){       </span><span class="s2">//</span><span class="s1"> 
+            $scope.setConfigurationName($rootScope.globalCtxID, $scope.domainElement, </span><span class="s3">false</span><span class="s1">); 
+        } 
+ 
+        </span><span class="s3">else </span><span class="s1">{ 
+            FMManager.initContext($rootScope.SpineFMID).then(</span><span class="s3">function </span><span class="s1">(id) { 
+ 
+                    $scope.setConfigurationName(id, $scope.domainElement, </span><span class="s3">false</span><span class="s1">); 
+                }, 
+                </span><span class="s2">// error on initContexte request</span><span class="s1"> 
+                </span><span class="s3">function </span><span class="s1">(id) { 
+                    $scope.failedRequestAlert(id.status, </span><span class="s0">'initContexte'</span><span class="s1">); 
+                } 
+            ); 
+        } 
+        $scope.showConfig = </span><span class="s3">true</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* initialize showSelect property for each compatibles domain element</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.initShowSelect = </span><span class="s3">function</span><span class="s1">(){ 
+        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j&lt; $rootScope.compatiblesDES[$scope.domainElement].length ;j++){ 
+            </span><span class="s3">var </span><span class="s1">de = $rootScope.compatiblesDES[$scope.domainElement][j]; 
+            $scope.showSelect[de] = </span><span class="s3">false</span><span class="s1">; 
+        } 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*  getLevel : get features in the given level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{*}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getLevel = </span><span class="s3">function </span><span class="s1">(level) { 
+        </span><span class="s3">if </span><span class="s1">($scope.fm.levels) { 
+            </span><span class="s3">var </span><span class="s1">features = []; 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i =</span><span class="s4">0</span><span class="s1">; i&lt; $scope.fm.levels[level].length; i++){ 
+                </span><span class="s3">var </span><span class="s1">feat = $scope.fm.levels[level][i]; 
+                </span><span class="s3">if</span><span class="s1">(feat !== </span><span class="s3">null</span><span class="s1">){ 
+                    </span><span class="s3">if</span><span class="s1">(feat.state !== </span><span class="s0">'DESELECTED'</span><span class="s1">){ 
+                        features.push(feat); 
+                    } 
+                } 
+            } 
+            </span><span class="s3">return </span><span class="s1">features ; 
+        } 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get selected features in the current FM</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{Array}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getSelectedFeatures = </span><span class="s3">function</span><span class="s1">(){ 
+        </span><span class="s3">if </span><span class="s1">($scope.fm.levels) { 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">key = </span><span class="s4">0</span><span class="s1">; key &lt; </span><span class="s4">4</span><span class="s1">; key++){ 
+                </span><span class="s3">if</span><span class="s1">($scope.fm.levels[key]){ 
+                    </span><span class="s3">var </span><span class="s1">level = $scope.fm.levels[key]; 
+ 
+                    </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i =</span><span class="s4">0</span><span class="s1">; i&lt; level.length; i++){ 
+                        </span><span class="s3">var </span><span class="s1">feat = level[i]; 
+                        </span><span class="s3">if</span><span class="s1">(feat.state === </span><span class="s0">'SELECTED'</span><span class="s1">){ 
+                            $scope.selectedFeatures.push(feat); 
+                        } 
+                    } 
+                } 
+            } 
+        } 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get deselected features in the current FM</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{Array}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getDeselectedFeatures = </span><span class="s3">function</span><span class="s1">(){ 
+        $scope.deselectedFeatures = []; 
+        </span><span class="s3">if </span><span class="s1">($scope.fm.levels) { 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">key = </span><span class="s4">0</span><span class="s1">; key &lt; </span><span class="s4">4</span><span class="s1">; key++){ 
+                </span><span class="s3">if</span><span class="s1">($scope.fm.levels[key]){ 
+                    </span><span class="s3">var </span><span class="s1">level = $scope.fm.levels[key]; 
+ 
+                    </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i =</span><span class="s4">0</span><span class="s1">; i&lt; level.length; i++){ 
+                        </span><span class="s3">var </span><span class="s1">feat = level[i]; 
+                        </span><span class="s3">if</span><span class="s1">(feat !== undefined &amp;&amp; feat !== </span><span class="s3">null</span><span class="s1">) { 
+                            </span><span class="s3">if</span><span class="s1">(feat.state === </span><span class="s0">'DESELECTED'</span><span class="s1">){ 
+                                </span><span class="s3">if</span><span class="s1">($scope.deselectedFeatures.indexOf(feat) &lt; </span><span class="s4">0</span><span class="s1">){ 
+                                    $scope.deselectedFeatures.push(feat); 
+                                } 
+                            } 
+                        } 
+                    } 
+                } 
+            } 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* getLevelLength (only to check the number of levels we have to display)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{*}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getLevelLength = </span><span class="s3">function </span><span class="s1">(level) { 
+        </span><span class="s3">var </span><span class="s1">response; 
+        </span><span class="s3">if </span><span class="s1">($scope.fm.levels) { 
+            </span><span class="s3">if</span><span class="s1">($scope.fm.levels[level].length &gt; </span><span class="s4">0</span><span class="s1">) { 
+                response =  </span><span class="s0">'OK'</span><span class="s1">; 
+            } 
+            </span><span class="s3">else </span><span class="s1">{ 
+                response = </span><span class="s0">'NO'</span><span class="s1">; 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">response; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* check if level has unselected feature(s)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{boolean}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.hasFeaturesToSelect = </span><span class="s3">function </span><span class="s1">(level) { 
+        </span><span class="s3">var </span><span class="s1">features = []; 
+        </span><span class="s3">if </span><span class="s1">($scope.fm.levels) { 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i =</span><span class="s4">0</span><span class="s1">; i&lt; $scope.fm.levels[level].length; i++){ 
+                </span><span class="s3">var </span><span class="s1">feat = $scope.fm.levels[level][i]; 
+                </span><span class="s3">if</span><span class="s1">(feat !== </span><span class="s3">null</span><span class="s1">){ 
+                    </span><span class="s3">if</span><span class="s1">(feat.state === </span><span class="s0">'UNSELECTED'</span><span class="s1">){ 
+                        features.push(feat); 
+                    } 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">features.length &gt; </span><span class="s4">0 </span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* handle accordion visibility of a complete zone</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">level</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.handleCompleteZone = </span><span class="s3">function</span><span class="s1">(level){ 
+        </span><span class="s3">if </span><span class="s1">($scope.fm.levels) { 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">key </span><span class="s3">in </span><span class="s1">$scope.fm.levels) { 
+                </span><span class="s3">if</span><span class="s1">(key !== level){ 
+                    </span><span class="s3">var </span><span class="s1">isNotComplete = $scope.hasFeaturesToSelect(key); 
+                    </span><span class="s3">if</span><span class="s1">(isNotComplete === </span><span class="s3">true</span><span class="s1">){ 
+                        $scope.setInfoVisibility(key); 
+                        </span><span class="s3">return</span><span class="s1">; 
+                    } 
+                } 
+            } 
+        } 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get compatibles configurations of the given domain element</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getPropositions = </span><span class="s3">function</span><span class="s1">(){ 
+        </span><span class="s3">var </span><span class="s1">propositions  = []; 
+        </span><span class="s3">var </span><span class="s1">domains = $scope.getDEWithConfigs(); 
+        </span><span class="s3">if</span><span class="s1">(domains.length &gt; </span><span class="s4">0</span><span class="s1">){ 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i&lt; domains.length; i++){ 
+                </span><span class="s3">var </span><span class="s1">currentDE = domains[i]; 
+ 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">ctxID </span><span class="s3">in  </span><span class="s1">$rootScope.configurations[currentDE].partialConfig.listConfigs){  </span><span class="s2">//TODO requests for getting compatibles conf</span><span class="s1"> 
+                    </span><span class="s3">if</span><span class="s1">($rootScope.configurations[currentDE].partialConfig.listConfigs[ctxID]) { 
+                        </span><span class="s3">var </span><span class="s1">configName = $rootScope.configurations[currentDE].partialConfig.listConfigs[ctxID].name; 
+                        propositions.push(configName); 
+                    } 
+                } 
+ 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">configID </span><span class="s3">in  </span><span class="s1">$rootScope.configurations[currentDE].validConfig.listConfigs){  </span><span class="s2">//TODO requests for getting compatibles conf</span><span class="s1"> 
+                    </span><span class="s3">if</span><span class="s1">($rootScope.configurations[currentDE].validConfig.listConfigs[configID]) { 
+                        </span><span class="s3">var </span><span class="s1">config = $rootScope.configurations[currentDE].validConfig.listConfigs[configID]; 
+                        </span><span class="s3">if</span><span class="s1">(config.isLinked !== </span><span class="s3">true</span><span class="s1">) { 
+                            propositions.push(config.name); 
+                        } 
+                    } 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">propositions; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get all compatibles config from the given domain</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getConfigs = </span><span class="s3">function</span><span class="s1">(de){ 
+        </span><span class="s3">var </span><span class="s1">configs  = []; 
+        </span><span class="s3">var </span><span class="s1">config; 
+        </span><span class="s3">if</span><span class="s1">(de){ 
+            </span><span class="s3">if</span><span class="s1">($rootScope.configurations[de]) { 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">ctxID </span><span class="s3">in  </span><span class="s1">$rootScope.configurations[de].partialConfig.listConfigs){ 
+                    </span><span class="s3">if</span><span class="s1">($rootScope.configurations[de].partialConfig.listConfigs[ctxID]) { 
+                        config = $rootScope.configurations[de].partialConfig.listConfigs[ctxID]; 
+                        configs.push(config); 
+                    } 
+                } 
+                </span><span class="s3">var </span><span class="s1">getCompatibles = </span><span class="s3">function </span><span class="s1">(conf) { 
+                    configManager.checkIsConfigLinkable($rootScope.SpineFMID, conf.configID, $scope.domainElement).then(</span><span class="s3">function </span><span class="s1">(linkable) { 
+ 
+                            </span><span class="s3">if </span><span class="s1">(linkable.toString() === </span><span class="s0">'true'</span><span class="s1">) { 
+                                configs.push(conf); 
+                            } 
+                        }, 
+                        </span><span class="s3">function</span><span class="s1">(){ 
+                            </span><span class="s2">//window.alert('Echec du chargement des configurations compatibles');</span><span class="s1"> 
+                    }); 
+                }; 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">configID </span><span class="s3">in  </span><span class="s1">$rootScope.configurations[de].validConfig.listConfigs){ 
+                    </span><span class="s3">if</span><span class="s1">($rootScope.configurations[de].validConfig.listConfigs[configID]) { 
+                        </span><span class="s3">var </span><span class="s1">current =  $rootScope.configurations[de].validConfig.listConfigs[configID]; 
+                        getCompatibles(current); 
+                    } 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">configs; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get the given de's config with the given ctxID (context)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">ctxID</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getOption = </span><span class="s3">function</span><span class="s1">(de, ctxID) { 
+        </span><span class="s3">if</span><span class="s1">($rootScope.configurations[de]) { 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">key </span><span class="s3">in </span><span class="s1">$rootScope.configurations[de].validConfig.listConfigs) { 
+                </span><span class="s3">var </span><span class="s1">myConfig = $rootScope.configurations[de].validConfig.listConfigs[key]; 
+                </span><span class="s3">if</span><span class="s1">(myConfig.ctxID === ctxID){ 
+                    $scope.myOption = myConfig; 
+                    $scope.hasConfigToLink = </span><span class="s3">true</span><span class="s1">; 
+                } 
+            } 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* handle selection in modal view</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.handleSelection = </span><span class="s3">function</span><span class="s1">(){ 
+ 
+        </span><span class="s3">if</span><span class="s1">($scope.myOption === </span><span class="s3">null </span><span class="s1">|| $scope.showConfigsDE === </span><span class="s3">false</span><span class="s1">) { 
+            $scope.createNewContext($scope.domainElement); 
+        } 
+ 
+        </span><span class="s3">else </span><span class="s1">{ 
+            $scope.hasConfigToLink = </span><span class="s3">true</span><span class="s1">; 
+            $rootScope.configsToLink.push($scope.myOption); 
+            $scope.handleExistingContext($scope.myOption.de, $scope.myOption.ctxID); 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* validate the choice in 'select compatible config ' modal view</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.validate = </span><span class="s3">function </span><span class="s1">() { 
+        </span><span class="s3">if</span><span class="s1">($scope.showConfigsDE === </span><span class="s3">true </span><span class="s1">&amp;&amp; $scope.myOption === </span><span class="s3">null</span><span class="s1">){ 
+            window.alert(</span><span class="s0">'Veuillez choisir une configuration Avant de valider !'</span><span class="s1">); 
+        } 
+        </span><span class="s3">else </span><span class="s1">{ 
+            $scope.handleSelection(); 
+            $scope.isVisible = </span><span class="s3">false</span><span class="s1">; 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* close 'select compatible config ' modal</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.cancel = </span><span class="s3">function</span><span class="s1">(){ 
+        $scope.isVisible = </span><span class="s3">false</span><span class="s1">; 
+        $scope.showProgress = </span><span class="s3">true</span><span class="s1">; 
+        $scope.showConfig = </span><span class="s3">false</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* options for modals</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@type </span><span class="s2">{{backdropFade: boolean, dialogFade: boolean, keyboard: boolean, show: boolean, backdropClick: boolean}}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.opt = { 
+        backdropFade: </span><span class="s3">true</span><span class="s1">, 
+        dialogFade:</span><span class="s3">true</span><span class="s1">, 
+        keyboard: </span><span class="s3">false</span><span class="s1">, 
+        show: </span><span class="s3">false</span><span class="s1">, 
+        backdropClick: </span><span class="s3">false</span><span class="s1"> 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* the callback for clicked features : setting selection/deselection</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+ 
+    $scope.selectFeature = </span><span class="s3">function </span><span class="s1">(feature, level) { 
+        </span><span class="s3">if </span><span class="s1">($rootScope.mouseMode.all === </span><span class="s3">true </span><span class="s1">|| $rootScope.mouseMode.select === </span><span class="s3">true</span><span class="s1">) { 
+            </span><span class="s3">if </span><span class="s1">(feature.state === </span><span class="s0">'UNSELECTED' </span><span class="s1">|| feature.state === </span><span class="s0">'undefined'</span><span class="s1">) { 
+                $scope.showLoading = </span><span class="s3">true</span><span class="s1">; 
+                $scope.showInitImage = </span><span class="s3">false</span><span class="s1">; 
+                feature.state = </span><span class="s0">'SELECTED'</span><span class="s1">; 
+                $scope.changeState(feature.feature, </span><span class="s0">'select'</span><span class="s1">, level); 
+            } 
+        } 
+        </span><span class="s3">else if </span><span class="s1">($rootScope.mouseMode.deselect === </span><span class="s3">true</span><span class="s1">) { 
+            </span><span class="s3">if </span><span class="s1">(feature.state === </span><span class="s0">'UNSELECTED' </span><span class="s1">|| feature.state === </span><span class="s0">'undefined'</span><span class="s1">) { 
+                $scope.showLoading = </span><span class="s3">true</span><span class="s1">; 
+                $scope.showInitImage = </span><span class="s3">false</span><span class="s1">; 
+                feature.state = </span><span class="s0">'DESELECTED'</span><span class="s1">; 
+                $scope.changeState(feature.feature, </span><span class="s0">'deselect'</span><span class="s1">, level); 
+            } 
+        } 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* the callback for right clicked features : setting deselection</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.deselectFeature = </span><span class="s3">function </span><span class="s1">(feature, level) { 
+        </span><span class="s3">if </span><span class="s1">($rootScope.mouseMode.all === </span><span class="s3">true</span><span class="s1">) { 
+            </span><span class="s3">if </span><span class="s1">(feature.state === </span><span class="s0">'UNSELECTED' </span><span class="s1">|| feature.state === </span><span class="s0">'undefined'</span><span class="s1">) { 
+                $scope.showLoading = </span><span class="s3">true</span><span class="s1">; 
+                $scope.showInitImage = </span><span class="s3">false</span><span class="s1">; 
+                feature.state = </span><span class="s0">'DESELECTED'</span><span class="s1">; 
+                $scope.changeState(feature.feature, </span><span class="s0">'deselect'</span><span class="s1">, level); 
+            } 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*  alert the user before reloading the page</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">event</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{string}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+ 
+    window.onbeforeunload = </span><span class="s3">function </span><span class="s1">(event) { 
+        </span><span class="s3">var </span><span class="s1">message = </span><span class="s0">'Recharger la page risque de vous faire perdre des données, êtes vous sûr de vouloir continuer ?'</span><span class="s1">; 
+        </span><span class="s3">if </span><span class="s1">(</span><span class="s3">typeof </span><span class="s1">event === </span><span class="s0">'undefined'</span><span class="s1">) { 
+            event = window.event; 
+        } 
+        </span><span class="s3">if </span><span class="s1">(event) { 
+            event.returnValue = message; 
+        } 
+        </span><span class="s2">//return message;</span><span class="s1"> 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* change the state of the feature (select/deselect)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">featureName</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">state</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.changeState = </span><span class="s3">function </span><span class="s1">(featureName, state, level) { 
+ 
+        </span><span class="s3">var </span><span class="s1">wait = </span><span class="s3">function</span><span class="s1">(){ 
+            $scope.showLoading = </span><span class="s3">false</span><span class="s1">; 
+        }; 
+        </span><span class="s3">if</span><span class="s1">($scope.ctxID) { 
+            FMManager.doAction($rootScope.SpineFMID, $scope.domainElement, $scope.ctxID, featureName, state).then(</span><span class="s3">function </span><span class="s1">(fm) { 
+                    $scope.updateFMState(fm, </span><span class="s3">false</span><span class="s1">); 
+                    $timeout(wait, </span><span class="s4">500</span><span class="s1">); 
+                    </span><span class="s2">//$scope.showConfig = true;</span><span class="s1"> 
+                    $scope.getDeselectedFeatures(); 
+                    $scope.getSelectedFeatures(); 
+                    </span><span class="s3">if</span><span class="s1">($scope.hasFeaturesToSelect(level) === </span><span class="s3">false</span><span class="s1">) { 
+                        $scope.handleCompleteZone(level); 
+                    } 
+                    $scope.justLoaded = </span><span class="s3">true</span><span class="s1">; 
+                    $scope.clock = </span><span class="s4">10</span><span class="s1">; 
+                    $scope.progressStyle = { width: </span><span class="s0">'50'</span><span class="s1">}; 
+ 
+                }, 
+                </span><span class="s2">// error for doActionOnFM request</span><span class="s1"> 
+                </span><span class="s3">function </span><span class="s1">(fm){ 
+                    $scope.failedRequestAlert(fm.status, </span><span class="s0">'doActionOnFM'</span><span class="s1">); 
+                }); 
+        } 
+        </span><span class="s3">var </span><span class="s1">stop = </span><span class="s4">0</span><span class="s1">; 
+        $timeout(</span><span class="s3">function </span><span class="s1">someWork(){ 
+            </span><span class="s3">if</span><span class="s1">(stop === </span><span class="s4">5</span><span class="s1">){ 
+                $scope.justLoaded = </span><span class="s3">false</span><span class="s1">; 
+            } 
+            stop += </span><span class="s4">1</span><span class="s1">; 
+            $timeout(someWork, </span><span class="s4">1000</span><span class="s1">); 
+        },</span><span class="s4">1000</span><span class="s1">); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get the initial state of features in the selected domaineElement</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getInitFMState = </span><span class="s3">function </span><span class="s1">() { 
+        FMManager.initFMState($rootScope.SpineFMID, $scope.domainElement, $scope.ctxID).then(</span><span class="s3">function </span><span class="s1">(fm) { 
+                console.log(</span><span class="s0">'FM STATE LOADED'</span><span class="s1">); 
+                $scope.updateFMState(fm, </span><span class="s3">true</span><span class="s1">); 
+            }, 
+            </span><span class="s2">// error for initFMState request</span><span class="s1"> 
+            </span><span class="s3">function </span><span class="s1">(fm) { 
+                $scope.failedRequestAlert(fm.status, </span><span class="s0">'initFMState'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* show explanations in 'select compatible config modal'</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.showExplain = </span><span class="s3">function</span><span class="s1">(){ 
+        </span><span class="s3">if</span><span class="s1">($scope.showExplication === </span><span class="s3">true</span><span class="s1">){ 
+            $scope.showExplication = </span><span class="s3">false</span><span class="s1">; 
+        } 
+        </span><span class="s3">else</span><span class="s1">{ 
+            $scope.showExplication = </span><span class="s3">true</span><span class="s1">; 
+        } 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* update states of features at start level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">fmState</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">isNew</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+ 
+    $scope.updateFMState = </span><span class="s3">function </span><span class="s1">(fmState, isNew) { 
+        </span><span class="s2">// levels are key of an object, not an array</span><span class="s1"> 
+        </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">levelKey </span><span class="s3">in </span><span class="s1">$scope.fm.levels) { 
+            </span><span class="s3">var </span><span class="s1">level = $scope.fm.levels[levelKey]; 
+            </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; level.length; i++) { 
+                </span><span class="s3">for </span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; fmState.length; j++) { 
+                    </span><span class="s3">var </span><span class="s1">featChanged = fmState[j]; 
+                    </span><span class="s3">var </span><span class="s1">featDisplayed = level[i]; 
+                    </span><span class="s3">if</span><span class="s1">(featChanged &amp;&amp; featDisplayed){ 
+                        </span><span class="s3">if </span><span class="s1">(featChanged.name === featDisplayed.feature) { 
+                            featDisplayed.state = featChanged.state; 
+                        } 
+                    } 
+                } 
+            } 
+        } 
+        $scope.checkConfigValidity(); 
+        $scope.getDeselectedFeatures(); 
+        </span><span class="s3">if</span><span class="s1">(isNew === </span><span class="s3">true</span><span class="s1">){ 
+            </span><span class="s2">//$('.progress').remove();</span><span class="s1"> 
+            $scope.showProgress = </span><span class="s3">false</span><span class="s1">; 
+            $scope.showConfig = </span><span class="s3">true</span><span class="s1">; 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* check if the current configuration is valid</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.checkConfigValidity = </span><span class="s3">function </span><span class="s1">() { 
+        FMManager.isConfigComplete($rootScope.SpineFMID, $scope.domainElement, $scope.ctxID).then(</span><span class="s3">function </span><span class="s1">(result) { 
+                $scope.configValid = result; 
+                $scope.currentConfig.isValid = result; 
+            }, 
+            </span><span class="s3">function </span><span class="s1">(result) { 
+                $scope.failedRequestAlert(result.status, </span><span class="s0">'checkConfigValidity'</span><span class="s1">); 
+            }); 
+ 
+    }; 
+    </span><span class="s2">// watch setting current config's Name, Space not allowed</span><span class="s1"> 
+    $scope.$watch(</span><span class="s0">'currentConfig.name'</span><span class="s1">, </span><span class="s3">function</span><span class="s1">() { 
+        </span><span class="s3">if</span><span class="s1">($scope.currentConfig){ 
+            </span><span class="s3">if</span><span class="s1">($scope.currentConfig.name !== </span><span class="s3">null</span><span class="s1">){ 
+                $scope.currentConfig.name = $scope.currentConfig.name.replace(</span><span class="s4">/[^a-zA-Z0-9_-]/g</span><span class="s1">,</span><span class="s0">''</span><span class="s1">); 
+            } 
+        } 
+    }); 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* changing the current configuration's name</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.changeConfName = </span><span class="s3">function </span><span class="s1">() { 
+        FMManager.setConfName($rootScope.SpineFMID, $scope.domainElement, $scope.ctxID, $scope.currentConfig.name).then(</span><span class="s3">function </span><span class="s1">(result) { 
+                $scope.confNameChanged = result; 
+            }, 
+            </span><span class="s3">function </span><span class="s1">(result) { 
+                $scope.failedRequestAlert(result.status, </span><span class="s0">'setConfName'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Open bilan view of the current config</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">url</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.openBilanView = </span><span class="s3">function</span><span class="s1">(url){ 
+        window.location.href = url; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* finalize: called when the user press on Finalize button to validate the current configuration</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.finalize = </span><span class="s3">function </span><span class="s1">() { 
+        configManager.create($rootScope.SpineFMID, $scope.domainElement, $scope.ctxID).then(</span><span class="s3">function </span><span class="s1">(result) { 
+                $scope.currentConfig.url = </span><span class="s0">'#/bilan/'</span><span class="s1">+$scope.domainElement+</span><span class="s0">'/ctx/'</span><span class="s1">+$scope.ctxID+</span><span class="s0">'/'</span><span class="s1">+result; 
+                $scope.deConfigurations.partialConfig.number -= </span><span class="s4">1</span><span class="s1">; 
+                $scope.deConfigurations.validConfig.number += </span><span class="s4">1</span><span class="s1">; 
+                $rootScope.validConfigs[$scope.domainElement].notLinked += </span><span class="s4">1</span><span class="s1">; 
+                $scope.deConfigurations.validConfig.listConfigs[result] = {</span><span class="s0">'url'</span><span class="s1">: </span><span class="s0">'#/bilan/'</span><span class="s1">+$scope.domainElement+</span><span class="s0">'/ctx/'</span><span class="s1">+$scope.ctxID+</span><span class="s0">'/'</span><span class="s1">+result, </span><span class="s0">'name'</span><span class="s1">: $scope.currentConfig.name, ctxID: $scope.ctxID, de:$scope.domainElement, configID:result, isLinked:</span><span class="s3">false</span><span class="s1">}; 
+                $scope.checkConfigToLink($scope.domainElement,result); 
+                </span><span class="s3">delete </span><span class="s1">$scope.deConfigurations.partialConfig.listConfigs[$scope.ctxID]; 
+ 
+            }, 
+            </span><span class="s3">function </span><span class="s1">(result) { 
+                $scope.failedRequestAlert(result.status, </span><span class="s0">'finalize'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* set info visibility in accordion object</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.setInfoVisibility = </span><span class="s3">function</span><span class="s1">(level){ 
+        </span><span class="s3">if</span><span class="s1">($scope.showInfoLevel.length &gt; level) { 
+            </span><span class="s3">if</span><span class="s1">($rootScope.accordionType === </span><span class="s0">'openOne'</span><span class="s1">){ 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; $scope.showInfoLevel.length; i++) { 
+                    </span><span class="s3">if</span><span class="s1">(i === level) { 
+                        </span><span class="s3">if</span><span class="s1">($scope.showInfoLevel[i] === </span><span class="s3">false </span><span class="s1">|| $scope.hasFeaturesToSelect(i) === </span><span class="s3">false</span><span class="s1">) { 
+ 
+                            $scope.showInfoLevel[i] = </span><span class="s3">true</span><span class="s1">; 
+                        } 
+                        </span><span class="s3">else </span><span class="s1">{ 
+                            $scope.showInfoLevel[i] = </span><span class="s3">false</span><span class="s1">; 
+                            $scope.showInfoLevel[</span><span class="s4">0</span><span class="s1">] = </span><span class="s3">true</span><span class="s1">; 
+                        } 
+                    } 
+                    </span><span class="s3">else</span><span class="s1">{ 
+                        $scope.showInfoLevel[i] = </span><span class="s3">false</span><span class="s1">; 
+                    } 
+                } 
+            } 
+            </span><span class="s3">else if</span><span class="s1">($rootScope.accordionType === </span><span class="s0">'normal'</span><span class="s1">){ 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j &lt; $scope.showInfoLevel.length; j++){ 
+                    </span><span class="s3">if</span><span class="s1">(j === level) { 
+                        </span><span class="s3">if</span><span class="s1">($scope.showInfoLevel[j] === </span><span class="s3">false</span><span class="s1">) { 
+ 
+                            $scope.showInfoLevel[j] = </span><span class="s3">true</span><span class="s1">; 
+                        } 
+                        </span><span class="s3">else </span><span class="s1">{ 
+                            $scope.showInfoLevel[j] = </span><span class="s3">false</span><span class="s1">; 
+                        } 
+                    } 
+                } 
+ 
+            } 
+        } 
+ 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">feature</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{boolean}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.hasLogo = </span><span class="s3">function</span><span class="s1">(feature){ 
+        </span><span class="s3">if</span><span class="s1">($rootScope.images[feature]){ 
+            </span><span class="s3">return true</span><span class="s1">; 
+        } 
+        </span><span class="s3">else </span><span class="s1">{ 
+            </span><span class="s3">return false</span><span class="s1">; 
+        } 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* Error handling when request failed</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">status</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">funct</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.failedRequestAlert = </span><span class="s3">function </span><span class="s1">(status, funct) { 
+ 
+        </span><span class="s3">if </span><span class="s1">(status === </span><span class="s4">404</span><span class="s1">) { 
+            window.alert(funct +</span><span class="s0">' =&gt; ERROR 404 : request failed'</span><span class="s1">); 
+        } 
+ 
+        </span><span class="s3">else if</span><span class="s1">(status === </span><span class="s4">405</span><span class="s1">){ 
+            window.alert(funct +</span><span class="s0">' =&gt;ERROR 405 : request failed'</span><span class="s1">); 
+        } 
+        </span><span class="s3">else if</span><span class="s1">(status === </span><span class="s4">500</span><span class="s1">){ 
+            window.alert(funct +</span><span class="s0">' =&gt; ERROR 500 : request failed'</span><span class="s1">); 
+        } 
+ 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* check configurations to link when we finalize one config</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">configID</span><span class="s1"> 
+     </span><span class="s2">*  </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.checkConfigToLink = </span><span class="s3">function</span><span class="s1">(de, configID){ 
+        </span><span class="s3">var </span><span class="s1">linking = </span><span class="s3">false</span><span class="s1">; 
+        </span><span class="s3">if</span><span class="s1">($routeParams.ctxID === $rootScope.globalCtxID){  </span><span class="s2">// config create from global ctx</span><span class="s1"> 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">k = </span><span class="s4">0</span><span class="s1">; k&lt; $rootScope.compatiblesDES[de].length ;k++){ 
+                </span><span class="s3">var </span><span class="s1">domain = $rootScope.compatiblesDES[de][k]; 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">key </span><span class="s3">in </span><span class="s1">$rootScope.configurations[domain].validConfig.listConfigs) { 
+                    </span><span class="s3">var </span><span class="s1">myConfig = $rootScope.configurations[domain].validConfig.listConfigs[key]; 
+                    </span><span class="s3">if</span><span class="s1">(myConfig.ctxID === $rootScope.globalCtxID){ 
+                        $scope.linkConfigurations(de, configID, domain, myConfig.configID); 
+                        linking = </span><span class="s3">true</span><span class="s1">; 
+                    } 
+                } 
+            } 
+        } 
+        </span><span class="s3">else if</span><span class="s1">($scope.ctxID === $rootScope.globalCtxID){ 
+            </span><span class="s3">if</span><span class="s1">($routeParams.ctxID){ 
+                </span><span class="s3">if</span><span class="s1">($routeParams.ctxID !== $rootScope.globalCtxID){ 
+                    </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">l = </span><span class="s4">0</span><span class="s1">; l&lt; $rootScope.compatiblesDES[de].length ;l++){ 
+                        </span><span class="s3">var </span><span class="s1">mydomain = $rootScope.compatiblesDES[de][l]; 
+                        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">id </span><span class="s3">in </span><span class="s1">$rootScope.configurations[mydomain].validConfig.listConfigs) { 
+                            </span><span class="s3">var </span><span class="s1">cf = $rootScope.configurations[mydomain].validConfig.listConfigs[id]; 
+                            </span><span class="s3">if</span><span class="s1">(cf.ctxID === $routeParams.ctxID){ 
+                                $scope.linkConfigurations(de, configID, mydomain, cf.configID); 
+                                linking = </span><span class="s3">true</span><span class="s1">; 
+                            } 
+                        } 
+                        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">contextID </span><span class="s3">in </span><span class="s1">$rootScope.configurations[mydomain].partialConfig.listConfigs) { 
+                            </span><span class="s3">var </span><span class="s1">context = $rootScope.configurations[mydomain].partialConfig.listConfigs[contextID]; 
+                            </span><span class="s3">if</span><span class="s1">(context.ctxID === $routeParams.ctxID){ 
+                                $rootScope.configsToLinkWithGlobal.push({ctxIDTarget:context.ctxID, de:de , configID:configID}); 
+                            } 
+                        } 
+                    } 
+                } 
+            } 
+        } 
+        </span><span class="s3">else </span><span class="s1">{ 
+            </span><span class="s3">var </span><span class="s1">evaluatedCtx = []; 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; $rootScope.configsToLink.length; i++){ 
+                </span><span class="s3">var </span><span class="s1">currentConfig = $rootScope.configsToLink[i]; 
+                </span><span class="s3">if</span><span class="s1">(evaluatedCtx.indexOf(currentConfig.ctxID) &lt; </span><span class="s4">0</span><span class="s1">) { 
+                    </span><span class="s3">if</span><span class="s1">($scope.ctxID === currentConfig.ctxID) { 
+ 
+                        </span><span class="s3">var </span><span class="s1">alreadyDo = []; 
+                        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">j = </span><span class="s4">0</span><span class="s1">; j&lt; $rootScope.compatiblesDES[de].length ;j++) { 
+                            </span><span class="s3">var </span><span class="s1">currentDE = $rootScope.compatiblesDES[de][j]; 
+                            </span><span class="s3">if</span><span class="s1">(currentConfig.configID){    </span><span class="s2">// case valid config is checked in modal view</span><span class="s1"> 
+                                </span><span class="s3">if</span><span class="s1">($rootScope.configurations[currentDE].validConfig.listConfigs[currentConfig.configID]) { 
+ 
+                                    </span><span class="s3">if</span><span class="s1">(alreadyDo.indexOf(currentConfig.configID) &lt; </span><span class="s4">0</span><span class="s1">){ 
+                                        $scope.linkConfigurations(de, configID, currentDE,currentConfig.configID); 
+                                        alreadyDo.push(currentConfig.configID); 
+                                    } 
+                                } 
+                            } 
+                            </span><span class="s3">else </span><span class="s1">{ 
+                                </span><span class="s3">var </span><span class="s1">done = []; 
+                                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">confID </span><span class="s3">in </span><span class="s1">$rootScope.configurations[currentDE].validConfig.listConfigs) { 
+                                    </span><span class="s3">if</span><span class="s1">($rootScope.configurations[currentDE].validConfig.listConfigs[confID].ctxID === currentConfig.ctxID) { 
+                                        </span><span class="s3">if</span><span class="s1">(done.indexOf(confID) &lt; </span><span class="s4">0</span><span class="s1">){ 
+                                            $scope.linkConfigurations(de,configID, currentDE,confID); 
+                                            done.push(confID); 
+                                        } 
+                                    } 
+                                } 
+                            } 
+                        } 
+                    } 
+                } 
+                evaluatedCtx.push(currentConfig.ctxID); 
+            } 
+            </span><span class="s3">if</span><span class="s1">($rootScope.configsToLinkWithGlobal.length &gt;=</span><span class="s4">0</span><span class="s1">){ 
+                </span><span class="s3">var </span><span class="s1">evaluatedConfig = []; 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">h = </span><span class="s4">0</span><span class="s1">; h&lt;$rootScope.configsToLinkWithGlobal.length; h++){ 
+                    </span><span class="s3">var </span><span class="s1">toLink = $rootScope.configsToLinkWithGlobal[h]; 
+                    </span><span class="s3">if</span><span class="s1">(toLink.ctxIDTarget === $scope.ctxID){ 
+                        </span><span class="s3">if</span><span class="s1">(evaluatedConfig.indexOf(toLink.configID) &lt; </span><span class="s4">0</span><span class="s1">) { 
+                            $scope.linkConfigurations(de,configID, toLink.de,toLink.configID); 
+                            linking = </span><span class="s3">true</span><span class="s1">; 
+                            evaluatedConfig.push(toLink.configID); 
+                        } 
+                    } 
+                } 
+            } 
+            </span><span class="s3">if</span><span class="s1">($rootScope.createdFromClone.length &gt;= </span><span class="s4">0</span><span class="s1">){ 
+                </span><span class="s3">var </span><span class="s1">linkedClone = []; 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">ctxSrc </span><span class="s3">in </span><span class="s1">$rootScope.createdFromClone){ 
+                    </span><span class="s3">var </span><span class="s1">target = $rootScope.createdFromClone[ctxSrc]; 
+                    </span><span class="s3">if</span><span class="s1">(ctxSrc === $scope.ctxID) { 
+                        </span><span class="s3">var </span><span class="s1">myConf = $scope.getConfigOfContext(target.ctxTarget, target.deTarget); 
+                        </span><span class="s3">if</span><span class="s1">(myConf !== </span><span class="s3">null</span><span class="s1">) { 
+                            </span><span class="s3">if</span><span class="s1">(linkedClone.indexOf(myConf.configID) &lt; </span><span class="s4">0</span><span class="s1">){ 
+                                $scope.linkConfigurations(de,configID, target.deTarget, myConf.configID); 
+                                linking = </span><span class="s3">true</span><span class="s1">; 
+                                linkedClone.push(myConf.configID); 
+                            } 
+                        } 
+                    } 
+                    </span><span class="s3">else if</span><span class="s1">(target.ctxTarget === $scope.ctxID){ 
+                        </span><span class="s3">var </span><span class="s1">conf = $scope.getConfigOfContext(ctxSrc, target.deSrc); 
+                        </span><span class="s3">if</span><span class="s1">(conf !== </span><span class="s3">null</span><span class="s1">){ 
+                            </span><span class="s3">if</span><span class="s1">(linkedClone.indexOf(conf.configID) &lt; </span><span class="s4">0</span><span class="s1">){ 
+                                $scope.linkConfigurations(de,configID, target.deTarget, conf.configID); 
+                                linking = </span><span class="s3">true</span><span class="s1">; 
+                                linkedClone.push(conf.configID); 
+                            } 
+                        } 
+                    } 
+                } 
+            } 
+        } 
+        </span><span class="s3">if</span><span class="s1">(linking === </span><span class="s3">false </span><span class="s1">|| !$routeParams.ctxID){ 
+            $scope.checkIsGenerateAllowed(); 
+            $scope.openBilanView($scope.currentConfig.url); 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get config from the given context</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">ctxID</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{null}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getConfigOfContext = </span><span class="s3">function</span><span class="s1">(ctxID, de){ 
+        </span><span class="s3">var </span><span class="s1">config = </span><span class="s3">null</span><span class="s1">; 
+        </span><span class="s3">if</span><span class="s1">($rootScope.configurations[de]){ 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">confID </span><span class="s3">in </span><span class="s1">$rootScope.configurations[de].validConfig.listConfigs) { 
+                </span><span class="s3">if</span><span class="s1">($rootScope.configurations[de].validConfig.listConfigs[confID].ctxID === ctxID){ 
+                    config = $rootScope.configurations[de].validConfig.listConfigs[confID]; 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">config; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* check if a configurations is linkable with a the given de's configurations</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">configID</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{boolean}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.isConfigLinkable = </span><span class="s3">function</span><span class="s1">(configID, de){ 
+        $rootScope.isLinkableWith[de] = </span><span class="s3">true</span><span class="s1">; 
+        configManager.checkIsConfigLinkable($rootScope.SpineFMID, configID, de).then(</span><span class="s3">function </span><span class="s1">(linkable) { 
+                $rootScope.isLinkableWith[de] = linkable; 
+            }, 
+            </span><span class="s3">function </span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'Echec de check config compatible with'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* reinitialize the configuration (called when we choose to add new configuration of the current DE)</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.reinitializeConfiguration = </span><span class="s3">function</span><span class="s1">(){ 
+        angular.copy($rootScope.deFeatures[$scope.domainElement], $scope.fm); 
+        $scope.initController(); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get the given level name (for accordions)</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{null}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getLevelName = </span><span class="s3">function</span><span class="s1">(level){ 
+        </span><span class="s3">var </span><span class="s1">name = </span><span class="s3">null</span><span class="s1">; 
+        </span><span class="s3">if</span><span class="s1">($rootScope.zones[$scope.domainElement]){ 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; $rootScope.zones[$scope.domainElement].length; i++){ 
+                </span><span class="s3">var </span><span class="s1">zone = $rootScope.zones[$scope.domainElement][i]; 
+                </span><span class="s3">if</span><span class="s1">(zone.level.toString() === level.toString()){ 
+                    name = zone.name; 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">name; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get accordion properties for the given level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{*}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getLevelAccordion = </span><span class="s3">function</span><span class="s1">(level){ 
+        </span><span class="s3">var </span><span class="s1">accordion = </span><span class="s3">null</span><span class="s1">; 
+        </span><span class="s3">if</span><span class="s1">($rootScope.zones[$scope.domainElement]){ 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; $rootScope.zones[$scope.domainElement].length; i++){ 
+                </span><span class="s3">var </span><span class="s1">zone = $rootScope.zones[$scope.domainElement][i]; 
+                </span><span class="s3">if</span><span class="s1">(zone.level.toString() === level.toString()){ 
+                    accordion = zone.accordion; 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">accordion; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* get the given level description</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">level</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{null}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getLevelDescription = </span><span class="s3">function</span><span class="s1">(level){ 
+        </span><span class="s3">var </span><span class="s1">description = </span><span class="s3">null</span><span class="s1">; 
+        </span><span class="s3">if</span><span class="s1">($rootScope.zones[$scope.domainElement]){ 
+            </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i &lt; $rootScope.zones[$scope.domainElement].length; i++){ 
+                </span><span class="s3">var </span><span class="s1">zone = $rootScope.zones[$scope.domainElement][i]; 
+                </span><span class="s3">if</span><span class="s1">(zone.level.toString() === level.toString()){ 
+                    description = zone.description; 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">description ; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*  get the compatibles DE which have configurations</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{Array}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.getDEWithConfigs = </span><span class="s3">function</span><span class="s1">(){ 
+        </span><span class="s3">var </span><span class="s1">des = []; 
+        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">i = </span><span class="s4">0</span><span class="s1">; i&lt; $rootScope.compatiblesDES[$scope.domainElement].length ;i++){ 
+            </span><span class="s3">var </span><span class="s1">currentDE = $rootScope.compatiblesDES[$scope.domainElement][i]; 
+            </span><span class="s3">if</span><span class="s1">($rootScope.configurations[currentDE].partialConfig.listConfigs.length &gt; </span><span class="s4">0</span><span class="s1">){ 
+ 
+                des.push(currentDE); 
+            } 
+            </span><span class="s3">else</span><span class="s1">{ 
+                </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">configID </span><span class="s3">in </span><span class="s1">$rootScope.configurations[currentDE].validConfig.listConfigs) { 
+                    </span><span class="s3">var </span><span class="s1">config = $rootScope.configurations[currentDE].validConfig.listConfigs[configID]; 
+                    </span><span class="s3">if</span><span class="s1">(config.isLinked === </span><span class="s3">false</span><span class="s1">) { 
+ 
+                        </span><span class="s3">if</span><span class="s1">(des.indexOf(currentDE) &lt; </span><span class="s4">0</span><span class="s1">) { 
+                            des.push(currentDE); 
+                        } 
+                    } 
+                } 
+            } 
+        } 
+        </span><span class="s3">return </span><span class="s1">des; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*  show the select menu which have as content the connected configurations</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.showSelectInModal = </span><span class="s3">function</span><span class="s1">(de){ 
+        $scope.showConfigsDE = </span><span class="s3">true</span><span class="s1">; 
+        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">domain </span><span class="s3">in </span><span class="s1">$scope.showSelect){ 
+            </span><span class="s3">if</span><span class="s1">(domain === de){ 
+                $scope.showSelect[domain]  = </span><span class="s3">true</span><span class="s1">; 
+            } 
+            </span><span class="s3">else</span><span class="s1">{ 
+                $scope.showSelect[domain]  = </span><span class="s3">false</span><span class="s1">; 
+            } 
+        } 
+        $scope.choiceInModal = </span><span class="s3">true</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* hide the select menu which have as content the connected configurations</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.hideSelectInModal = </span><span class="s3">function</span><span class="s1">(){ 
+ 
+        $scope.setOption(</span><span class="s3">null</span><span class="s1">); 
+        $scope.showConfigsDE = </span><span class="s3">false</span><span class="s1">; 
+        $scope.choiceInModal = </span><span class="s3">true</span><span class="s1">; 
+        </span><span class="s3">for</span><span class="s1">(</span><span class="s3">var </span><span class="s1">domain </span><span class="s3">in </span><span class="s1">$scope.showSelect){ 
+            $scope.showSelect[domain]  = </span><span class="s3">false</span><span class="s1">; 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* clone configuration to link</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.cloneConfigurationToLink = </span><span class="s3">function</span><span class="s1">(ctxID, de){ 
+        configManager.cloneConfigurationToLink($rootScope.SpineFMID, ctxID, de).then(</span><span class="s3">function </span><span class="s1">(result) { 
+                window.alert(result); 
+            }, 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'clone config to link failed !'</span><span class="s1">); 
+            }); 
+    }; 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* clone a partial configuration</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.clonePartialConfiguration = </span><span class="s3">function</span><span class="s1">(){ 
+        configManager.clonePartialConfiguration($rootScope.SpineFMID, $scope.domainElement, $scope.ctxID).then(</span><span class="s3">function </span><span class="s1">(result) { 
+ 
+                $scope.setConfigurationName(result, $scope.domainElement, </span><span class="s3">true</span><span class="s1">); 
+                window.alert(</span><span class="s0">'Configuration dupliquée sous L</span><span class="s3">\'</span><span class="s0">ID '</span><span class="s1">+ result +</span><span class="s0">' avec succès'</span><span class="s1">); 
+            }, 
+            </span><span class="s3">function</span><span class="s1">(){ 
+                window.alert(</span><span class="s0">'clone partial failed !'</span><span class="s1">); 
+            }); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* set the option chosen by user in modal view</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">option</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.setOption = </span><span class="s3">function </span><span class="s1">(option){ 
+        $scope.myOption = option; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*  link the two given configurations</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">deSource</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">configSource</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">deTarget</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">configTarget</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.linkConfigurations = </span><span class="s3">function</span><span class="s1">(deSource, configSource, deTarget, configTarget){ 
+        </span><span class="s3">if</span><span class="s1">(configSource !== </span><span class="s3">null </span><span class="s1">&amp;&amp; configTarget !== </span><span class="s3">null</span><span class="s1">){ 
+            configManager.linkConfigurations($rootScope.SpineFMID, configSource, configTarget).then(</span><span class="s3">function </span><span class="s1">(result) { 
+ 
+                    console.log(result); 
+                    $rootScope.links.push({</span><span class="s0">'source'</span><span class="s1">:configSource, </span><span class="s0">'target'</span><span class="s1">: configTarget}); 
+                    </span><span class="s2">//$scope.isConfigLinked(deSource,configSource);</span><span class="s1"> 
+                    </span><span class="s3">if</span><span class="s1">($rootScope.configurations[deSource]) { 
+                        </span><span class="s3">if</span><span class="s1">($rootScope.configurations[deSource].validConfig.listConfigs[configSource]) { 
+                            </span><span class="s3">if</span><span class="s1">($rootScope.configurations[deSource].validConfig.listConfigs[configSource].isLinked === </span><span class="s3">false</span><span class="s1">) { 
+                                configManager.checkIsConfigLinked($rootScope.SpineFMID, configSource).then(</span><span class="s3">function </span><span class="s1">(linkedSource) { 
+                                        </span><span class="s3">if</span><span class="s1">(linkedSource.toString() === </span><span class="s0">'true'</span><span class="s1">) { 
+ 
+                                            $rootScope.configurations[deSource].validConfig.listConfigs[configSource].isLinked = </span><span class="s3">true</span><span class="s1">; 
+                                            $rootScope.validConfigs[deSource].linked += </span><span class="s4">1</span><span class="s1">; 
+                                            $rootScope.validConfigs[deSource].notLinked -= </span><span class="s4">1</span><span class="s1">; 
+                                        } 
+ 
+                                    }, 
+                                    </span><span class="s3">function</span><span class="s1">(){ 
+                                        window.alert(</span><span class="s0">'Echec de check config is linked'</span><span class="s1">); 
+                                    }); 
+                            } 
+                        } 
+                    } 
+                    </span><span class="s3">if</span><span class="s1">($rootScope.configurations[deTarget]) { 
+                        </span><span class="s3">if</span><span class="s1">($rootScope.configurations[deTarget].validConfig.listConfigs[configTarget]) { 
+                            </span><span class="s3">if</span><span class="s1">($rootScope.configurations[deTarget].validConfig.listConfigs[configTarget].isLinked === </span><span class="s3">false</span><span class="s1">) { 
+                                configManager.checkIsConfigLinked($rootScope.SpineFMID, configTarget).then(</span><span class="s3">function </span><span class="s1">(linkedTarget) { 
+                                        </span><span class="s3">if</span><span class="s1">(linkedTarget.toString() === </span><span class="s0">'true'</span><span class="s1">) { 
+ 
+                                            $rootScope.configurations[deTarget].validConfig.listConfigs[configTarget].isLinked = </span><span class="s3">true</span><span class="s1">; 
+                                            $rootScope.validConfigs[deTarget].linked += </span><span class="s4">1</span><span class="s1">; 
+                                            $rootScope.validConfigs[deTarget].notLinked -= </span><span class="s4">1</span><span class="s1">; 
+                                        } 
+ 
+                                    }, 
+                                    </span><span class="s3">function</span><span class="s1">(){ 
+                                        window.alert(</span><span class="s0">'Echec de check config is linked'</span><span class="s1">); 
+                                    }); 
+                            } 
+                        } 
+                    } 
+                    $scope.checkIsGenerateAllowed(); 
+                    $scope.openBilanView($scope.currentConfig.url); 
+                }, 
+                </span><span class="s3">function</span><span class="s1">(){ 
+                    window.alert(</span><span class="s0">' link configurations failed'</span><span class="s1">); 
+                }); 
+        } 
+    }; 
+    </span><span class="s2">/** check if the given config is already linked or not</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">de</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">configID</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{boolean}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.isConfigLinked = </span><span class="s3">function</span><span class="s1">(de, configID){ 
+        </span><span class="s3">if</span><span class="s1">($rootScope.configurations[de].validConfig.listConfigs[configID]){ 
+            configManager.checkIsConfigLinked($rootScope.SpineFMID, configID).then(</span><span class="s3">function </span><span class="s1">(linked) { 
+                    </span><span class="s3">if</span><span class="s1">(linked.toString() === </span><span class="s0">'true'</span><span class="s1">) { 
+ 
+                        $rootScope.configurations[de].validConfig.listConfigs[configID].isLinked = </span><span class="s3">true</span><span class="s1">; 
+                        $rootScope.validConfigs[de].linked += </span><span class="s4">1</span><span class="s1">; 
+                        $rootScope.validConfigs[de].notLinked -= </span><span class="s4">1</span><span class="s1">; 
+                    } 
+ 
+                }, 
+                </span><span class="s3">function</span><span class="s1">(){ 
+                    window.alert(</span><span class="s0">'Echec de check config is linked'</span><span class="s1">); 
+                }); 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* show trash icon which contains deselected features / hide when there's not deselected features</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{boolean}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.showTrashIcon = </span><span class="s3">function</span><span class="s1">(){ 
+        </span><span class="s3">return </span><span class="s1">$scope.deselectedFeatures.length &gt; </span><span class="s4">0</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* cancel setting config name modal</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.cancelSetConfigName = </span><span class="s3">function</span><span class="s1">() { 
+        $scope.openSetConfigNameModal = </span><span class="s3">false</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* open setting config name modal</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.openSetConfigName = </span><span class="s3">function</span><span class="s1">() { 
+        $scope.configOldName = $scope.currentConfig.name ; 
+        $scope.openSetConfigNameModal = </span><span class="s3">true</span><span class="s1">; 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">*</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.validateConfigName = </span><span class="s3">function</span><span class="s1">() { 
+        </span><span class="s3">if</span><span class="s1">($scope.currentConfig.name === $scope.configOldName) { 
+            $scope.openSetConfigNameModal = </span><span class="s3">false</span><span class="s1">; 
+            $scope.finalize(); 
+        } 
+        </span><span class="s3">else </span><span class="s1">{ 
+            </span><span class="s3">if</span><span class="s1">($rootScope.ConfigsName.indexOf($scope.currentConfig.name) &lt; </span><span class="s4">0</span><span class="s1">) { 
+                FMManager.setConfName($rootScope.SpineFMID, $scope.domainElement, $scope.ctxID, $scope.currentConfig.name).then(</span><span class="s3">function </span><span class="s1">(result) { 
+                        console.log(</span><span class="s0">'config name changed '</span><span class="s1">+ result); 
+                        </span><span class="s3">if</span><span class="s1">($rootScope.ConfigsName.indexOf($scope.configOldName) &gt; </span><span class="s4">0</span><span class="s1">) { 
+                            $rootScope.ConfigsName[$rootScope.ConfigsName.indexOf($scope.configOldName)] = $scope.currentConfig.name; 
+                        } 
+                        </span><span class="s3">else </span><span class="s1">{ 
+                            $rootScope.ConfigsName.push($scope.currentConfig.name); 
+                        } 
+                        $scope.openSetConfigNameModal = </span><span class="s3">false</span><span class="s1">; 
+                        $scope.finalize(); 
+                    }, 
+                    </span><span class="s3">function </span><span class="s1">(result) { 
+                        $scope.failedRequestAlert(result.status, </span><span class="s0">'setConfName'</span><span class="s1">); 
+                    }); 
+            } 
+            </span><span class="s3">else </span><span class="s1">{ 
+                window.alert(</span><span class="s0">'This name is already given to a configuration, please choose another one'</span><span class="s1">); 
+            } 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* set mouse behaviour</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">mode</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.setMouseBehaviour = </span><span class="s3">function </span><span class="s1">(mode) { 
+        </span><span class="s3">if </span><span class="s1">(mode &amp;&amp; mode!== </span><span class="s3">null</span><span class="s1">) { 
+            $rootScope.MouseConfigurationMode = mode.toString(); 
+            $scope.changeMouseMode($rootScope.MouseConfigurationMode); 
+        } 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* change mouse click event behaviour ( select/deselect or all )</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">mode</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.changeMouseMode = </span><span class="s3">function </span><span class="s1">(mode) { 
+        $scope.showMouseConfiguration = </span><span class="s3">false</span><span class="s1">; 
+        </span><span class="s3">if </span><span class="s1">(mode === </span><span class="s0">'allMenu'</span><span class="s1">) { 
+            $rootScope.mouseMode = {all : </span><span class="s3">true</span><span class="s1">, select:</span><span class="s3">false</span><span class="s1">, deselect:</span><span class="s3">false</span><span class="s1">}; 
+        } 
+        </span><span class="s3">else if </span><span class="s1">(mode === </span><span class="s0">'selectMenu'</span><span class="s1">) { 
+            $rootScope.mouseMode = {all : </span><span class="s3">false</span><span class="s1">, select:</span><span class="s3">true</span><span class="s1">, deselect:</span><span class="s3">false</span><span class="s1">}; 
+        } 
+        </span><span class="s3">else if </span><span class="s1">(mode === </span><span class="s0">'deselectMenu'</span><span class="s1">) { 
+            $rootScope.mouseMode = {all : </span><span class="s3">false</span><span class="s1">, select:</span><span class="s3">false</span><span class="s1">, deselect:</span><span class="s3">true</span><span class="s1">}; 
+        } 
+        </span><span class="s3">else </span><span class="s1">{ 
+            $rootScope.mouseMode = {all : </span><span class="s3">true</span><span class="s1">, select:</span><span class="s3">false</span><span class="s1">, deselect:</span><span class="s3">false</span><span class="s1">}; 
+        } 
+        console.log($rootScope.mouseMode); 
+    }; 
+ 
+    </span><span class="s2">/**</span><span class="s1"> 
+     </span><span class="s2">* check which mode is activated for the mouse click behaviour</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@param </span><span class="s2">mode</span><span class="s1"> 
+     </span><span class="s2">* </span><span class="s5">@returns </span><span class="s2">{string}</span><span class="s1"> 
+     </span><span class="s2">*/</span><span class="s1"> 
+    $scope.isModeActive =  </span><span class="s3">function </span><span class="s1">(mode) { 
+        </span><span class="s3">if </span><span class="s1">(mode === $rootScope.MouseConfigurationMode) { 
+            </span><span class="s3">return </span><span class="s0">'active'</span><span class="s1">; 
+        } 
+        </span><span class="s3">else </span><span class="s1">{ 
+            </span><span class="s3">return </span><span class="s0">''</span><span class="s1">; 
+        } 
+    }; 
+ 
+    </span><span class="s2">//$$$$$$$$$$$$$$$$$$$$$$$ start configuration controller $$$$$$$$$$$$$$$$$$$$$$$</span><span class="s1"> 
+    $scope.initController(); 
+});</span></pre>
+</body>
+</html>

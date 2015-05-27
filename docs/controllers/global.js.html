@@ -1,0 +1,934 @@
+<html>
+<head>
+<title>global.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(0,0,128); font-weight: bold; }
+.s3 { color: rgb(128,128,128); font-style: italic; }
+.s4 { color: rgb(128,128,128); font-weight: bold; font-style: italic; }
+.s5 { color: rgb(0,0,255); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+global.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+ 
+angular.module(</span><span class="s0">'tocsinApp'</span><span class="s1">) 
+    .controller(</span><span class="s0">'GlobalCtrl'</span><span class="s1">, </span><span class="s2">function </span><span class="s1">($scope, $rootScope, configManager) { 
+        </span><span class="s2">if</span><span class="s1">($rootScope.SpineFMID === undefined){ 
+            window.location.href = </span><span class="s0">'#/'</span><span class="s1">; 
+            </span><span class="s2">return</span><span class="s1">; 
+        } 
+        $scope.displayConfigNames = </span><span class="s2">false</span><span class="s1">; 
+        $scope.spineFMNewName = </span><span class="s2">null</span><span class="s1">; 
+        $scope.openSetSpineNameModal = </span><span class="s2">false</span><span class="s1">; 
+        $scope.selectedNode = </span><span class="s2">null</span><span class="s1">; 
+        $scope.showInfo = </span><span class="s2">false</span><span class="s1">; 
+        $scope.isNodeSelected = </span><span class="s2">false</span><span class="s1">; 
+        $scope.selectedState = </span><span class="s0">''</span><span class="s1">; 
+        $scope.showGenarationLoading = </span><span class="s2">false</span><span class="s1">; 
+        $scope.showMouseConfiguration = </span><span class="s2">false</span><span class="s1">; 
+        $scope.helpModal = </span><span class="s2">false</span><span class="s1">; 
+        $scope.compatiblesConfigs = []; 
+        $scope.info = </span><span class="s0">''</span><span class="s1">;   </span><span class="s3">// info to display in accordion body</span><span class="s1"> 
+        $scope.header = </span><span class="s0">''</span><span class="s1">; </span><span class="s3">// info to display on accordion header</span><span class="s1"> 
+ 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* set info visibility in accordion object</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.setInfoVisibility = </span><span class="s2">function</span><span class="s1">(){ 
+            </span><span class="s2">if</span><span class="s1">($scope.showInfo === </span><span class="s2">false</span><span class="s1">){ 
+                $scope.showInfo = </span><span class="s2">true</span><span class="s1">; 
+            } 
+            </span><span class="s2">else</span><span class="s1">{ 
+                $scope.showInfo =</span><span class="s2">false</span><span class="s1">; 
+            } 
+        }; 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* get the number of created configs</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{number}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getNbConfigsTotal = </span><span class="s2">function</span><span class="s1">(){ 
+            </span><span class="s2">var </span><span class="s1">total = </span><span class="s5">0</span><span class="s1">; 
+            </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">de </span><span class="s2">in </span><span class="s1">$rootScope.configurations){ 
+                total += $rootScope.configurations[de].partialConfig.number; 
+                total += $rootScope.configurations[de].validConfig.number; 
+            } 
+            </span><span class="s2">return </span><span class="s1">total; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* get properties of selected node to display on top (in accordion)</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">node</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getInfoFromSelectedNode = </span><span class="s2">function</span><span class="s1">(node){ 
+            $scope.isNodeSelected = </span><span class="s2">true</span><span class="s1">; 
+            $scope.header = node.de + </span><span class="s0">' : '</span><span class="s1">+ node.name; 
+            </span><span class="s2">var </span><span class="s1">prop = $scope.getProperties(node); 
+            $scope.info = $scope.getDEToLinkText(prop.deToLink); 
+            $scope.info += prop.nbConfigCompatibles  + </span><span class="s0">' configuration(s) compatible(s)'</span><span class="s1">; 
+            </span><span class="s2">if</span><span class="s1">(node.isValid === </span><span class="s2">false</span><span class="s1">){ 
+                $scope.selectedState = $rootScope.colorsState.notFinishedConfig; 
+            } 
+            </span><span class="s2">else</span><span class="s1">{ 
+                </span><span class="s2">if</span><span class="s1">(node.isLinked === </span><span class="s2">true</span><span class="s1">){ 
+                    $scope.selectedState = $rootScope.colorsState.finishedLinkedConfig; 
+                } 
+                </span><span class="s2">else</span><span class="s1">{ 
+                    $scope.selectedState = $rootScope.colorsState.finishedNotLinkedConfig; 
+                } 
+            } 
+ 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* check if generation is allowed</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.checkIsGenerateAllowed = </span><span class="s2">function</span><span class="s1">(){ 
+            configManager.checkIsGenerateAllowed($rootScope.SpineFMID).then(</span><span class="s2">function </span><span class="s1">(response) { 
+                    </span><span class="s2">if</span><span class="s1">(response.toString() === </span><span class="s0">'false'</span><span class="s1">){ 
+                        $rootScope.isGenerateAllowed = </span><span class="s2">true</span><span class="s1">; 
+                    } 
+                    </span><span class="s2">else</span><span class="s1">{ 
+                        $rootScope.isGenerateAllowed = </span><span class="s2">false</span><span class="s1">; 
+                    } 
+                }, 
+                </span><span class="s2">function</span><span class="s1">(){ 
+                    window.alert(</span><span class="s0">'checkIsGenerateAllowed failed'</span><span class="s1">); 
+                }); 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* get DE of the linked Configurations</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configSrc</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getDESOfLinkedConfig = </span><span class="s2">function</span><span class="s1">(configSrc){ 
+            </span><span class="s2">var </span><span class="s1">domain = []; 
+            </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">i = </span><span class="s5">0</span><span class="s1">; i&lt; $rootScope.links.length; i++){ 
+                </span><span class="s2">var </span><span class="s1">link = $rootScope.links[i]; 
+                </span><span class="s2">if</span><span class="s1">(link.source === configSrc){ 
+                    </span><span class="s2">var </span><span class="s1">currentDE = $scope.getDEOfConfig(link.target); 
+                    domain.push(currentDE); 
+                } 
+                </span><span class="s2">else if</span><span class="s1">(link.target === configSrc){ 
+                    </span><span class="s2">var </span><span class="s1">myDE = $scope.getDEOfConfig(link.source); 
+                    domain.push(myDE); 
+                } 
+            } 
+            </span><span class="s2">return </span><span class="s1">domain; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* get the DE on the given config</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configID</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{null}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getDEOfConfig = </span><span class="s2">function</span><span class="s1">(configID){ 
+            </span><span class="s2">var </span><span class="s1">response  = </span><span class="s2">null</span><span class="s1">; 
+            </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">de </span><span class="s2">in </span><span class="s1">$rootScope.configurations){ 
+                </span><span class="s2">var </span><span class="s1">deConfig = $rootScope.configurations[de]; 
+                </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">id </span><span class="s2">in </span><span class="s1">deConfig.validConfig.listConfigs){ 
+                    </span><span class="s2">if</span><span class="s1">(id === configID){ 
+                        response = de; 
+                    } 
+                } 
+            } 
+            </span><span class="s2">return </span><span class="s1">response; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* get text of unlinked config</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">toLink</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{string}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getDEToLinkText = </span><span class="s2">function</span><span class="s1">(toLink){ 
+            </span><span class="s2">var </span><span class="s1">text = </span><span class="s0">''</span><span class="s1">; 
+            </span><span class="s2">if</span><span class="s1">(toLink.length&gt; </span><span class="s5">0</span><span class="s1">){ 
+                text = </span><span class="s0">'Liens absents : ['</span><span class="s1">; 
+                </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">z = </span><span class="s5">0</span><span class="s1">; z&lt;toLink.length; z++){ 
+                    </span><span class="s2">if</span><span class="s1">(z === toLink.length -</span><span class="s5">1</span><span class="s1">){ 
+                        text += toLink[z] + </span><span class="s0">'] ; '</span><span class="s1">; 
+                    } 
+                    </span><span class="s2">else</span><span class="s1">{ 
+                        text += toLink[z]+ </span><span class="s0">', '</span><span class="s1">; 
+                    } 
+                } 
+            } 
+            </span><span class="s2">return </span><span class="s1">text; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* get the given node's properties</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">node</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{{nbConfigCompatibles: number, deToLink: Array}}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getProperties = </span><span class="s2">function</span><span class="s1">(node){ 
+            </span><span class="s2">var </span><span class="s1">nb = </span><span class="s5">0</span><span class="s1">; 
+            </span><span class="s2">var </span><span class="s1">toLink = []; 
+            </span><span class="s2">var </span><span class="s1">properties = {nbConfigCompatibles : </span><span class="s5">0</span><span class="s1">, deToLink:[]}; 
+            </span><span class="s2">if</span><span class="s1">($rootScope.compatiblesDES[node.de]) { 
+                </span><span class="s2">if</span><span class="s1">(node.isValid === </span><span class="s2">false</span><span class="s1">){ 
+                    toLink = $rootScope.compatiblesDES[node.de]; 
+                    </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">t = </span><span class="s5">0</span><span class="s1">; t&lt; $rootScope.compatiblesDES[node.de].length; t++ ){ 
+                        </span><span class="s2">var </span><span class="s1">de = $rootScope.compatiblesDES[node.de][t]; 
+                        </span><span class="s2">if</span><span class="s1">($rootScope.configurations[de]){ 
+                            nb += $rootScope.configurations[de].partialConfig.number; 
+                            nb += $rootScope.validConfigs[de].linked; 
+                            nb += $rootScope.validConfigs[de].notLinked; 
+                        } 
+                    } 
+                } 
+                </span><span class="s2">else</span><span class="s1">{ 
+                    </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">i = </span><span class="s5">0</span><span class="s1">; i&lt; $rootScope.compatiblesDES[node.de].length; i++ ){ 
+                        </span><span class="s2">var </span><span class="s1">linkedDES = $scope.getDESOfLinkedConfig(node.id); 
+                        </span><span class="s2">var </span><span class="s1">currentDE = $rootScope.compatiblesDES[node.de][i]; 
+                        </span><span class="s2">if</span><span class="s1">(linkedDES.indexOf(currentDE) &lt; </span><span class="s5">0</span><span class="s1">){ 
+                            toLink.push(currentDE); 
+                        } 
+                        </span><span class="s2">var </span><span class="s1">compt = $scope.getConfigCompatibles(currentDE, node.id); 
+                        nb += compt.length; 
+                    } 
+                } 
+                properties.nbConfigCompatibles = nb; 
+                properties.deToLink = toLink; 
+            } 
+            </span><span class="s2">return </span><span class="s1">properties; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* display all node's names</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.displayNames = </span><span class="s2">function</span><span class="s1">(){ 
+            </span><span class="s2">var </span><span class="s1">allCircles = document.getElementsByTagName(</span><span class="s0">'circle'</span><span class="s1">); 
+            </span><span class="s2">if</span><span class="s1">($scope.displayConfigNames === </span><span class="s2">true</span><span class="s1">){ 
+                $scope.displayConfigNames = </span><span class="s2">false</span><span class="s1">; 
+                </span><span class="s2">for </span><span class="s1">(</span><span class="s2">var </span><span class="s1">i = </span><span class="s5">0 </span><span class="s1">; i &lt; allCircles.length; i++) { $(allCircles[i]).data(</span><span class="s0">'tooltipsy'</span><span class="s1">).hide(); } 
+            } 
+            </span><span class="s2">else </span><span class="s1">{ 
+                $scope.displayConfigNames = </span><span class="s2">true</span><span class="s1">; 
+                </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">y = </span><span class="s5">0 </span><span class="s1">; y &lt; allCircles.length; y++) { $(allCircles[y]).data(</span><span class="s0">'tooltipsy'</span><span class="s1">).show(); } 
+ 
+            } 
+        } ; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* check if a configurations is linkable with a the given de's configurations</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configID</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">de</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{boolean}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.isConfigLinkable = </span><span class="s2">function</span><span class="s1">(configID, de){ 
+            </span><span class="s2">var </span><span class="s1">isLinkable = </span><span class="s2">false</span><span class="s1">; 
+            configManager.checkIsConfigLinkable($rootScope.SpineFMID, configID, de).then(</span><span class="s2">function </span><span class="s1">(linkable) { 
+                    isLinkable = linkable; 
+                }, 
+                </span><span class="s2">function</span><span class="s1">(){ 
+                    window.alert(</span><span class="s0">'Echec de check config compatible with'</span><span class="s1">); 
+                }); 
+ 
+            </span><span class="s2">return </span><span class="s1">isLinkable; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* Get configs from the given domain which are compatibles with the given config</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">DeTarget</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">confID</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getConfigCompatibles = </span><span class="s2">function</span><span class="s1">(DeTarget, confID){ 
+ 
+            </span><span class="s2">var </span><span class="s1">compatibles = []; 
+            </span><span class="s2">var </span><span class="s1">isLinkable = $scope.isConfigLinkable(confID, DeTarget); 
+            </span><span class="s2">if</span><span class="s1">(isLinkable === </span><span class="s2">true</span><span class="s1">){ 
+                configManager.getCompatiblesConfigurations($rootScope.SpineFMID, DeTarget, confID).then(</span><span class="s2">function </span><span class="s1">(configCompatibles) { 
+ 
+                        compatibles = configCompatibles; 
+                    }, 
+                    </span><span class="s2">function</span><span class="s1">(){ 
+                        window.alert(</span><span class="s0">'Echec du chargement des configurations compatibles'</span><span class="s1">); 
+                    }); 
+            } 
+ 
+ 
+            </span><span class="s2">return </span><span class="s1">compatibles; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* handle compatibles configs between nodes</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.handleCompatiblesConfigurations = </span><span class="s2">function</span><span class="s1">(nodes){ 
+            </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">i = </span><span class="s5">0</span><span class="s1">; i &lt; nodes.length; i++) { 
+                </span><span class="s2">var </span><span class="s1">node = nodes[i]; 
+                </span><span class="s2">if </span><span class="s1">(node.isValid === </span><span class="s2">true</span><span class="s1">) { 
+                    $scope.compatiblesConfigs[node.id] = []; 
+                    </span><span class="s2">if</span><span class="s1">($rootScope.compatiblesDES[node.de]) { 
+                        </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">j = </span><span class="s5">0</span><span class="s1">; j &lt; $rootScope.compatiblesDES[node.de].length; j++) { 
+                            </span><span class="s2">var </span><span class="s1">domain = $rootScope.compatiblesDES[node.de][j]; 
+                            $scope.checkCompatiblesConfigurations(node, domain); 
+                        } 
+                    } 
+                } 
+            } 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* check compatibles configurations</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">node</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">de</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.checkCompatiblesConfigurations = </span><span class="s2">function </span><span class="s1">(node, de) { 
+            configManager.checkIsConfigLinkable($rootScope.SpineFMID, node.id, de).then(</span><span class="s2">function </span><span class="s1">(linkable) { 
+                    </span><span class="s2">if</span><span class="s1">(linkable.toString() === </span><span class="s0">'true'</span><span class="s1">) { 
+                        configManager.getLinkedConfigurations($rootScope.SpineFMID, de, node.id).then(</span><span class="s2">function </span><span class="s1">(linkedConfigs) { 
+                                </span><span class="s2">var </span><span class="s1">multiplicity = $scope.getMultiplicityBetweenDE(node.de, de); 
+                                </span><span class="s2">if</span><span class="s1">(linkedConfigs.length  !==  multiplicity){ 
+                                    configManager.getCompatiblesConfigurations($rootScope.SpineFMID, de, node.id).then(</span><span class="s2">function </span><span class="s1">(configCompatibles) { 
+                                            </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">i=</span><span class="s5">0</span><span class="s1">; i &lt; configCompatibles.length; i++) { 
+                                                $scope.compatiblesConfigs[node.id].push(configCompatibles[i]); 
+                                            } 
+                                        }, 
+                                        </span><span class="s2">function</span><span class="s1">(){ 
+                                            </span><span class="s3">//window.alert('Echec du chargement des configurations compatibles');</span><span class="s1"> 
+                                    }); 
+                                } 
+                            }, 
+                            </span><span class="s2">function</span><span class="s1">(){ 
+                                window.alert(</span><span class="s0">'get linked in compatibles failed'</span><span class="s1">); 
+                            }); 
+                    } 
+                }, 
+                </span><span class="s2">function </span><span class="s1">(){ 
+                    window.alert(</span><span class="s0">'Echec de check config compatible with'</span><span class="s1">); 
+                }); 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* link 2 given configurations</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">deSource</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configSource</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">deTarget</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configTarget</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.linkConfigurations = </span><span class="s2">function</span><span class="s1">(deSource, configSource, deTarget, configTarget){ 
+ 
+            configManager.linkConfigurations($rootScope.SpineFMID, configSource, configTarget).then(</span><span class="s2">function </span><span class="s1">(result) { 
+ 
+                    $rootScope.links.push({</span><span class="s0">'source'</span><span class="s1">:configSource, </span><span class="s0">'target'</span><span class="s1">: configTarget}); 
+                    $scope.checkIsLinked(deSource,configSource); 
+                    $scope.checkIsLinked(deTarget,configTarget); 
+                    </span><span class="s2">if</span><span class="s1">(result.deletedContext){ 
+                        $scope.handleChanges(result); 
+                    } 
+                }, 
+                </span><span class="s2">function</span><span class="s1">(){ 
+                    window.alert(</span><span class="s0">' link configurations failed'</span><span class="s1">); 
+                }); 
+        }; 
+ 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* check if config is linked</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">de</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configID</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.checkIsLinked = </span><span class="s2">function</span><span class="s1">(de, configID){ 
+            </span><span class="s2">if</span><span class="s1">($rootScope.configurations[de].validConfig.listConfigs[configID]){ 
+                configManager.checkIsConfigLinked($rootScope.SpineFMID, configID).then(</span><span class="s2">function </span><span class="s1">(linked) { 
+                        </span><span class="s2">if</span><span class="s1">(linked.toString() === </span><span class="s0">'true'</span><span class="s1">) { 
+ 
+                            $rootScope.configurations[de].validConfig.listConfigs[configID].isLinked = </span><span class="s2">true</span><span class="s1">; 
+                            </span><span class="s2">var </span><span class="s1">noNewAllowed = $scope.isAddNewAllowed(de); 
+                            </span><span class="s2">if</span><span class="s1">(noNewAllowed.toString() === </span><span class="s0">'false'</span><span class="s1">) { 
+                                </span><span class="s2">if </span><span class="s1">($rootScope.validConfigs[de].linked === </span><span class="s5">1</span><span class="s1">) { 
+                                    $rootScope.validConfigs[de].linked += </span><span class="s5">0</span><span class="s1">; 
+                                    $rootScope.validConfigs[de].notLinked += </span><span class="s5">0</span><span class="s1">; 
+                                } 
+                                </span><span class="s2">else</span><span class="s1">{ 
+                                    $rootScope.validConfigs[de].linked += </span><span class="s5">1</span><span class="s1">; 
+                                    $rootScope.validConfigs[de].notLinked += -</span><span class="s5">1</span><span class="s1">; 
+                                } 
+                            } 
+                            </span><span class="s2">else </span><span class="s1">{ 
+                                $rootScope.validConfigs[de].linked += </span><span class="s5">1</span><span class="s1">; 
+                                $rootScope.validConfigs[de].notLinked += -</span><span class="s5">1</span><span class="s1">; 
+                            } 
+                        } 
+ 
+ 
+                    }, 
+                    </span><span class="s2">function</span><span class="s1">(){ 
+                        window.alert(</span><span class="s0">'Echec de check config is linked'</span><span class="s1">); 
+                    }); 
+            } 
+        }; 
+ 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">*  handle change Context when we link configurations between them</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">change</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.handleChanges = </span><span class="s2">function</span><span class="s1">(change){ 
+ 
+            </span><span class="s2">var </span><span class="s1">ctxIDToDelete = change.deletedContext; 
+            </span><span class="s2">var </span><span class="s1">newCtxID = change.replacedBy; 
+ 
+ 
+            </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">de </span><span class="s2">in </span><span class="s1">$rootScope.configurations){ 
+                </span><span class="s2">var </span><span class="s1">deConfig = $rootScope.configurations[de]; 
+                </span><span class="s2">if</span><span class="s1">(deConfig.partialConfig.listConfigs[ctxIDToDelete] !== undefined){ 
+                    </span><span class="s2">var </span><span class="s1">config = deConfig.partialConfig.listConfigs[ctxIDToDelete]; 
+ 
+                    </span><span class="s2">if</span><span class="s1">(deConfig.partialConfig.listConfigs[newCtxID] === undefined){ 
+                        config.url = </span><span class="s0">'#/de/'</span><span class="s1">+de+</span><span class="s0">'/ctx/'</span><span class="s1">+newCtxID; 
+                        config.ctxID =  newCtxID; 
+                        $rootScope.configurations[de].partialConfig.listConfigs[newCtxID] = config; 
+                        </span><span class="s2">delete </span><span class="s1">$rootScope.configurations[de].partialConfig.listConfigs[ctxIDToDelete]; 
+                    } 
+                } 
+            } 
+ 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">*  check if the given config is linked or not</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">configID</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{boolean}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.isConfigLinked = </span><span class="s2">function</span><span class="s1">(configID){ 
+            </span><span class="s2">var </span><span class="s1">isLinked= </span><span class="s2">false</span><span class="s1">; 
+            configManager.checkIsConfigLinked($rootScope.SpineFMID, configID).then(</span><span class="s2">function </span><span class="s1">(linked) { 
+                    isLinked = linked; 
+                }, 
+                </span><span class="s2">function</span><span class="s1">(){ 
+                    window.alert(</span><span class="s0">'Echec de is linked'</span><span class="s1">); 
+                }); 
+ 
+            </span><span class="s2">return </span><span class="s1">isLinked; 
+        }; 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">*   Get multiplicity between given domains</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">deSrc</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@param </span><span class="s3">deTarget</span><span class="s1"> 
+         </span><span class="s3">* </span><span class="s4">@returns </span><span class="s3">{number}</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $scope.getMultiplicityBetweenDE = </span><span class="s2">function</span><span class="s1">(deSrc, deTarget) { 
+            </span><span class="s2">var </span><span class="s1">mult = </span><span class="s5">0</span><span class="s1">; 
+            </span><span class="s2">if</span><span class="s1">($rootScope.DEProperties[deSrc]){ 
+                </span><span class="s2">if</span><span class="s1">($rootScope.DEProperties[deSrc].target){ 
+                    </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">i = </span><span class="s5">0</span><span class="s1">; i &lt; $rootScope.DEProperties[deSrc].target.length; i++){ 
+                        </span><span class="s2">var </span><span class="s1">target = $rootScope.DEProperties[deSrc].target[i]; 
+                        </span><span class="s2">if</span><span class="s1">(target !== </span><span class="s2">null </span><span class="s1">&amp;&amp; target !== undefined){ 
+                            </span><span class="s2">if</span><span class="s1">(target.de === deTarget) { 
+                                mult = target.linkMultiplicity.upperBound; 
+                            } 
+                        } 
+                    } 
+                } 
+            } 
+            </span><span class="s2">return </span><span class="s1">mult; 
+        }; 
+ 
+ 
+</span><span class="s3">// $$$$$$$$$$$$$$$$$$$$$$$$$  START D3 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><span class="s1"> 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* active context menu (on right click)</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        $(</span><span class="s0">'#d3viz'</span><span class="s1">).contextMenu(</span><span class="s0">'context-menu-1'</span><span class="s1">, { 
+            </span><span class="s0">'Link '</span><span class="s1">: { 
+                click: </span><span class="s2">function</span><span class="s1">() { 
+                    </span><span class="s2">if</span><span class="s1">($scope.selectedNode !== </span><span class="s2">null</span><span class="s1">){ 
+                        dragLine 
+                            .style(</span><span class="s0">'marker-end'</span><span class="s1">, </span><span class="s0">'url(#end-arrow)'</span><span class="s1">) 
+                            .classed(</span><span class="s0">'hidden'</span><span class="s1">, </span><span class="s2">false</span><span class="s1">) 
+                            .attr(</span><span class="s0">'d'</span><span class="s1">, </span><span class="s0">'M' </span><span class="s1">+$scope.selectedNode.x + </span><span class="s0">',' </span><span class="s1">+ $scope.selectedNode.y + </span><span class="s0">'L' </span><span class="s1">+ $scope.selectedNode.x + </span><span class="s0">',' </span><span class="s1">+ $scope.selectedNode.y); 
+                    } 
+                }, 
+                klass: </span><span class="s0">'menu-item-1' </span><span class="s3">// a custom css class for this menu item (usable for styling)</span><span class="s1"> 
+            }, 
+            </span><span class="s0">'See configuration'</span><span class="s1">: { 
+                click: </span><span class="s2">function</span><span class="s1">() { 
+                    </span><span class="s2">if</span><span class="s1">($scope.selectedNode !== </span><span class="s2">null</span><span class="s1">){ 
+                        window.location.href = $scope.selectedNode.url; 
+                    } 
+                }, 
+                klass: </span><span class="s0">'menu-item-1' </span><span class="s3">// a custom css class for this menu item (usable for styling)</span><span class="s1"> 
+            }, 
+            </span><span class="s0">'See Domain assessment'</span><span class="s1">: { 
+                click: </span><span class="s2">function</span><span class="s1">(){ 
+                    </span><span class="s2">if</span><span class="s1">($scope.selectedNode !== </span><span class="s2">null</span><span class="s1">){ 
+                        window.location.href = </span><span class="s0">'#/bilan/'</span><span class="s1">+$scope.selectedNode.de; 
+                    } 
+                }, 
+                klass: </span><span class="s0">'second-menu-item'</span><span class="s1"> 
+            } 
+        }); 
+ 
+ 
+        </span><span class="s2">var </span><span class="s1">isCompatiblesWithSelectedNode = </span><span class="s2">function</span><span class="s1">(selectedNode, currentNode) { 
+            </span><span class="s2">var </span><span class="s1">response = </span><span class="s2">false</span><span class="s1">; 
+            </span><span class="s2">if</span><span class="s1">(selectedNode !== </span><span class="s2">null </span><span class="s1">&amp;&amp; currentNode!== </span><span class="s2">null</span><span class="s1">) { 
+                </span><span class="s2">if </span><span class="s1">($scope.compatiblesConfigs[selectedNode.id]){ 
+                    response = $scope.compatiblesConfigs[selectedNode.id].indexOf(currentNode.id) &gt;= </span><span class="s5">0</span><span class="s1">; 
+                } 
+                </span><span class="s2">else if </span><span class="s1">($scope.compatiblesConfigs[currentNode.id]) { 
+                    response = $scope.compatiblesConfigs[currentNode.id].indexOf(selectedNode.id) &gt;= </span><span class="s5">0</span><span class="s1">; 
+                } 
+            } 
+            </span><span class="s2">return </span><span class="s1">response; 
+        }; 
+ 
+        </span><span class="s2">var </span><span class="s1">getColorOfConfig = </span><span class="s2">function</span><span class="s1">(config){ 
+            </span><span class="s2">var </span><span class="s1">color; 
+            </span><span class="s2">if</span><span class="s1">(config.isValid === </span><span class="s2">true</span><span class="s1">){ 
+                </span><span class="s2">if</span><span class="s1">(config.isLinked === </span><span class="s2">true</span><span class="s1">){ 
+                    color = </span><span class="s0">'green'</span><span class="s1">; 
+                } 
+                </span><span class="s2">else </span><span class="s1">{ 
+                    color = </span><span class="s0">'orange'</span><span class="s1">; 
+                } 
+            } 
+            </span><span class="s2">else</span><span class="s1">{ 
+                color = </span><span class="s0">'red'</span><span class="s1">; 
+            } 
+            </span><span class="s2">return </span><span class="s1">color; 
+        }; 
+ 
+        </span><span class="s2">var </span><span class="s1">getListOfNodes = </span><span class="s2">function </span><span class="s1">() { 
+            </span><span class="s2">var </span><span class="s1">num = </span><span class="s5">0</span><span class="s1">; 
+            </span><span class="s2">var </span><span class="s1">result = []; 
+            </span><span class="s2">for </span><span class="s1">(</span><span class="s2">var </span><span class="s1">i = </span><span class="s5">0</span><span class="s1">; i &lt; $rootScope.domainElements.length; i++) { 
+                </span><span class="s2">var </span><span class="s1">de = $rootScope.domainElements[i]; 
+                </span><span class="s2">var </span><span class="s1">symbol = de.substring(</span><span class="s5">0</span><span class="s1">,</span><span class="s5">1</span><span class="s1">).toUpperCase(); 
+                </span><span class="s2">var </span><span class="s1">listConfigs = $rootScope.configurations[de].validConfig.listConfigs; 
+                </span><span class="s2">var </span><span class="s1">partialConfigs = $rootScope.configurations[de].partialConfig.listConfigs; 
+                </span><span class="s2">for </span><span class="s1">(</span><span class="s2">var </span><span class="s1">configID </span><span class="s2">in </span><span class="s1">listConfigs) { 
+                    result.push({</span><span class="s0">'number'</span><span class="s1">: symbol+num, </span><span class="s0">'id'</span><span class="s1">:configID, </span><span class="s0">'name'</span><span class="s1">:listConfigs[configID].name, </span><span class="s0">'de'</span><span class="s1">:de, </span><span class="s0">'isLinked'</span><span class="s1">:listConfigs[configID].isLinked, isValid: </span><span class="s2">true</span><span class="s1">, </span><span class="s0">'ctxID'</span><span class="s1">:listConfigs[configID].ctxID, </span><span class="s0">'url'</span><span class="s1">: listConfigs[configID].url }); 
+                    num += </span><span class="s5">1</span><span class="s1">; 
+                } 
+ 
+                </span><span class="s2">for </span><span class="s1">(</span><span class="s2">var </span><span class="s1">partialID </span><span class="s2">in </span><span class="s1">partialConfigs) { 
+                    result.push({</span><span class="s0">'number'</span><span class="s1">: symbol+num, </span><span class="s0">'id'</span><span class="s1">:partialConfigs[partialID].name, </span><span class="s0">'name'</span><span class="s1">:partialConfigs[partialID].name, </span><span class="s0">'ctxID'</span><span class="s1">:partialConfigs[partialID].ctxID, </span><span class="s0">'de'</span><span class="s1">:de, isValid: </span><span class="s2">false</span><span class="s1">, </span><span class="s0">'url'</span><span class="s1">: partialConfigs[partialID].url }); 
+                    num += </span><span class="s5">1</span><span class="s1">; 
+                } 
+            } 
+            </span><span class="s2">return </span><span class="s1">result; 
+        }; 
+ 
+        </span><span class="s2">var </span><span class="s1">getConfigsLinked = </span><span class="s2">function</span><span class="s1">(noeuds) { 
+            </span><span class="s2">var </span><span class="s1">result = []; 
+ 
+            </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">i = </span><span class="s5">0</span><span class="s1">; i&lt; $rootScope.links.length; i++){ 
+                </span><span class="s2">var </span><span class="s1">link = $rootScope.links[i]; 
+                </span><span class="s2">var </span><span class="s1">nodeSource = </span><span class="s2">null</span><span class="s1">; 
+                </span><span class="s2">var </span><span class="s1">nodeTarget = </span><span class="s2">null</span><span class="s1">; 
+                </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">y = </span><span class="s5">0</span><span class="s1">; y &lt; noeuds.length; y++){ 
+                    </span><span class="s2">var </span><span class="s1">node = noeuds[y]; 
+                    </span><span class="s2">if</span><span class="s1">(node.id === link.source){ 
+                        nodeSource = node; 
+                    } 
+                    </span><span class="s2">else  if</span><span class="s1">(node.id === link.target){ 
+                        nodeTarget = node; 
+                    } 
+                } 
+ 
+                </span><span class="s2">if</span><span class="s1">(nodeSource !== </span><span class="s2">null </span><span class="s1">&amp;&amp; nodeTarget !== </span><span class="s2">null</span><span class="s1">){ 
+ 
+                    result.push({source:nodeSource, target: nodeTarget, left:</span><span class="s2">false</span><span class="s1">, right:</span><span class="s2">true</span><span class="s1">, isPartial:</span><span class="s2">false</span><span class="s1">}); 
+ 
+                } 
+            } 
+            </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">z = </span><span class="s5">0</span><span class="s1">; z&lt;$rootScope.configsToLink.length; z++){ 
+                </span><span class="s2">var </span><span class="s1">toLink = $rootScope.configsToLink[z]; 
+                </span><span class="s2">var </span><span class="s1">nodeSrc = </span><span class="s2">null</span><span class="s1">; 
+                </span><span class="s2">var </span><span class="s1">nodeTg = </span><span class="s2">null</span><span class="s1">; 
+                </span><span class="s2">for</span><span class="s1">(</span><span class="s2">var </span><span class="s1">t = </span><span class="s5">0</span><span class="s1">; t &lt; noeuds.length; t++){ 
+                    </span><span class="s2">var </span><span class="s1">currentNode = noeuds[t]; 
+                    </span><span class="s2">if</span><span class="s1">(currentNode.id === toLink.configID){ 
+                        nodeSrc = currentNode; 
+                    } 
+                    </span><span class="s2">else if</span><span class="s1">(currentNode.ctxID === toLink.ctxID){ 
+                        nodeTg = currentNode; 
+                    } 
+                } 
+ 
+                </span><span class="s2">if</span><span class="s1">(nodeSrc !== </span><span class="s2">null </span><span class="s1">&amp;&amp; nodeTg !== </span><span class="s2">null</span><span class="s1">){ 
+ 
+                    result.push({source:nodeSrc, target: nodeTg, left:</span><span class="s2">false</span><span class="s1">, right:</span><span class="s2">true</span><span class="s1">, isPartial:</span><span class="s2">true</span><span class="s1">}); 
+ 
+                } 
+            } 
+            </span><span class="s2">return </span><span class="s1">result; 
+        }; 
+ 
+        </span><span class="s3">// set up SVG for D3</span><span class="s1"> 
+        </span><span class="s2">var </span><span class="s1">width  = </span><span class="s5">400</span><span class="s1">, 
+            height = </span><span class="s5">500</span><span class="s1">; 
+ 
+        </span><span class="s2">var </span><span class="s1">divViz = document.getElementById(</span><span class="s0">'d3viz'</span><span class="s1">); 
+        </span><span class="s2">var </span><span class="s1">svg = d3.select(divViz) 
+            .append(</span><span class="s0">'svg'</span><span class="s1">) 
+            .attr(</span><span class="s0">'width'</span><span class="s1">, divViz.offsetWidth) 
+            .attr(</span><span class="s0">'height'</span><span class="s1">, </span><span class="s5">500</span><span class="s1">); 
+ 
+</span><span class="s3">// set up initial nodes and links</span><span class="s1"> 
+</span><span class="s3">//  - nodes are known by 'id', not by index in array.</span><span class="s1"> 
+</span><span class="s3">//  - reflexive edges are indicated on the node (as a bold black circle).</span><span class="s1"> 
+</span><span class="s3">//  - links are always source &lt; target; edge directions are set by 'left' and 'right'.</span><span class="s1"> 
+        </span><span class="s2">var </span><span class="s1">nodes = getListOfNodes(); 
+        </span><span class="s2">var </span><span class="s1">links = getConfigsLinked(nodes); 
+        $scope.checkIsGenerateAllowed(); 
+        $scope.header =  </span><span class="s0">'Nombre de configurations : '</span><span class="s1">+ $scope.getNbConfigsTotal(); 
+ 
+        </span><span class="s2">function </span><span class="s1">tick() { 
+            </span><span class="s3">// draw directed edges with proper padding from node centers</span><span class="s1"> 
+            path.attr(</span><span class="s0">'d'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { 
+                </span><span class="s2">var </span><span class="s1">deltaX = d.target.x - d.source.x, 
+                    deltaY = d.target.y - d.source.y, 
+                    dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY), 
+                    normX = deltaX / dist, 
+                    normY = deltaY / dist, 
+                    sourcePadding = d.left ? </span><span class="s5">17 </span><span class="s1">: </span><span class="s5">12</span><span class="s1">, 
+                    targetPadding = d.right ? </span><span class="s5">17 </span><span class="s1">: </span><span class="s5">12</span><span class="s1">, 
+                    sourceX = d.source.x + (sourcePadding * normX), 
+                    sourceY = d.source.y + (sourcePadding * normY), 
+                    targetX = d.target.x - (targetPadding * normX), 
+                    targetY = d.target.y - (targetPadding * normY); 
+                </span><span class="s2">return </span><span class="s0">'M' </span><span class="s1">+ sourceX + </span><span class="s0">',' </span><span class="s1">+ sourceY + </span><span class="s0">'L' </span><span class="s1">+ targetX + </span><span class="s0">',' </span><span class="s1">+ targetY; 
+            }); 
+ 
+            circle.attr(</span><span class="s0">'transform'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { 
+                </span><span class="s2">return </span><span class="s0">'translate(' </span><span class="s1">+ d.x + </span><span class="s0">',' </span><span class="s1">+ d.y + </span><span class="s0">')'</span><span class="s1">; 
+            }); 
+        } 
+ 
+</span><span class="s3">// init D3 force layout</span><span class="s1"> 
+        </span><span class="s2">var </span><span class="s1">force = d3.layout.force() 
+            .nodes(nodes) 
+            .links(links) 
+            .size([width, height]) 
+            .linkDistance(</span><span class="s5">150</span><span class="s1">) 
+            .charge(-</span><span class="s5">500</span><span class="s1">) 
+            .on(</span><span class="s0">'tick'</span><span class="s1">, tick); 
+ 
+</span><span class="s3">// define arrow markers for graph links</span><span class="s1"> 
+        svg.append(</span><span class="s0">'svg:defs'</span><span class="s1">).append(</span><span class="s0">'svg:marker'</span><span class="s1">) 
+            .attr(</span><span class="s0">'id'</span><span class="s1">, </span><span class="s0">'end-arrow'</span><span class="s1">) 
+            .attr(</span><span class="s0">'viewBox'</span><span class="s1">, </span><span class="s0">'0 -5 10 10'</span><span class="s1">) 
+            .attr(</span><span class="s0">'refX'</span><span class="s1">, </span><span class="s5">6</span><span class="s1">) 
+            .attr(</span><span class="s0">'markerWidth'</span><span class="s1">, </span><span class="s5">3</span><span class="s1">) 
+            .attr(</span><span class="s0">'markerHeight'</span><span class="s1">, </span><span class="s5">3</span><span class="s1">) 
+            .attr(</span><span class="s0">'orient'</span><span class="s1">, </span><span class="s0">'auto'</span><span class="s1">) 
+            .append(</span><span class="s0">'svg:path'</span><span class="s1">) 
+            .attr(</span><span class="s0">'d'</span><span class="s1">, </span><span class="s0">'M0,-5L10,0L0,5'</span><span class="s1">) 
+            .attr(</span><span class="s0">'fill'</span><span class="s1">, </span><span class="s0">'#000'</span><span class="s1">); 
+ 
+        svg.append(</span><span class="s0">'svg:defs'</span><span class="s1">).append(</span><span class="s0">'svg:marker'</span><span class="s1">) 
+            .attr(</span><span class="s0">'id'</span><span class="s1">, </span><span class="s0">'start-arrow'</span><span class="s1">) 
+            .attr(</span><span class="s0">'viewBox'</span><span class="s1">, </span><span class="s0">'0 -5 10 10'</span><span class="s1">) 
+            .attr(</span><span class="s0">'refX'</span><span class="s1">, </span><span class="s5">4</span><span class="s1">) 
+            .attr(</span><span class="s0">'markerWidth'</span><span class="s1">, </span><span class="s5">3</span><span class="s1">) 
+            .attr(</span><span class="s0">'markerHeight'</span><span class="s1">, </span><span class="s5">3</span><span class="s1">) 
+            .attr(</span><span class="s0">'orient'</span><span class="s1">, </span><span class="s0">'auto'</span><span class="s1">) 
+            .append(</span><span class="s0">'svg:path'</span><span class="s1">) 
+            .attr(</span><span class="s0">'d'</span><span class="s1">, </span><span class="s0">'M10,-5L0,0L10,5'</span><span class="s1">) 
+            .attr(</span><span class="s0">'fill'</span><span class="s1">, </span><span class="s0">'#000'</span><span class="s1">); 
+ 
+</span><span class="s3">// line displayed when dragging new nodes</span><span class="s1"> 
+        </span><span class="s2">var </span><span class="s1">dragLine = svg.append(</span><span class="s0">'svg:path'</span><span class="s1">) 
+            .attr(</span><span class="s0">'class'</span><span class="s1">, </span><span class="s0">'link dragline hidden'</span><span class="s1">) 
+            .attr(</span><span class="s0">'d'</span><span class="s1">, </span><span class="s0">'M0,0L0,0'</span><span class="s1">); 
+ 
+</span><span class="s3">// handles to link and node element groups</span><span class="s1"> 
+        </span><span class="s2">var </span><span class="s1">path = svg.append(</span><span class="s0">'svg:g'</span><span class="s1">).selectAll(</span><span class="s0">'path'</span><span class="s1">), 
+            circle = svg.append(</span><span class="s0">'svg:g'</span><span class="s1">).selectAll(</span><span class="s0">'g'</span><span class="s1">); 
+ 
+ 
+</span><span class="s3">// mouse event vars</span><span class="s1"> 
+        </span><span class="s2">var </span><span class="s1">selectedNode = </span><span class="s2">null</span><span class="s1">, 
+            selectedLink = </span><span class="s2">null</span><span class="s1">, 
+            mousedownLink = </span><span class="s2">null</span><span class="s1">, 
+            mousedownNode = </span><span class="s2">null</span><span class="s1">, 
+            mouseupNode = </span><span class="s2">null</span><span class="s1">, 
+            mouseoverNode  = </span><span class="s2">null</span><span class="s1">; 
+ 
+        </span><span class="s2">function </span><span class="s1">resetMouseVars() { 
+            mousedownNode = </span><span class="s2">null</span><span class="s1">; 
+            mouseupNode = </span><span class="s2">null</span><span class="s1">; 
+            mousedownLink = </span><span class="s2">null</span><span class="s1">, 
+            mouseoverNode  = </span><span class="s2">null</span><span class="s1">; 
+        } 
+ 
+</span><span class="s3">// update force layout (called automatically each iteration)</span><span class="s1"> 
+ 
+ 
+</span><span class="s3">// update graph (called when needed)</span><span class="s1"> 
+        </span><span class="s2">function </span><span class="s1">restart() { 
+ 
+            </span><span class="s3">// path (link) group</span><span class="s1"> 
+            path = path.data(links); 
+ 
+            </span><span class="s3">// update existing links</span><span class="s1"> 
+ 
+            path.classed(</span><span class="s0">'selected'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { </span><span class="s2">return </span><span class="s1">(d === selectedLink || d.isPartial === </span><span class="s2">true</span><span class="s1">); }) 
+                .style(</span><span class="s0">'marker-start'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { </span><span class="s2">return </span><span class="s1">d.left ? </span><span class="s0">'url(#start-arrow)' </span><span class="s1">: </span><span class="s0">''</span><span class="s1">; }) 
+                .style(</span><span class="s0">'marker-end'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { </span><span class="s2">return </span><span class="s1">d.right ? </span><span class="s0">'url(#end-arrow)' </span><span class="s1">: </span><span class="s0">''</span><span class="s1">; }); 
+ 
+ 
+            </span><span class="s3">// add new links</span><span class="s1"> 
+            path.enter().append(</span><span class="s0">'svg:path'</span><span class="s1">) 
+                .attr(</span><span class="s0">'class'</span><span class="s1">, </span><span class="s0">'link'</span><span class="s1">) 
+                .classed(</span><span class="s0">'selected'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { </span><span class="s2">return </span><span class="s1">(d === selectedLink || d.isPartial === </span><span class="s2">true</span><span class="s1">); }) 
+                .style(</span><span class="s0">'marker-start'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { </span><span class="s2">return </span><span class="s1">d.left ? </span><span class="s0">'url(#start-arrow)' </span><span class="s1">: </span><span class="s0">''</span><span class="s1">; }) 
+                .style(</span><span class="s0">'marker-end'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { </span><span class="s2">return </span><span class="s1">d.right ? </span><span class="s0">'url(#end-arrow)' </span><span class="s1">: </span><span class="s0">''</span><span class="s1">; }) 
+                .on(</span><span class="s0">'mousedown'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { 
+                    </span><span class="s2">if</span><span class="s1">(d3.event.ctrlKey) { 
+                        </span><span class="s2">return</span><span class="s1">; 
+                    } 
+ 
+                    </span><span class="s3">// select link</span><span class="s1"> 
+                    mousedownLink = d; 
+                    </span><span class="s2">if</span><span class="s1">(mousedownLink === selectedLink) { 
+                        selectedLink = </span><span class="s2">null</span><span class="s1">; 
+                    } 
+                    </span><span class="s2">else </span><span class="s1">{ 
+                        selectedLink = mousedownLink; 
+                    } 
+                    selectedNode = </span><span class="s2">null</span><span class="s1">; 
+                    restart(); 
+                }); 
+ 
+            </span><span class="s3">// remove old links</span><span class="s1"> 
+            path.exit().remove(); 
+ 
+ 
+            </span><span class="s3">// circle (node) group</span><span class="s1"> 
+            </span><span class="s3">// NB: the function arg is crucial here! nodes are known by id, not by index!</span><span class="s1"> 
+            circle = circle.data(nodes, </span><span class="s2">function</span><span class="s1">(d) { </span><span class="s2">return </span><span class="s1">d.id; }); 
+ 
+            </span><span class="s3">// update existing nodes (reflexive &amp; selected visual states)</span><span class="s1"> 
+            circle.selectAll(</span><span class="s0">'circle'</span><span class="s1">) 
+                .style(</span><span class="s0">'fill'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { 
+                    </span><span class="s2">var </span><span class="s1">isCompatibleWithSelected = isCompatiblesWithSelectedNode(selectedNode,d); 
+                    </span><span class="s2">return </span><span class="s1">(d === selectedNode || isCompatibleWithSelected === </span><span class="s2">true</span><span class="s1">) ? d3.rgb(getColorOfConfig(d)).brighter().toString() : getColorOfConfig(d); 
+                }); 
+ 
+            </span><span class="s3">// add new nodes</span><span class="s1"> 
+            </span><span class="s2">var </span><span class="s1">g = circle.enter().append(</span><span class="s0">'svg:g'</span><span class="s1">); 
+ 
+            g.append(</span><span class="s0">'svg:circle'</span><span class="s1">) 
+                .attr(</span><span class="s0">'class'</span><span class="s1">, </span><span class="s0">'node'</span><span class="s1">) 
+                .attr(</span><span class="s0">'r'</span><span class="s1">, </span><span class="s5">20</span><span class="s1">) 
+                .attr(</span><span class="s0">'title'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { </span><span class="s2">return </span><span class="s0">'Name : '</span><span class="s1">+d.name; }) 
+                .style(</span><span class="s0">'fill'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { 
+                    </span><span class="s2">var </span><span class="s1">isCompatibleWithSelected = isCompatiblesWithSelectedNode(selectedNode,d); 
+                    </span><span class="s2">return </span><span class="s1">(d === selectedNode || isCompatibleWithSelected === </span><span class="s2">true</span><span class="s1">) ? d3.rgb(getColorOfConfig(d)).brighter().toString() : getColorOfConfig(d); 
+                }) 
+                .style(</span><span class="s0">'stroke'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">() { </span><span class="s2">return </span><span class="s0">'grey'</span><span class="s1">; }) 
+                </span><span class="s3">//.style('stroke', function(d) { return d3.rgb(getColorOfConfig(d)).darker().toString(); })</span><span class="s1"> 
+                .on(</span><span class="s0">'mouseover'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { 
+                    mouseoverNode = d; 
+                    </span><span class="s2">if</span><span class="s1">(!mousedownNode || d === mousedownNode) { 
+                        </span><span class="s2">return</span><span class="s1">; 
+                    } 
+                    </span><span class="s3">// enlarge target node</span><span class="s1"> 
+                    d3.select(</span><span class="s2">this</span><span class="s1">).attr(</span><span class="s0">'transform'</span><span class="s1">, </span><span class="s0">'scale(1.1)'</span><span class="s1">); 
+ 
+                }) 
+                .on(</span><span class="s0">'mouseout'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { 
+                    </span><span class="s2">if</span><span class="s1">(!mousedownNode || d === mousedownNode) { 
+                        </span><span class="s2">return</span><span class="s1">; 
+                    } 
+                    </span><span class="s3">// unenlarge target node</span><span class="s1"> 
+                    d3.select(</span><span class="s2">this</span><span class="s1">).attr(</span><span class="s0">'transform'</span><span class="s1">, </span><span class="s0">''</span><span class="s1">); 
+                }) 
+                .on(</span><span class="s0">'mousedown'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { 
+ 
+                    </span><span class="s2">if</span><span class="s1">(d3.event.ctrlKey) { 
+                        </span><span class="s2">return</span><span class="s1">; 
+                    } 
+                    $scope.getInfoFromSelectedNode(d); 
+ 
+                    </span><span class="s3">// select node</span><span class="s1"> 
+                    mousedownNode = d; 
+                    $scope.selectedNode = d; 
+                    </span><span class="s2">if</span><span class="s1">(mousedownNode === selectedNode) { 
+                        selectedNode = </span><span class="s2">null</span><span class="s1">; 
+                    } 
+                    </span><span class="s2">else </span><span class="s1">{ 
+                        selectedNode = mousedownNode; 
+                    } 
+                    selectedLink = </span><span class="s2">null</span><span class="s1">; 
+ 
+                    </span><span class="s3">// reposition drag line</span><span class="s1"> 
+                    </span><span class="s2">if</span><span class="s1">(mousedownNode.isValid === </span><span class="s2">false</span><span class="s1">){ 
+                        dragLine 
+                            .style(</span><span class="s0">'marker-end'</span><span class="s1">, </span><span class="s0">'url(#end-arrow)'</span><span class="s1">) 
+                            .classed(</span><span class="s0">'hidden'</span><span class="s1">, </span><span class="s2">true</span><span class="s1">) 
+                            .attr(</span><span class="s0">'d'</span><span class="s1">, </span><span class="s0">'M' </span><span class="s1">+ mousedownNode.x + </span><span class="s0">',' </span><span class="s1">+ mousedownNode.y + </span><span class="s0">'L' </span><span class="s1">+ mousedownNode.x + </span><span class="s0">',' </span><span class="s1">+ mousedownNode.y); 
+                    } 
+ 
+ 
+                    restart(); 
+                }) 
+                .on(</span><span class="s0">'mouseup'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(d) { 
+                    </span><span class="s2">if</span><span class="s1">(!mousedownNode) { 
+                        </span><span class="s2">return</span><span class="s1">; 
+                    } 
+ 
+                    </span><span class="s3">// needed by FF</span><span class="s1"> 
+                    dragLine 
+                        .classed(</span><span class="s0">'hidden'</span><span class="s1">, </span><span class="s2">true</span><span class="s1">) 
+                        .style(</span><span class="s0">'marker-end'</span><span class="s1">, </span><span class="s0">''</span><span class="s1">); 
+ 
+                    </span><span class="s3">// check for drag-to-self</span><span class="s1"> 
+                    mouseupNode = d; 
+                    </span><span class="s2">if</span><span class="s1">(mouseupNode === mousedownNode) { resetMouseVars(); </span><span class="s2">return</span><span class="s1">; } 
+ 
+                    </span><span class="s3">// check if the 2 configs are not in the same de</span><span class="s1"> 
+                    </span><span class="s2">if</span><span class="s1">(mousedownNode.de === mouseupNode.de){ 
+                        window.alert(</span><span class="s0">'Opération interdite pour les configurations d</span><span class="s2">\'</span><span class="s0">un même domaine'</span><span class="s1">); 
+                        resetMouseVars(); 
+                        </span><span class="s2">return</span><span class="s1">; 
+                    } 
+ 
+                    </span><span class="s2">var </span><span class="s1">isCompatibles = isCompatiblesWithSelectedNode(mousedownNode, mouseupNode); 
+                    </span><span class="s2">if</span><span class="s1">(isCompatibles === </span><span class="s2">false</span><span class="s1">){ 
+                        window.alert(</span><span class="s0">'Configurations incompatibles'</span><span class="s1">); 
+                        resetMouseVars(); 
+                        </span><span class="s2">return</span><span class="s1">; 
+                    } 
+                    </span><span class="s3">// unenlarge target node</span><span class="s1"> 
+                    d3.select(</span><span class="s2">this</span><span class="s1">).attr(</span><span class="s0">'transform'</span><span class="s1">, </span><span class="s0">''</span><span class="s1">); 
+ 
+                    </span><span class="s3">// add link to graph (update if exists)</span><span class="s1"> 
+                    </span><span class="s3">// NB: links are strictly source &lt; target; arrows separately specified by booleans</span><span class="s1"> 
+                    </span><span class="s2">var </span><span class="s1">source, target, direction; 
+                    </span><span class="s2">if</span><span class="s1">(mousedownNode.number &lt; mouseupNode.number) { 
+                        source = mousedownNode; 
+                        target = mouseupNode; 
+                        direction = </span><span class="s0">'right'</span><span class="s1">; 
+                    } </span><span class="s2">else </span><span class="s1">{ 
+                        source = mouseupNode; 
+                        target = mousedownNode; 
+                        direction = </span><span class="s0">'left'</span><span class="s1">; 
+                    } 
+ 
+                    </span><span class="s2">var </span><span class="s1">link; 
+                    link = links.filter(</span><span class="s2">function</span><span class="s1">(l) { 
+                        </span><span class="s2">return </span><span class="s1">(l.source === source &amp;&amp; l.target === target); 
+                    })[</span><span class="s5">0</span><span class="s1">]; 
+ 
+                    </span><span class="s2">if</span><span class="s1">(link) { 
+                        link[direction] = </span><span class="s2">true</span><span class="s1">; 
+                    } </span><span class="s2">else </span><span class="s1">{ 
+                        link = {source: source, target: target, left: </span><span class="s2">false</span><span class="s1">, right: </span><span class="s2">false </span><span class="s1">, isPartial:</span><span class="s2">false</span><span class="s1">}; 
+                        link[direction] = </span><span class="s2">true</span><span class="s1">; 
+                        links.push(link); 
+                        $scope.linkConfigurations(source.de,source.id, target.de,target.id); 
+                        $scope.checkIsGenerateAllowed(); 
+                    } 
+ 
+                    </span><span class="s3">// select new link</span><span class="s1"> 
+                    selectedLink = link; 
+                    selectedNode = </span><span class="s2">null</span><span class="s1">; 
+                    restart(); 
+                }); 
+ 
+            </span><span class="s3">// show node IDs</span><span class="s1"> 
+            g.append(</span><span class="s0">'svg:text'</span><span class="s1">) 
+                .attr(</span><span class="s0">'x'</span><span class="s1">, </span><span class="s5">0</span><span class="s1">) 
+                .attr(</span><span class="s0">'y'</span><span class="s1">, </span><span class="s5">4</span><span class="s1">) 
+                .attr(</span><span class="s0">'class'</span><span class="s1">, </span><span class="s0">'id'</span><span class="s1">) 
+                .text(</span><span class="s2">function</span><span class="s1">(d) { 
+                    </span><span class="s2">return </span><span class="s1">d.number; 
+                }); 
+ 
+            </span><span class="s3">// remove old nodes</span><span class="s1"> 
+            circle.exit().remove(); 
+            $(</span><span class="s0">'svg circle'</span><span class="s1">).tooltipsy({ 
+                alignTo: </span><span class="s0">'element'</span><span class="s1">, 
+                className: </span><span class="s0">'tipsy-inner'</span><span class="s1"> 
+            }); 
+            </span><span class="s3">// set the graph in motion</span><span class="s1"> 
+            force.start(); 
+        } 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* mouse down callback</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        </span><span class="s2">function </span><span class="s1">mousedown() { 
+            </span><span class="s2">if</span><span class="s1">(mousedownNode === </span><span class="s2">null</span><span class="s1">){ 
+                $scope.isNodeSelected = </span><span class="s2">false</span><span class="s1">; 
+                $scope.header =  </span><span class="s0">'Nombre de configurations '</span><span class="s1">+ $scope.getNbConfigsTotal(); 
+                $scope.info = </span><span class="s0">''</span><span class="s1">; 
+            } 
+            console.log(</span><span class="s0">'Mousedown desactive'</span><span class="s1">); 
+        } 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* mouse over callback</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        </span><span class="s2">function </span><span class="s1">mouseover() { 
+            console.log(</span><span class="s0">'MouseOver desactive'</span><span class="s1">); 
+        } 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* mouse move callback</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        </span><span class="s2">function </span><span class="s1">mousemove() { 
+            </span><span class="s2">if</span><span class="s1">(!mousedownNode) { 
+                </span><span class="s2">return</span><span class="s1">; 
+            } 
+ 
+            </span><span class="s3">// update drag line</span><span class="s1"> 
+            </span><span class="s2">var </span><span class="s1">self = divViz; 
+            dragLine.attr(</span><span class="s0">'d'</span><span class="s1">, </span><span class="s0">'M' </span><span class="s1">+ mousedownNode.x + </span><span class="s0">',' </span><span class="s1">+ mousedownNode.y + </span><span class="s0">'L' </span><span class="s1">+ d3.mouse(self)[</span><span class="s5">0</span><span class="s1">] + </span><span class="s0">',' </span><span class="s1">+ d3.mouse(self)[</span><span class="s5">1</span><span class="s1">]); 
+ 
+            restart(); 
+        } 
+ 
+        </span><span class="s3">/**</span><span class="s1"> 
+         </span><span class="s3">* mouse up callback</span><span class="s1"> 
+         </span><span class="s3">*/</span><span class="s1"> 
+        </span><span class="s2">function </span><span class="s1">mouseup() { 
+            </span><span class="s2">if</span><span class="s1">(mousedownNode) { 
+                </span><span class="s3">// hide drag line</span><span class="s1"> 
+                dragLine 
+                    .classed(</span><span class="s0">'hidden'</span><span class="s1">, </span><span class="s2">true</span><span class="s1">) 
+                    .style(</span><span class="s0">'marker-end'</span><span class="s1">, </span><span class="s0">''</span><span class="s1">); 
+            } 
+ 
+            </span><span class="s3">// because :active only works in WebKit?</span><span class="s1"> 
+            svg.classed(</span><span class="s0">'active'</span><span class="s1">, </span><span class="s2">false</span><span class="s1">); 
+ 
+            </span><span class="s3">// clear mouse event vars</span><span class="s1"> 
+            resetMouseVars(); 
+        } 
+ 
+ 
+</span><span class="s3">// app starts here</span><span class="s1"> 
+        svg.on(</span><span class="s0">'mousedown'</span><span class="s1">, mousedown) 
+            .on(</span><span class="s0">'mousemove'</span><span class="s1">, mousemove) 
+            .on(</span><span class="s0">'mouseover'</span><span class="s1">, mouseover) 
+            .on(</span><span class="s0">'mouseup'</span><span class="s1">, mouseup); 
+        d3.select(window); 
+            </span><span class="s3">//.on('keydown', keydown)</span><span class="s1"> 
+            </span><span class="s3">//.on('keyup', keyup);</span><span class="s1"> 
+        restart(); 
+        $scope.handleCompatiblesConfigurations(nodes); 
+        circle.exit().remove(); 
+    }); 
+</span><span class="s3">// $$$$$$$$$$$$$$$$$$$$$$$$$  END D3 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><span class="s1"> 
+</span></pre>
+</body>
+</html>

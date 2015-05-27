@@ -1,0 +1,114 @@
+<html>
+<head>
+<title>config_manager.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(0,0,128); font-weight: bold; }
+.s3 { color: rgb(128,128,128); font-style: italic; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+config_manager.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+ 
+angular.module(</span><span class="s0">'tocsinApp'</span><span class="s1">).factory(</span><span class="s0">'configManager'</span><span class="s1">, </span><span class="s2">function </span><span class="s1">($http, SpineFMConstants) { 
+    </span><span class="s2">return </span><span class="s1">{ 
+        create: </span><span class="s2">function </span><span class="s1">(spineFMID, de, ctxID) { 
+            </span><span class="s2">return </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/config/create/'</span><span class="s1">+de+</span><span class="s0">'/'</span><span class="s1">+ctxID+</span><span class="s0">'/'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+ 
+        getFeatures: </span><span class="s2">function </span><span class="s1">(spineFMID, configID) { 
+            </span><span class="s2">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/config/'</span><span class="s1">+configID+</span><span class="s0">'/features/'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+        } , 
+ 
+        getCompatiblesConfigurations : </span><span class="s2">function</span><span class="s1">(spineFMID, de, confID){ 
+            </span><span class="s2">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/config/'</span><span class="s1">+confID+</span><span class="s0">'/compliant/'</span><span class="s1">+de+</span><span class="s0">'/'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+ 
+        getLinkedConfigurations : </span><span class="s2">function</span><span class="s1">(spineFMID, de, confID){ 
+            </span><span class="s2">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/config/'</span><span class="s1">+confID+</span><span class="s0">'/linked/'</span><span class="s1">+de+</span><span class="s0">'/'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            });                                                                </span><span class="s3">//TODO concat result from isLinked and isLinkable</span><span class="s1"> 
+        }, 
+ 
+        checkIsConfigLinkable : </span><span class="s2">function</span><span class="s1">(spineFMID, configID, de){ 
+            </span><span class="s2">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/config/'</span><span class="s1">+configID+</span><span class="s0">'/isLinkableWith/'</span><span class="s1">+de+</span><span class="s0">'/'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+            </span><span class="s3">//return $resource(SpineFMConstants.DOMAIN_URL+'\\:'+SpineFMConstants.PORT+'/'+SpineFMConstants.PATH+'/:SpineFMID/config/:ConfigID/isLinkableWith/:DomainElement',{}, {get: {method:'GET',isArray:false}});</span><span class="s1"> 
+ 
+        }, 
+        linkConfigurations : </span><span class="s2">function</span><span class="s1">(spineFMID, configIDSource, configIDTarget){ 
+            </span><span class="s2">var </span><span class="s1">url = SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/config/link/source/'</span><span class="s1">+configIDSource+</span><span class="s0">'/target/'</span><span class="s1">+configIDTarget+</span><span class="s0">'/'</span><span class="s1">; 
+            </span><span class="s2">var </span><span class="s1">promise = $http({method:</span><span class="s0">'PUT'</span><span class="s1">, url:url}) 
+                .success(</span><span class="s2">function </span><span class="s1">(response) { 
+                    </span><span class="s2">return </span><span class="s1">response.data; 
+                }) 
+                .error(</span><span class="s2">function </span><span class="s1">() { 
+                    </span><span class="s2">return </span><span class="s1">{</span><span class="s0">'status'</span><span class="s1">: </span><span class="s2">false</span><span class="s1">}; 
+                }); 
+ 
+            </span><span class="s2">return </span><span class="s1">promise; 
+            </span><span class="s3">/*return  $http.put(SpineFMConstants.DOMAIN_URL+':'+SpineFMConstants.PORT+'/'+SpineFMConstants.PATH+'/'+spineFMID+'/config/link/source/'+configIDSource+'/target/'+configIDTarget+'/').then(function(response) { 
+                return response.data; 
+            }); */</span><span class="s1"> 
+        }, 
+ 
+        checkIsConfigLinked : </span><span class="s2">function</span><span class="s1">(spineFMID, configID){ 
+            </span><span class="s2">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/config/'</span><span class="s1">+configID+</span><span class="s0">'/isLinked/'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+            </span><span class="s3">//return $resource(SpineFMConstants.DOMAIN_URL+'\\:'+SpineFMConstants.PORT+'/'+SpineFMConstants.PATH+'/:SpineFMID/config/:ConfigID/isLinked/','', {get: {method:'GET',isArray:false}});</span><span class="s1"> 
+        }, 
+        setSpineFMName : </span><span class="s2">function</span><span class="s1">(spineFMID, name){ 
+            </span><span class="s2">return  </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/name/'</span><span class="s1">, name).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+ 
+        cloneValidConfiguration : </span><span class="s2">function</span><span class="s1">(spineFMID, configID){ 
+            </span><span class="s2">return  </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/config/'</span><span class="s1">+configID+</span><span class="s0">'/clone/'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+ 
+        clonePartialConfiguration : </span><span class="s2">function</span><span class="s1">(spineFMID, de, ctxID){ 
+            </span><span class="s2">return  </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/config/'</span><span class="s1">+de+</span><span class="s0">'/'</span><span class="s1">+ctxID+</span><span class="s0">'/clone/'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        cloneConfigurationToLink : </span><span class="s2">function</span><span class="s1">(spineFMID, ctxID, de){ 
+            </span><span class="s2">return  </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/ctx/clone/'</span><span class="s1">+ctxID+</span><span class="s0">'/'</span><span class="s1">+de+</span><span class="s0">'/'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        checkIsGenerateAllowed : </span><span class="s2">function</span><span class="s1">(spineFMID){ 
+            </span><span class="s2">return  </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/config/isValid'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        generate : </span><span class="s2">function</span><span class="s1">(spineFMID){ 
+            </span><span class="s2">return  </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s0">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s0">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s0">'/'</span><span class="s1">+spineFMID+</span><span class="s0">'/model/generate/'</span><span class="s1">).then(</span><span class="s2">function</span><span class="s1">(response) { 
+                </span><span class="s2">return </span><span class="s1">response.data; 
+            }); 
+        } 
+    }; 
+}); 
+</span></pre>
+</body>
+</html>

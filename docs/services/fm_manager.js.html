@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>fm_manager.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(128,128,128); font-style: italic; }
+.s1 { }
+.s2 { color: rgb(0,128,0); font-weight: bold; }
+.s3 { color: rgb(0,0,128); font-weight: bold; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+fm_manager.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">//noinspection JSHint</span><span class="s1"> 
+</span><span class="s2">'use strict'</span><span class="s1">; 
+ 
+angular.module(</span><span class="s2">'tocsinApp'</span><span class="s1">).factory(</span><span class="s2">'FMManager'</span><span class="s1">, </span><span class="s3">function </span><span class="s1">($http, SpineFMConstants) { 
+    </span><span class="s3">return </span><span class="s1">{ 
+        doAction: </span><span class="s3">function </span><span class="s1">(spineFMID, de, ctxID, featureName, act) { 
+            </span><span class="s3">return </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/fm/ctx/'</span><span class="s1">+ctxID+</span><span class="s2">'/'</span><span class="s1">+de+</span><span class="s2">'/'</span><span class="s1">+act+</span><span class="s2">'/'</span><span class="s1">+featureName+</span><span class="s2">'/'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        initFMState: </span><span class="s3">function </span><span class="s1">(spineFMID, de, ctxID) { 
+            </span><span class="s3">return </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/fm/ctx/'</span><span class="s1">+ctxID+</span><span class="s2">'/'</span><span class="s1">+de+</span><span class="s2">'/'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        isConfigComplete: </span><span class="s3">function </span><span class="s1">(spineFMID, de, ctxID) { 
+            </span><span class="s3">return </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/fm/ctx/'</span><span class="s1">+ctxID+</span><span class="s2">'/'</span><span class="s1">+de+</span><span class="s2">'/isvalid'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        getConfName: </span><span class="s3">function </span><span class="s1">(spineFMID, de, ctxID) { 
+            </span><span class="s3">return </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/fm/ctx/'</span><span class="s1">+ctxID+</span><span class="s2">'/'</span><span class="s1">+de+</span><span class="s2">'/name'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        setConfName: </span><span class="s3">function </span><span class="s1">(spineFMID, de, ctxID, name) { 
+            </span><span class="s3">return </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/fm/ctx/'</span><span class="s1">+ctxID+</span><span class="s2">'/'</span><span class="s1">+de+</span><span class="s2">'/name/'</span><span class="s1">, name).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+ 
+        getValidConfigName: </span><span class="s3">function </span><span class="s1">(spineFMID, configID) { 
+            </span><span class="s3">return </span><span class="s1">$http.get(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/config/'</span><span class="s1">+configID+</span><span class="s2">'/name'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        setValidConfigName: </span><span class="s3">function </span><span class="s1">(spineFMID, configID, name) { 
+            </span><span class="s3">return </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/config/'</span><span class="s1">+configID+</span><span class="s2">'/name/'</span><span class="s1">+name).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        }, 
+        initContext: </span><span class="s3">function</span><span class="s1">(spineFMID) { 
+            </span><span class="s3">return </span><span class="s1">$http.put(SpineFMConstants.DOMAIN_URL+</span><span class="s2">':'</span><span class="s1">+SpineFMConstants.PORT+</span><span class="s2">'/'</span><span class="s1">+SpineFMConstants.PATH+</span><span class="s2">'/'</span><span class="s1">+spineFMID+</span><span class="s2">'/ctx/create'</span><span class="s1">).then(</span><span class="s3">function</span><span class="s1">(response) { 
+                </span><span class="s3">return </span><span class="s1">response.data; 
+            }); 
+        } 
+    }; 
+});</span></pre>
+</body>
+</html>

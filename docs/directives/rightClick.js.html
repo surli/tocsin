@@ -1,0 +1,39 @@
+<html>
+<head>
+<title>rightClick.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(0,0,128); font-weight: bold; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+rightClick.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+ 
+angular.module(</span><span class="s0">'tocsinApp'</span><span class="s1">) 
+  .directive(</span><span class="s0">'rightClick'</span><span class="s1">,  </span><span class="s2">function</span><span class="s1">($parse) { 
+        </span><span class="s2">return function</span><span class="s1">(scope, element, attr) { 
+            element.bind(</span><span class="s0">'contextmenu'</span><span class="s1">, </span><span class="s2">function</span><span class="s1">(event) { 
+                event.preventDefault(); 
+                </span><span class="s2">var </span><span class="s1">fn = $parse(attr.rightClick); 
+                scope.$apply(</span><span class="s2">function</span><span class="s1">() { 
+                    fn(scope, { 
+                        $event: event 
+                    }); 
+                }); 
+                </span><span class="s2">return false</span><span class="s1">; 
+            }); 
+        }; 
+    }); 
+</span></pre>
+</body>
+</html>

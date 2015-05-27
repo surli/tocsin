@@ -1,0 +1,190 @@
+<menu-bar></menu-bar>  <!-- menu bar (directive) -->
+
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <!-- description zone on top -->
+        <div id="middlezone" class="span9" ng-show="showConfig">
+            <div id="description" class="hero-unit">
+                <h3> Configuration of a {{domainElement}} </h3>
+                <span ng-show="hasConfigToLink" ><h4> To Link with {{myOption.name}} </h4></span>
+                <div style="text-align: right">
+           <span class="dropdown">
+                       <button class="dropdown-toggle" data-toggle="dropdown" ng-style="{background: {false: '', true: colorsState.finishedNotLinkedConfig}[justLoaded]}">Rejected features</button>
+                       <ul class="dropdown-menu" style="text-align: left ; max-height: 200px;overflow-y: auto;overflow-x:auto;">
+                           <li ng-repeat="deselected in deselectedFeatures"><a>{{deselected.feature}}</a></li>
+                       </ul>
+            </span>
+            <span ng-switch="justLoaded">
+            <span ng-switch-when="false" class="label label-info"> {{deselectedFeatures.length}} deselected </span>
+            <span ng-switch-when="true" class="label label-warning"> {{deselectedFeatures.length}} deselected </span>
+            </span>
+                </div>
+
+            </div>
+            <!-- nav tabs for the choice of mouse click(s) behaviour  -->
+            <div style="text-align: center">
+                <div>
+                    <ul class="nav nav-pills">
+                        <li ng-class="isModeActive(selectMenu)"><a href="" ng-click="setMouseBehaviour(selectMenu)"><span tooltip-animation="true" tooltip="Click to select a feature, only selection is allowed" tooltip-placement="top">SELECT MODE<i class="icon-check"></i></span></a></li>
+                        <li ng-class="isModeActive(allMenu)"><a href="" ng-click="setMouseBehaviour(allMenu)"><span tooltip-animation="true" tooltip="Click to select a feature and right-click to reject" tooltip-placement="top">SELECT<i class="icon-check"></i> & REJECT MODE<i class="icon-remove"></i></span></a></li>
+                        <li ng-class="isModeActive(deselectMenu)"><a href="" ng-click="setMouseBehaviour(deselectMenu)"><span tooltip-animation="true" tooltip="Click to reject a feature, only rejection is allowed" tooltip-placement="top">REJECT MODE<i class="icon-remove"></i></span></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Start loading spinner -->
+            <div>
+                <div style="text-align: center" ng-show="showProgress">
+                    <h1><i class="icon-spinner icon-spin icon-4px icon-large"></i></h1>
+                </div>
+            </div>
+            <!-- end loading spinner -->
+
+            <!-- Modal opened when creating new configuration (choice of linked configuration in compatibles DEs) -->
+            <div modal="isVisible" options="opt" data-backdrop="false">
+                <div class="modal-header">
+                    <h4> New configuration </h4>
+                </div>
+
+                <div class="modal-body">
+                    <p> Please make a choice : </p>
+                    <label ng-repeat="de in getDEWithConfigs()">
+                        <input type="radio" id="{{de}}" name="optionsRadios" ng-model="selectedDE" value="{{de}}" ng-click="showSelectInModal(selectedDE)"/>
+                        Create a configuration to link with a specific <b>{{de}}</b> configuration  <a ng-click="showExplain()"><i class="icon-question icon-large"></i></a>
+                        <p></p>
+                        <div ng-show="showExplication">
+                              <span>
+                                 {{descriptionDES.explication}}
+                              </span>
+                        </div>
+                        <div ng-show="showSelect[selectedDE]">
+                            <select ng-model="myOption" ng-options="c.name for c in linkableConfig[selectedDE]" ng-checked="setOption(myOption,selectedDE)">
+                            </select>
+                        </div>
+                    </label>
+
+                    <p></p>
+                    <label>
+                        <input type="radio"  name="optionsRadios" ng-click="hideSelectInModal()">Create a new detached configuration
+                    </label>
+
+                </div>
+                <div class="modal-footer">
+                    <button ng-show="choiceInModal" class="btn btn-success" ng-click="validate()"> Validate</button>
+                </div>
+            </div>
+            <!-- End modal -->
+
+
+            <!-- Modal opened to set the current config's name when validating -->
+            <div modal="openSetConfigNameModal" options="options">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="cancelSetConfigName()">×</button>
+                    <h4>Setting Configuration name </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="control-group">
+                        <div class="controls">
+                            New Configuration's name:
+                            <form ng-submit="validateConfigName({});">
+                                <input type="text" ng-model="currentConfig.name" placeholder="currentConfig.name" autofocus="first"  ng-trim="false"/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-warning cancel" ng-click="cancelSetConfigName()"> Cancel </button>
+                    <button class="btn btn-success" ng-click="validateConfigName()"> Validate </button>
+                </div>
+            </div>
+            <!-- end Modal -->
+
+            <!-- START 'Levels zone' : all features in a accordion by level with selection/deselection functions -->
+            <div ng-repeat="(level, features) in fm.levels">
+                <div ng-switch="getLevelAccordion(level)">
+                    <div ng-switch-when="true" ng-switch="getLevelLength(level)">
+                        <div class="accordion" id="level{{level}}" ng-switch-when="OK" style="border-radius: 6px; padding: 10px; background-color: #F2F2F2; margin-bottom: 10px">
+                            <div class="accordion-heading" ng-switch="showInfoLevel[level -1]">
+                                <a class="accordion-toggle" ng-switch-when="false" data-toggle="collapse" data-parent="#level{{level}}" href="" ng-click="setInfoVisibility(level-1)">
+                                    <h4> <i class=" icon-plus icon-large" style="color: cornflowerblue" ></i>{{getLevelName(level)}} : {{getLevelDescription(level)}} <span ng-show="hasFeaturesToSelect(level)" class="label label-important">not complete</span></h4>
+
+                                </a>
+                                <a class="accordion-toggle" ng-switch-when="true" data-toggle="collapse" data-parent="#level{{level}}" href="" ng-click="setInfoVisibility(level-1)">
+                                    <h4> <i class=" icon-minus icon-large" style="color: cornflowerblue"></i> {{getLevelName(level)}} <span ng-show="hasFeaturesToSelect(level)" class="label label-important">not complete</span></h4>
+                                </a>
+
+                            </div>
+                            <div class="accordion-body collapse in" ng-show="showInfoLevel[level -1]">
+
+                                <div  class="accordion-inner" id="{{feat.feature}}" style="display:inline-block; padding : 3px;" ng-repeat="feat in getLevel(level) | orderBy: 'feature'" ng-switch="feat.state">
+                        <span ng-switch-when="UNSELECTED" ng-switch="hasLogo(feat.feature)">
+                         <a href="" ng-click = 'selectFeature(feat, level)' right-click ='deselectFeature(feat,level)' ng-switch-when="true">
+                             <div tooltip-animation="true" tooltip="{{feat.explication}}" tooltip-placement="bottom" tooltip-append-to-body="true" style="text-align: center"><img ng-src="{{images[feat.feature].src}}" width="60" height="70"/><br />{{feat.feature}}</div>
+                         </a>
+                        <a href="" ng-click = 'selectFeature(feat, level)' right-click ='deselectFeature(feat,level)' ng-switch-when="false">
+                            <span tooltip-animation="true" tooltip="{{feat.explication}}" tooltip-placement="bottom" tooltip-append-to-body="true">{{feat.feature}}</span>
+                        </a>
+
+                        </span>
+                        <span ng-switch-when="SELECTED" ng-switch="hasLogo(feat.feature)">
+                         <div ng-switch-when="true" style="border-radius: 5px; padding: 3px; border-style: solid" ng-style="{'border-color': colorsState.selectedFeature}" >
+                             <div style="text-align: center" tooltip-animation="true" tooltip="{{feat.explication}}" tooltip-placement="bottom" tooltip-append-to-body="true"><img ng-src="{{images[feat.feature].src}}" width="60" height="70"/>{{feat.feature}}</div>
+                         </div>
+                        <span ng-switch-when="false" style="border-radius: 5px; padding: 3px; border-style: solid" ng-style="{'border-color': colorsState.selectedFeature}"><span tooltip-animation="true" tooltip="{{feat.explication}}" tooltip-placement="bottom" tooltip-append-to-body="true">{{feat.feature}}</span></span>
+                        </span>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- when no accordion -->
+                    <div ng-switch-when="false" ng-switch="getLevelLength(level)">
+                        <div id="level-{{level}}" ng-switch-when="OK" style="border-radius: 6px; padding: 10px; background-color: #F2F2F2; margin-bottom: 10px">
+                            <h4 style="text-align: center ; color: cornflowerblue"><span tooltip-animation="true" tooltip="{{getLevelDescription(level)}}" tooltip-placement="top" tooltip-append-to-body="true"> {{getLevelName(level)}}</span>  <span ng-show="hasFeaturesToSelect(level)" class="label label-important">not complete</span></h4>
+
+                            <div id="{{feat2.feature}}" style="display:inline-block; padding : 3px;" ng-repeat="feat2 in getLevel(level) | orderBy: 'feature'" ng-switch="feat2.state">
+                  <span ng-switch-when="UNSELECTED" ng-switch="hasLogo(feat2.feature)">
+                         <a href="" ng-click = 'selectFeature(feat2, level)' right-click ='deselectFeature(feat2,level)' ng-switch-when="true">
+                             <div style="text-align: center" tooltip-animation="true" tooltip="{{feat2.explication}}" tooltip-placement="bottom" tooltip-append-to-body="true"><img ng-src="{{images[feat2.feature].src}}" width="60" height="70"/><br />{{feat2.feature}}</div>
+                         </a>
+                        <a href="" ng-click = 'selectFeature(feat2, level)' right-click ='deselectFeature(feat2,level)' ng-switch-when="false"><span tooltip-animation="true" tooltip="{{feat2.explication}}" tooltip-placement="bottom">{{feat2.feature}}</span></a>
+
+                        </span>
+                        <span ng-switch-when="SELECTED" ng-switch="hasLogo(feat2.feature)">
+                         <div ng-switch-when="true" style="border-radius: 5px; padding: 3px; border-style: solid" ng-style="{'border-color': colorsState.selectedFeature}" >
+                             <div style="text-align: center" tooltip-animation="true" tooltip="{{feat2.explication}}" tooltip-placement="bottom" tooltip-append-to-body="true"><img ng-src="{{images[feat2.feature].src}}" width="60" height="70"/>{{feat2.feature}}</div>
+                        </div>
+                        <span ng-switch-when="false" style="border-radius: 5px; padding: 3px; border-style: solid" ng-style="{'border-color': colorsState.selectedFeature}"><span tooltip-animation="true" tooltip="{{feat2.explication}}" tooltip-placement="bottom" tooltip-append-to-body="true">{{feat2.feature}}</span></span>
+                        </span>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Levels zone  -->
+
+            <!-- start buttons zone : duplicate or finalize -->
+            <div id="zonebuttons" class="button" style="text-align: center ;" ng-show="showConfig">
+
+             <!-- <button class="btn btn-primary" ng-click="clonePartialConfiguration()" ng-show="isAddNewAllowed(domainElement)"> Duplicate </button>-->
+             <span ng-switch="configValid">
+                 <button ng-switch-when="false" href="#" class="btn btn-inverse">
+                     <i class="icon-white icon-remove-sign"></i>
+                     Incomplete configuration
+                 </button>
+                 <button ng-switch-when="true" href="#" class="btn btn-success" ng-click="openSetConfigName()">
+                     <i class="icon-white icon-ok"></i>
+                     Finalize
+                 </button>
+             </span>
+
+            </div>
+            <!-- end buttons zone -->
+        </div>
+        <!-- vertical band on right -->
+        <left-band></left-band>
+    </div>
+</div>

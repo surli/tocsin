@@ -1,0 +1,191 @@
+<html>
+<head>
+<title>pagination.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,128,0); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(0,0,128); font-weight: bold; }
+.s3 { color: rgb(128,128,128); font-style: italic; }
+.s4 { color: rgb(0,0,255); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+pagination.js</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">'use strict'</span><span class="s1">; 
+ 
+(</span><span class="s2">function</span><span class="s1">($){ 
+    </span><span class="s3">/* Set the defaults for DataTables initialisation */</span><span class="s1"> 
+    $.extend( </span><span class="s2">true</span><span class="s1">, $.fn.dataTable.defaults, { 
+        </span><span class="s0">'sDom'</span><span class="s1">: </span><span class="s0">'&lt;</span><span class="s2">\'</span><span class="s0">row-fluid</span><span class="s2">\'</span><span class="s0">&lt;</span><span class="s2">\'</span><span class="s0">span6</span><span class="s2">\'</span><span class="s0">l&gt;&lt;</span><span class="s2">\'</span><span class="s0">span6</span><span class="s2">\'</span><span class="s0">f&gt;r&gt;t&lt;</span><span class="s2">\'</span><span class="s0">row-fluid</span><span class="s2">\'</span><span class="s0">&lt;</span><span class="s2">\'</span><span class="s0">span6</span><span class="s2">\'</span><span class="s0">i&gt;&lt;</span><span class="s2">\'</span><span class="s0">span6</span><span class="s2">\'</span><span class="s0">p&gt;&gt;'</span><span class="s1">, 
+        </span><span class="s0">'sPaginationType'</span><span class="s1">: </span><span class="s0">'bootstrap'</span><span class="s1">, 
+        </span><span class="s0">'oLanguage'</span><span class="s1">: { 
+            </span><span class="s0">'sLengthMenu'</span><span class="s1">: </span><span class="s0">'_MENU_ records per page'</span><span class="s1"> 
+        } 
+    } ); 
+ 
+ 
+    </span><span class="s3">/* Default class modification */</span><span class="s1"> 
+    $.extend( $.fn.dataTableExt.oStdClasses, { 
+        </span><span class="s0">'sWrapper'</span><span class="s1">: </span><span class="s0">'dataTables_wrapper form-inline'</span><span class="s1"> 
+    } ); 
+ 
+ 
+    </span><span class="s3">/* API method to get paging information */</span><span class="s1"> 
+    $.fn.dataTableExt.oApi.fnPagingInfo = </span><span class="s2">function </span><span class="s1">( oSettings ) 
+    { 
+        </span><span class="s2">return </span><span class="s1">{ 
+            </span><span class="s0">'iStart'</span><span class="s1">:         oSettings._iDisplayStart, 
+            </span><span class="s0">'iEnd'</span><span class="s1">:           oSettings.fnDisplayEnd(), 
+            </span><span class="s0">'iLength'</span><span class="s1">:        oSettings._iDisplayLength, 
+            </span><span class="s0">'iTotal'</span><span class="s1">:         oSettings.fnRecordsTotal(), 
+            </span><span class="s0">'iFilteredTotal'</span><span class="s1">: oSettings.fnRecordsDisplay(), 
+            </span><span class="s0">'iPage'</span><span class="s1">:          oSettings._iDisplayLength === -</span><span class="s4">1 </span><span class="s1">? 
+                </span><span class="s4">0 </span><span class="s1">: Math.ceil( oSettings._iDisplayStart / oSettings._iDisplayLength ), 
+            </span><span class="s0">'iTotalPages'</span><span class="s1">:    oSettings._iDisplayLength === -</span><span class="s4">1 </span><span class="s1">? 
+                </span><span class="s4">0 </span><span class="s1">: Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength ) 
+        }; 
+    }; 
+ 
+ 
+    </span><span class="s3">/* Bootstrap style pagination control */</span><span class="s1"> 
+    $.extend( $.fn.dataTableExt.oPagination, { 
+        </span><span class="s0">'bootstrap'</span><span class="s1">: { 
+            </span><span class="s0">'fnInit'</span><span class="s1">: </span><span class="s2">function</span><span class="s1">( oSettings, nPaging, fnDraw ) { 
+                </span><span class="s2">var </span><span class="s1">oLang = oSettings.oLanguage.oPaginate; 
+                </span><span class="s2">var </span><span class="s1">fnClickHandler = </span><span class="s2">function </span><span class="s1">( e ) { 
+                    e.preventDefault(); 
+                    </span><span class="s2">if </span><span class="s1">( oSettings.oApi._fnPageChange(oSettings, e.data.action) ) { 
+                        fnDraw( oSettings ); 
+                    } 
+                }; 
+ 
+                $(nPaging).addClass(</span><span class="s0">'pagination'</span><span class="s1">).append( 
+                    </span><span class="s0">'&lt;ul&gt;'</span><span class="s1">+ 
+                        </span><span class="s0">'&lt;li class=&quot;prev disabled&quot;&gt;&lt;a href=&quot;#&quot;&gt;&amp;larr; '</span><span class="s1">+oLang.sPrevious+</span><span class="s0">'&lt;/a&gt;&lt;/li&gt;'</span><span class="s1">+ 
+                        </span><span class="s0">'&lt;li class=&quot;next disabled&quot;&gt;&lt;a href=&quot;#&quot;&gt;'</span><span class="s1">+oLang.sNext+</span><span class="s0">' &amp;rarr; &lt;/a&gt;&lt;/li&gt;'</span><span class="s1">+ 
+                        </span><span class="s0">'&lt;/ul&gt;'</span><span class="s1"> 
+                ); 
+                </span><span class="s2">var </span><span class="s1">els = $(</span><span class="s0">'a'</span><span class="s1">, nPaging); 
+                $(els[</span><span class="s4">0</span><span class="s1">]).bind( </span><span class="s0">'click.DT'</span><span class="s1">, { action: </span><span class="s0">'previous' </span><span class="s1">}, fnClickHandler ); 
+                $(els[</span><span class="s4">1</span><span class="s1">]).bind( </span><span class="s0">'click.DT'</span><span class="s1">, { action: </span><span class="s0">'next' </span><span class="s1">}, fnClickHandler ); 
+            }, 
+ 
+            </span><span class="s0">'fnUpdate'</span><span class="s1">: </span><span class="s2">function </span><span class="s1">( oSettings, fnDraw ) { 
+                </span><span class="s2">var </span><span class="s1">iListLength = </span><span class="s4">5</span><span class="s1">; 
+                </span><span class="s2">var </span><span class="s1">oPaging = oSettings.oInstance.fnPagingInfo(); 
+                </span><span class="s2">var </span><span class="s1">an = oSettings.aanFeatures.p; 
+                </span><span class="s2">var </span><span class="s1">i, ien, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/</span><span class="s4">2</span><span class="s1">); 
+ 
+                </span><span class="s2">if </span><span class="s1">( oPaging.iTotalPages &lt; iListLength) { 
+                    iStart = </span><span class="s4">1</span><span class="s1">; 
+                    iEnd = oPaging.iTotalPages; 
+                } 
+                </span><span class="s2">else if </span><span class="s1">( oPaging.iPage &lt;= iHalf ) { 
+                    iStart = </span><span class="s4">1</span><span class="s1">; 
+                    iEnd = iListLength; 
+                } </span><span class="s2">else if </span><span class="s1">( oPaging.iPage &gt;= (oPaging.iTotalPages-iHalf) ) { 
+                    iStart = oPaging.iTotalPages - iListLength + </span><span class="s4">1</span><span class="s1">; 
+                    iEnd = oPaging.iTotalPages; 
+                } </span><span class="s2">else </span><span class="s1">{ 
+                    iStart = oPaging.iPage - iHalf + </span><span class="s4">1</span><span class="s1">; 
+                    iEnd = iStart + iListLength - </span><span class="s4">1</span><span class="s1">; 
+                } 
+ 
+                </span><span class="s2">var </span><span class="s1">handling = </span><span class="s2">function</span><span class="s1">(){ 
+                    sClass = (j===oPaging.iPage+</span><span class="s4">1</span><span class="s1">) ? </span><span class="s0">'class=&quot;active&quot;' </span><span class="s1">: </span><span class="s0">''</span><span class="s1">; 
+                    $(</span><span class="s0">'&lt;li '</span><span class="s1">+sClass+</span><span class="s0">'&gt;&lt;a href=&quot;#&quot;&gt;'</span><span class="s1">+j+</span><span class="s0">'&lt;/a&gt;&lt;/li&gt;'</span><span class="s1">) 
+                        .insertBefore( $(</span><span class="s0">'li:last'</span><span class="s1">, an[i])[</span><span class="s4">0</span><span class="s1">] ) 
+                        .bind(</span><span class="s0">'click'</span><span class="s1">, </span><span class="s2">function </span><span class="s1">(e) { 
+                            e.preventDefault(); 
+                            oSettings._iDisplayStart = (parseInt($(</span><span class="s0">'a'</span><span class="s1">, </span><span class="s2">this</span><span class="s1">).text(),</span><span class="s4">10</span><span class="s1">)-</span><span class="s4">1</span><span class="s1">) * oPaging.iLength; 
+                            fnDraw( oSettings ); 
+                        } ); 
+                }; 
+                </span><span class="s2">for </span><span class="s1">( i=</span><span class="s4">0</span><span class="s1">, ien=an.length ; i&lt;ien ; i++ ) { 
+                    </span><span class="s3">// Remove the middle elements</span><span class="s1"> 
+                    $(</span><span class="s0">'li:gt(0)'</span><span class="s1">, an[i]).filter(</span><span class="s0">':not(:last)'</span><span class="s1">).remove(); 
+ 
+                    </span><span class="s3">// Add the new list items and their event handlers</span><span class="s1"> 
+                    </span><span class="s2">for </span><span class="s1">( j=iStart ; j&lt;=iEnd ; j++ ) { 
+                        handling(); 
+                    } 
+ 
+                    </span><span class="s3">// Add / remove disabled classes from the static elements</span><span class="s1"> 
+                    </span><span class="s2">if </span><span class="s1">( oPaging.iPage === </span><span class="s4">0 </span><span class="s1">) { 
+                        $(</span><span class="s0">'li:first'</span><span class="s1">, an[i]).addClass(</span><span class="s0">'disabled'</span><span class="s1">); 
+                    } </span><span class="s2">else </span><span class="s1">{ 
+                        $(</span><span class="s0">'li:first'</span><span class="s1">, an[i]).removeClass(</span><span class="s0">'disabled'</span><span class="s1">); 
+                    } 
+ 
+                    </span><span class="s2">if </span><span class="s1">( oPaging.iPage === oPaging.iTotalPages-</span><span class="s4">1 </span><span class="s1">|| oPaging.iTotalPages === </span><span class="s4">0 </span><span class="s1">) { 
+                        $(</span><span class="s0">'li:last'</span><span class="s1">, an[i]).addClass(</span><span class="s0">'disabled'</span><span class="s1">); 
+                    } </span><span class="s2">else </span><span class="s1">{ 
+                        $(</span><span class="s0">'li:last'</span><span class="s1">, an[i]).removeClass(</span><span class="s0">'disabled'</span><span class="s1">); 
+                    } 
+                } 
+            } 
+        } 
+    } ); 
+ 
+ 
+    </span><span class="s3">/* 
+     * TableTools Bootstrap compatibility 
+     * Required TableTools 2.1+ 
+     */</span><span class="s1"> 
+    </span><span class="s2">if</span><span class="s1">($.fn.DataTable){ 
+        </span><span class="s2">if </span><span class="s1">( $.fn.DataTable.TableTools ) { 
+            </span><span class="s3">// Set the classes that TableTools uses to something suitable for Bootstrap</span><span class="s1"> 
+            $.extend( </span><span class="s2">true</span><span class="s1">, $.fn.DataTable.TableTools.classes, { 
+                </span><span class="s0">'container'</span><span class="s1">: </span><span class="s0">'DTTT btn-group'</span><span class="s1">, 
+                </span><span class="s0">'buttons'</span><span class="s1">: { 
+                    </span><span class="s0">'normal'</span><span class="s1">: </span><span class="s0">'btn'</span><span class="s1">, 
+                    </span><span class="s0">'disabled'</span><span class="s1">: </span><span class="s0">'disabled'</span><span class="s1"> 
+                }, 
+                </span><span class="s0">'collection'</span><span class="s1">: { 
+                    </span><span class="s0">'container'</span><span class="s1">: </span><span class="s0">'DTTT_dropdown dropdown-menu'</span><span class="s1">, 
+                    </span><span class="s0">'buttons'</span><span class="s1">: { 
+                        </span><span class="s0">'normal'</span><span class="s1">: </span><span class="s0">''</span><span class="s1">, 
+                        </span><span class="s0">'disabled'</span><span class="s1">: </span><span class="s0">'disabled'</span><span class="s1"> 
+                    } 
+                }, 
+                </span><span class="s0">'print'</span><span class="s1">: { 
+                    </span><span class="s0">'info'</span><span class="s1">: </span><span class="s0">'DTTT_print_info modal'</span><span class="s1"> 
+                }, 
+                </span><span class="s0">'select'</span><span class="s1">: { 
+                    </span><span class="s0">'row'</span><span class="s1">: </span><span class="s0">'active'</span><span class="s1"> 
+                } 
+            } ); 
+ 
+            </span><span class="s3">// Have the collection use a bootstrap compatible dropdown</span><span class="s1"> 
+            $.extend( </span><span class="s2">true</span><span class="s1">, $.fn.DataTable.TableTools.DEFAULTS.oTags, { 
+                </span><span class="s0">'collection'</span><span class="s1">: { 
+                    </span><span class="s0">'container'</span><span class="s1">: </span><span class="s0">'ul'</span><span class="s1">, 
+                    </span><span class="s0">'button'</span><span class="s1">: </span><span class="s0">'li'</span><span class="s1">, 
+                    </span><span class="s0">'liner'</span><span class="s1">: </span><span class="s0">'a'</span><span class="s1"> 
+                } 
+            } ); 
+        } 
+    } 
+ 
+ 
+    </span><span class="s3">/* Table initialisation */</span><span class="s1"> 
+    </span><span class="s3">/*$(document).ready(function() { 
+        $('#spineFMInstances').dataTable( { 
+            'sDom': '&lt;\'row\'&lt;\'span6\'l&gt;&lt;\'span6\'f&gt;r&gt;t&lt;\'row\'&lt;\'span6\'i&gt;&lt;\'span6\'p&gt;&gt;', 
+            'sPaginationType': 'bootstrap', 
+            'oLanguage': { 
+                'sLengthMenu': '_MENU_ records per page' 
+            } 
+        } ); 
+    });*/</span><span class="s1"> 
+})(jQuery);</span></pre>
+</body>
+</html>

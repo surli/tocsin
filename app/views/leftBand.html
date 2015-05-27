@@ -1,0 +1,18 @@
+<!-- Left band -->
+<div id="leftzone" class="span3">  <!-- class="span3" style="position: fixed; right:0"-->
+    <div class="sidebar-nav well">
+        <span ng-switch=" isGenerateAllowed">
+        <button ng-switch-when="false" class="btn btn-success" tooltip=" Generate screen" tooltip-placement="bottom" ng-disabled="isGenerateAllowed">  <i class="icon-download icon-white"></i>Générer</button>
+        <button ng-switch-when="true" class="btn" ng-disabled="isGenerateAllowed">  <i class="icon-download"></i> Generate </button>
+        </span>
+        </br>
+        <ul class="nav nav-list" ng-repeat="de in domainElements">
+            <li class="nav-header"> <a href="#/bilan/{{de}}/">{{de}} <span class="label label-inverse" ng-show="hasConfigToCreate(de)"> to create </span></a></li>
+            <li ng-show="configurations[de].partialConfig.number"><span class="badge badge-important" >Partial configurations: {{configurations[de].partialConfig.number}}</span></li>
+            <li ng-show="validConfigs[de].notLinked"><span class="badge badge-warning" >Unlinked configurations: {{validConfigs[de].notLinked}}</span></li>
+            <li ng-show="validConfigs[de].linked"><span class="badge badge-success">Valid configurations: {{validConfigs[de].linked}}</span></li>
+
+            <li>&nbsp;</li>
+        </ul>
+    </div>
+</div>
